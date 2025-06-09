@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu da Wiki</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Estilos específicos para o menu dentro do iframe, se necessário */
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+        }
+        nav {
+            background-color: #333;
+            padding: 10px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .user-info {
+            float: right;
+            color: white;
+            padding-right: 15px;
+        }
+        .user-info button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .user-info button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" target="_top">Página Principal</a>
+        <a href="recent_changes.html" target="_top">Mudanças Recentes</a>
+        <a href="random_page.html" target="_top">Página Aleatória</a>
+        <div class="user-info">
+            <span id="userName">Visitante</span>
+            <button id="googleSignInBtn">Login com Google</button>
+            <button id="googleSignOutBtn" style="display:none;">Sair</button>
+        </div>
+    </nav>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
