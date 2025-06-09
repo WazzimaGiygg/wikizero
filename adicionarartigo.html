@@ -1,482 +1,331 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criar Novo Artigo - WikiZero</title>
+    <title>Adicionar/Editar Artigo - WZZM Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Roboto', 'Helvetica', Arial, sans-serif;
+            background-color: #f5f5f5;
             margin: 0;
             padding: 20px;
-            background-color: #f8f9fa;
-            color: #202122;
         }
         .container {
             max-width: 900px;
             margin: 20px auto;
             background-color: #fff;
             padding: 30px;
-            border: 1px solid #a2a9b1;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
         }
         h1 {
-            color: #000;
+            color: #3f51b5;
+            margin-bottom: 25px;
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #a2a9b1;
-            padding-bottom: 10px;
         }
-        .form-group {
-            margin-bottom: 20px;
+        .mdl-textfield {
+            width: 100%;
+            margin-bottom: 20px; /* Adiciona espaço entre os campos */
         }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
+        .mdl-textfield__input {
+            width: 100%;
+            box-sizing: border-box; /* Garante que padding e border não aumentem a largura */
         }
-        .form-group input[type="text"],
-        .form-group input[type="url"],
-        .form-group textarea,
-        .form-group select {
-            width: calc(100% - 22px); /* Ajusta para padding e border */
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1em;
-            box-sizing: border-box; /* Inclui padding e border na largura total */
+        textarea.mdl-textfield__input {
+            height: 120px; /* Altura padrão para textareas */
+            min-height: 80px; /* Altura mínima para textareas */
+            resize: vertical; /* Permite redimensionamento vertical */
         }
-        .form-group textarea {
-            resize: vertical; /* Permite redimensionar verticalmente */
-            min-height: 80px;
+        .mdl-button {
+            margin-right: 10px;
         }
-        .form-section {
-            border: 1px solid #a2a9b1;
-            padding: 20px;
-            margin-bottom: 30px;
-            border-radius: 5px;
-            background-color: #f0f3f6;
-        }
-        .form-section h2 {
-            margin-top: 0;
-            color: #000;
-            font-size: 1.4em;
-            margin-bottom: 15px;
-        }
-        .add-item-button {
-            background-color: #0645ad;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-            margin-top: 10px;
-            display: inline-block;
-        }
-        .add-item-button:hover {
-            background-color: #032b6e;
-        }
-        .remove-item-button {
-            background-color: #d33;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8em;
-            margin-left: 10px;
-        }
-        .remove-item-button:hover {
-            background-color: #a00;
-        }
-        .button-group {
-            text-align: center;
+        .actions {
+            text-align: right;
             margin-top: 30px;
         }
-        .button-group button {
-            background-color: #36c;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1em;
-            margin: 0 10px;
-        }
-        .button-group button:hover {
-            background-color: #2a5585;
-        }
-        .button-group button.cancel {
-            background-color: #6c757d;
-        }
-        .button-group button.cancel:hover {
-            background-color: #5a6268;
-        }
-
-        /* Estilo para campos de conteúdo dinâmicos */
-        .content-item {
-            border: 1px solid #ddd;
+        .error-message {
+            text-align: center;
             padding: 15px;
-            margin-bottom: 15px;
-            background-color: #ffffff;
-            border-radius: 4px;
-        }
-        .content-item h3 {
-            margin-top: 0;
-            color: #000;
-            font-size: 1.2em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .content-item select, .content-item textarea, .content-item input {
-            margin-top: 5px;
-            margin-bottom: 10px;
+            color: #d32f2f;
+            background-color: #ffebee;
+            border: 1px solid #d32f2f;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
         }
     </style>
 </head>
 <body>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
+    <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 
     <div class="container">
-        <h1>Criar Novo Artigo WikiZero</h1>
+        <h1 id="form-title">Adicionar Novo Artigo</h1>
 
-        <form id="articleForm">
-            <div class="form-section">
-                <h2>Informações Básicas do Artigo</h2>
-                <div class="form-group">
-                    <label for="titulo">Nome do Artigo:</label>
-                    <input type="text" id="titulo" name="titulo" required>
-                </div>
-                <div class="form-group">
-                    <label for="primeiraDescricao">Primeira Descrição:</label>
-                    <textarea id="primeiraDescricao" name="primeiraDescricao" rows="3" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="linkLogo">Link do Logo (URL):</label>
-                    <input type="url" id="linkLogo" name="linkLogo">
-                    <small>Este será o logo principal do artigo. Utilize um link direto para a imagem.</small>
-                </div>
+        <div id="error-display" class="error-message"></div>
+
+        <form id="article-form">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="article-title" required>
+                <label class="mdl-textfield__label" for="article-title">Título do Artigo *</label>
             </div>
 
-            <div class="form-section">
-                <h2>Caixa de Informações (Infobox)</h2>
-                <div class="form-group">
-                    <label for="infoboxTipoArtigo">Tipo de Artigo:</label>
-                    <input type="text" id="infoboxTipoArtigo" name="infoboxTipoArtigo" placeholder="Ex: Histórico, Científico, Biográfico">
-                </div>
-                <div class="form-group">
-                    <label for="infoboxLinkImagemExterna">Link da Imagem Externa (para Infobox):</label>
-                    <input type="url" id="infoboxLinkImagemExterna" name="infoboxLinkImagemExterna" placeholder="URL da imagem para a infobox">
-                </div>
-                <div class="form-group">
-                    <label for="infoboxCriadorConteudo">Criador do Conteúdo:</label>
-                    <input type="text" id="infoboxCriadorConteudo" name="infoboxCriadorConteudo" placeholder="Nome da equipe ou pessoa que criou o conteúdo">
-                </div>
-                <div class="form-group">
-                    <label for="infoboxCriadorArtigo">Criador do Artigo (Inicial):</label>
-                    <input type="text" id="infoboxCriadorArtigo" name="infoboxCriadorArtigo" placeholder="Nome do autor original do artigo">
-                    <small>Seu nome de usuário (ou UID) será registrado automaticamente ao salvar.</small>
-                </div>
-                <div class="form-group">
-                    <label for="infoboxTipoArtigoExterno">Tipo de Artigo (Externo):</label>
-                    <input type="text" id="infoboxTipoArtigoExterno" name="infoboxTipoArtigoExterno" placeholder="Ex: Enciclopédico, Noticioso">
-                </div>
-                <div class="form-group">
-                    <label for="infoboxTipoTema">Tipo de Tema:</label>
-                    <input type="text" id="infoboxTipoTema" name="infoboxTipoTema" placeholder="Ex: História Moderna, Física Quântica">
-                </div>
-                <div class="form-group">
-                    <label for="infoboxDataCriacao">Data da Criação (Infobox):</label>
-                    <input type="date" id="infoboxDataCriacao" name="infoboxDataCriacao">
-                    <small>Se não preenchido, será a data atual.</small>
-                </div>
-                <div class="form-group">
-                    <label for="infoboxResponsavel">Responsável pela Manutenção:</label>
-                    <input type="text" id="infoboxResponsavel" name="infoboxResponsavel" placeholder="Nome do responsável pela manutenção do artigo">
-                </div>
-                <div class="form-group">
-                    <label for="infoboxMatrizSubArtigo">Matriz do Sub-artigo:</label>
-                    <input type="text" id="infoboxMatrizSubArtigo" name="infoboxMatrizSubArtigo" placeholder="Ex: Grandes Invenções, Teorias da Computação">
-                    <small>Tópico mais específico ao qual este artigo pode ser vinculado.</small>
-                </div>
-                <div class="form-group">
-                    <label for="infoboxMatrizArtigo">Matriz do Artigo:</label>
-                    <input type="text" id="infoboxMatrizArtigo" name="infoboxMatrizArtigo" placeholder="Ex: História Mundial, Ciência e Tecnologia">
-                    <small>Tópico mais abrangente ao qual este artigo pertence.</small>
-                </div>
-                <div class="form-group">
-                    <label for="infoboxCargoChefeArtigo">Cargo Chefe do Artigo:</label>
-                    <input type="text" id="infoboxCargoChefeArtigo" name="infoboxCargoChefeArtigo" placeholder="Ex: Curador Principal de História">
-                </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="article-description">
+                <label class="mdl-textfield__label" for="article-description">Descrição Curta</label>
             </div>
 
-            <div class="form-section">
-                <h2>Conteúdo do Artigo</h2>
-                <div id="contentSections">
-                    </div>
-                <button type="button" class="add-item-button" onclick="addContentSection()">Adicionar Seção de Conteúdo</button>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <textarea class="mdl-textfield__input" type="text" rows="3" id="article-summary"></textarea>
+                <label class="mdl-textfield__label" for="article-summary">Resumo (Max 250 palavras)</label>
             </div>
 
-            <div class="form-section">
-                <h2>Fontes e Links Externos</h2>
-                <div id="sourcesContainer">
-                    </div>
-                <button type="button" class="add-item-button" onclick="addSource()">Adicionar Fonte</button>
-
-                <div class="form-group" style="margin-top: 20px;">
-                    <label for="linkExternoGeral">Link Externo Geral do Artigo:</label>
-                    <input type="url" id="linkExternoGeral" name="linkExternoGeral" placeholder="Ex: Site oficial, portal de referência">
-                </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <textarea class="mdl-textfield__input" type="text" rows="5" id="article-abstract"></textarea>
+                <label class="mdl-textfield__label" for="article-abstract">Abstract</label>
             </div>
 
-            <div class="button-group">
-                <button type="submit">Criar Artigo</button>
-                <button type="button" class="cancel" onclick="window.history.back()">Cancelar</button>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <textarea class="mdl-textfield__input" type="text" rows="5" id="article-introduction"></textarea>
+                <label class="mdl-textfield__label" for="article-introduction">Introdução</label>
+            </div>
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <textarea class="mdl-textfield__input" type="text" rows="5" id="article-methodology"></textarea>
+                <label class="mdl-textfield__label" for="article-methodology">Metodologia</label>
+            </div>
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <textarea class="mdl-textfield__input" type="text" rows="5" id="article-discussion"></textarea>
+                <label class="mdl-textfield__label" for="article-discussion">Discussão</label>
+            </div>
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <textarea class="mdl-textfield__input" type="text" rows="5" id="article-conclusion"></textarea>
+                <label class="mdl-textfield__label" for="article-conclusion">Conclusão</label>
+            </div>
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="article-sources">
+                <label class="mdl-textfield__label" for="article-sources">Fontes (separadas por vírgula)</label>
+                <span class="mdl-textfield__help">Ex: Livro X, Site Y, Artigo Z</span>
+            </div>
+
+            <div class="actions">
+                <button type="submit" id="save-article-btn"
+                        class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                    Salvar Artigo
+                </button>
+                <button type="button" id="cancel-btn"
+                        class="mdl-button mdl-js-button mdl-button--raised">
+                    Cancelar
+                </button>
             </div>
         </form>
     </div>
 
     <script>
-        let contentSectionCounter = 0; // Iniciar do 0 para que a primeira adição seja 1
-        let sourceCounter = 0; // Iniciar do 0 para que a primeira adição seja 1
+        // --- Configuração do Firebase com suas chaves e dados ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
+            authDomain: "wzzm-ce3fc.firebaseapp.com",
+            projectId: "wzzm-ce3fc",
+            storageBucket: "wzzm-ce3fc.appspot.com",
+            messagingSenderId: "249427877153",
+            appId: "1:249427877153:web:0e4297294794a5aadeb260",
+            measurementId: "G-PLKNZNFCQ8"
+        };
 
-        // Adiciona uma nova seção de conteúdo (história, título personalizado, etc.)
-        function addContentSection() {
-            contentSectionCounter++;
-            const container = document.getElementById('contentSections');
-            const newSection = document.createElement('div');
-            newSection.classList.add('content-item');
-            newSection.innerHTML = `
-                <h3>
-                    Seção ${contentSectionCounter}
-                    <button type="button" class="remove-item-button" onclick="removeItem(this)">Remover</button>
-                </h3>
-                <div class="form-group">
-                    <label for="contentType_${contentSectionCounter}">Tipo de Conteúdo:</label>
-                    <select id="contentType_${contentSectionCounter}" name="contentType[]" onchange="toggleContentFields(this, ${contentSectionCounter})">
-                        <option value="paragrafo">Parágrafo</option>
-                        <option value="tituloPersonalizado">Título Personalizado</option>
-                        <option value="tituloPersonalizado2">Título Personalizado 2</option>
-                        <option value="lista">Lista</option>
-                        <option value="imagem">Imagem</option>
-                        <option value="secao">Seção (Título H2)</option>
-                    </select>
-                </div>
-                <div class="form-group content-field content-field-paragrafo" id="contentTextField_${contentSectionCounter}">
-                    <label for="contentText_${contentSectionCounter}">Conteúdo do Parágrafo:</label>
-                    <textarea id="contentText_${contentSectionCounter}" name="contentText[]" rows="5"></textarea>
-                </div>
-                <div class="form-group content-field content-field-tituloPersonalizado content-field-tituloPersonalizado2 content-field-secao" style="display:none;" id="contentTitleField_${contentSectionCounter}">
-                    <label for="contentTitle_${contentSectionCounter}">Título da Seção/Personalizado:</label>
-                    <input type="text" id="contentTitle_${contentSectionCounter}" name="contentTitle[]">
-                </div>
-                 <div class="form-group content-field content-field-lista" style="display:none;" id="contentListField_${contentSectionCounter}">
-                    <label for="contentList_${contentSectionCounter}">Itens da Lista (um por linha):</label>
-                    <textarea id="contentList_${contentSectionCounter}" name="contentList[]" rows="5"></textarea>
-                </div>
-                <div class="form-group content-field content-field-imagem" style="display:none;" id="contentImageField_${contentSectionCounter}">
-                    <label for="contentImageUrl_${contentSectionCounter}">URL da Imagem:</label>
-                    <input type="url" id="contentImageUrl_${contentSectionCounter}" name="contentImageUrl[]">
-                    <label for="contentImageAlt_${contentSectionCounter}">Texto Alternativo da Imagem:</label>
-                    <input type="text" id="contentImageAlt_${contentSectionCounter}" name="contentImageAlt[]">
-                    <label for="contentImageCaption_${contentSectionCounter}">Legenda da Imagem:</label>
-                    <textarea id="contentImageCaption_${contentSectionCounter}" name="contentImageCaption[]" rows="2"></textarea>
-                </div>
-            `;
-            container.appendChild(newSection);
-            // Chama toggleContentFields para o tipo padrão (parágrafo) da nova seção
-            // Passamos o próprio elemento select recém-criado para a função
-            toggleContentFields(newSection.querySelector(`#contentType_${contentSectionCounter}`), contentSectionCounter);
+        let app;
+        try {
+            app = firebase.app();
+        } catch (e) {
+            app = firebase.initializeApp(firebaseConfig);
+        }
+        const firestore = firebase.firestore();
+        const auth = firebase.auth(); // Inicializa o Auth
+
+        let currentUser = null; // Para armazenar o usuário logado
+        let currentArticleId = null; // Para armazenar o ID do artigo em edição
+
+        const formTitle = document.getElementById('form-title');
+        const articleForm = document.getElementById('article-form');
+        const errorDisplay = document.getElementById('error-display');
+        const saveArticleBtn = document.getElementById('save-article-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+
+        const articleTitleInput = document.getElementById('article-title');
+        const articleDescriptionInput = document.getElementById('article-description');
+        const articleSummaryInput = document.getElementById('article-summary');
+        const articleAbstractInput = document.getElementById('article-abstract');
+        const articleIntroductionInput = document.getElementById('article-introduction');
+        const articleMethodologyInput = document.getElementById('article-methodology');
+        const articleDiscussionInput = document.getElementById('article-discussion');
+        const articleConclusionInput = document.getElementById('article-conclusion');
+        const articleSourcesInput = document.getElementById('article-sources');
+
+        function displayError(message) {
+            errorDisplay.textContent = `Erro: ${message}`;
+            errorDisplay.style.display = 'block';
         }
 
-        // Alterna a visibilidade dos campos de conteúdo com base no tipo selecionado
-        function toggleContentFields(selectElement, counter) {
-            const selectedType = selectElement.value;
-            const parentContentItem = selectElement.closest('.content-item'); // Obtém o pai correto
-            
-            // Seleciona todos os campos de conteúdo DENTRO deste item
-            const allContentFields = parentContentItem.querySelectorAll('.content-field'); 
-            allContentFields.forEach(field => {
-                field.style.display = 'none'; // Esconde todos
-            });
-
-            // Mostra os campos relevantes para o tipo selecionado
-            if (selectedType === 'paragrafo') {
-                const textField = parentContentItem.querySelector(`#contentTextField_${counter}`);
-                if (textField) textField.style.display = 'block';
-            } else if (selectedType === 'tituloPersonalizado' || selectedType === 'tituloPersonalizado2' || selectedType === 'secao') {
-                const titleField = parentContentItem.querySelector(`#contentTitleField_${counter}`);
-                if (titleField) titleField.style.display = 'block';
-                const textField = parentContentItem.querySelector(`#contentTextField_${counter}`); // Títulos personalizados podem ter texto associado
-                if (textField) textField.style.display = 'block';
-            } else if (selectedType === 'lista') {
-                const listField = parentContentItem.querySelector(`#contentListField_${counter}`);
-                if (listField) listField.style.display = 'block';
-            } else if (selectedType === 'imagem') {
-                const imageField = parentContentItem.querySelector(`#contentImageField_${counter}`);
-                if (imageField) imageField.style.display = 'block';
-            }
-        }
-
-        // Adiciona um novo campo de fonte
-        function addSource() {
-            sourceCounter++;
-            const container = document.getElementById('sourcesContainer');
-            const newSource = document.createElement('div');
-            newSource.classList.add('content-item');
-            newSource.innerHTML = `
-                <h3>
-                    Fonte ${sourceCounter}
-                    <button type="button" class="remove-item-button" onclick="removeItem(this)">Remover</button>
-                </h3>
-                <div class="form-group">
-                    <label for="sourceTitle_${sourceCounter}">Título da Fonte:</label>
-                    <input type="text" id="sourceTitle_${sourceCounter}" name="sourceTitle[]" required>
-                </div>
-                <div class="form-group">
-                    <label for="sourceUrl_${sourceCounter}">URL da Fonte:</label>
-                    <input type="url" id="sourceUrl_${sourceCounter}" name="sourceUrl[]" required>
-                </div>
-            `;
-            container.appendChild(newSource);
-        }
-
-        // Remove um item dinamicamente adicionado (seção de conteúdo ou fonte)
-        function removeItem(button) {
-            button.closest('.content-item').remove();
-        }
-
-        // Lidar com o envio do formulário
-        document.getElementById('articleForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Impede o envio padrão do formulário
-
-            const formData = {
-                titulo: document.getElementById('titulo').value,
-                primeiraDescricao: document.getElementById('primeiraDescricao').value,
-                linkLogo: document.getElementById('linkLogo').value,
-                infobox: {
-                    tipoArtigo: document.getElementById('infoboxTipoArtigo').value,
-                    linkImagemExterna: document.getElementById('infoboxLinkImagemExterna').value,
-                    criadorConteudo: document.getElementById('infoboxCriadorConteudo').value,
-                    criadorArtigo: { /* Preencher com UID e Nome do usuário logado */ }, // Este campo será preenchido via JS/backend
-                    tipoArtigoExterno: document.getElementById('infoboxTipoArtigoExterno').value,
-                    tipoTema: document.getElementById('infoboxTipoTema').value,
-                    dataCriacao: document.getElementById('infoboxDataCriacao').value || new Date().toISOString(), // Usa a data do campo ou a atual
-                    responsavel: { /* Preencher com UID e Nome do usuário logado */ }, // Este campo será preenchido via JS/backend
-                    matrizSubArtigo: document.getElementById('infoboxMatrizSubArtigo').value,
-                    matrizArtigo: document.getElementById('infoboxMatrizArtigo').value,
-                    cargoChefeArtigo: document.getElementById('infoboxCargoChefeArtigo').value
-                },
-                conteudo: [],
-                fontes: [],
-                linkExternoGeral: document.getElementById('linkExternoGeral').value
-            };
-
-            // Processar seções de conteúdo dinâmicas
-            document.querySelectorAll('#contentSections .content-item').forEach((item) => {
-                const contentTypeSelect = item.querySelector('select[name="contentType[]"]');
-                const contentType = contentTypeSelect ? contentTypeSelect.value : '';
-                
-                const contentObj = { tipo: contentType };
-
-                if (contentType === 'paragrafo') {
-                    const textarea = item.querySelector('textarea[name="contentText[]"]');
-                    contentObj.texto = textarea ? textarea.value : '';
-                } else if (contentType === 'tituloPersonalizado' || contentType === 'tituloPersonalizado2' || contentType === 'secao') {
-                    const titleInput = item.querySelector('input[name="contentTitle[]"]');
-                    contentObj.titulo = titleInput ? titleInput.value : '';
-
-                    const textarea = item.querySelector('textarea[name="contentText[]"]');
-                    contentObj.texto = textarea ? textarea.value : '';
-
-                    // Gerar idSecao a partir do título para âncoras (normalizar para slug)
-                    contentObj.idSecao = contentObj.titulo.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
-                } else if (contentType === 'lista') {
-                    const textarea = item.querySelector('textarea[name="contentList[]"]');
-                    contentObj.itens = textarea ? textarea.value.split('\n').filter(line => line.trim() !== '') : [];
-                } else if (contentType === 'imagem') {
-                    const urlInput = item.querySelector('input[name="contentImageUrl[]"]');
-                    const altInput = item.querySelector('input[name="contentImageAlt[]"]');
-                    const captionTextarea = item.querySelector('textarea[name="contentImageCaption[]"]');
-                    
-                    contentObj.url = urlInput ? urlInput.value : '';
-                    contentObj.alt = altInput ? altInput.value : '';
-                    contentObj.legenda = captionTextarea ? captionTextarea.value : '';
-                }
-                formData.conteudo.push(contentObj);
-            });
-
-            // Processar fontes dinâmicas
-            document.querySelectorAll('#sourcesContainer .content-item').forEach((item) => {
-                const sourceTitleInput = item.querySelector('input[name="sourceTitle[]"]');
-                const sourceUrlInput = item.querySelector('input[name="sourceUrl[]"]');
-
-                const source = {
-                    titulo: sourceTitleInput ? sourceTitleInput.value : '',
-                    url: sourceUrlInput ? sourceUrlInput.value : ''
-                };
-                formData.fontes.push(source);
-            });
-
-            // TODO: Aqui você enviaria os dados para o Firebase
-            // Exemplo (apenas para visualização no console):
-            console.log("Dados do Artigo para Firebase:", formData);
-
-            // Em um aplicativo real, você usaria o SDK do Firebase aqui:
-            /*
-            import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
-            import { getAuth } from "firebase/auth";
-
-            const db = getFirestore();
-            const auth = getAuth();
-            const user = auth.currentUser; // Obtenha o usuário logado
-
+        // Listener para o estado de autenticação
+        auth.onAuthStateChanged(user => {
             if (user) {
-                // Preenche os campos de autor e responsável com os dados do usuário logado
-                formData.infobox.criadorArtigo = {
-                    uid: user.uid,
-                    nomeUsuario: user.displayName || user.email // Ou um campo de perfil do usuário
-                };
-                formData.infobox.responsavel = {
-                    uid: user.uid,
-                    nomeUsuario: user.displayName || user.email
-                };
-
-                // Adiciona timestamps automáticos do servidor
-                formData.dataCriacao = serverTimestamp();
-                formData.dataUltimaEdicao = serverTimestamp();
-                formData.autorUltimaEdicao = {
-                    uid: user.uid,
-                    nomeUsuario: user.displayName || user.email
-                };
-                formData.status = "rascunho"; // Ou "publicado" dependendo da sua lógica
-
-                addDoc(collection(db, "artigos"), formData)
-                    .then((docRef) => {
-                        console.log("Artigo adicionado com ID: ", docRef.id);
-                        alert("Artigo criado com sucesso! ID: " + docRef.id);
-                        // Redirecionar para a página do artigo recém-criado
-                        window.location.href = `visualizar-artigo.html?id=${docRef.id}`;
-                    })
-                    .catch((error) => {
-                        console.error("Erro ao adicionar artigo: ", error);
-                        alert("Erro ao criar artigo: " + error.message);
-                    });
+                currentUser = user;
+                console.log("Usuário logado:", currentUser.uid);
+                // Verifica se há um ID de artigo na URL para modo de edição
+                const urlParams = new URLSearchParams(window.location.search);
+                const id = urlParams.get('id');
+                if (id) {
+                    currentArticleId = id;
+                    formTitle.textContent = 'Editar Artigo';
+                    loadArticleData(id); // Carrega os dados do artigo para edição
+                }
             } else {
-                alert("Você precisa estar logado para criar um artigo.");
-                // Redirecionar para página de login
+                currentUser = null;
+                console.warn("Nenhum usuário logado. Redirecionando para login.");
+                alert("Você precisa estar logado para adicionar ou editar artigos.");
+                // Tenta redirecionar para a página de login
+                if (window.parent !== window && window.parent.postMessage) {
+                    // Assumindo que a página de login está em './login.html' ou similar no contexto do iframe
+                    window.parent.postMessage({ type: 'navigateIframe', url: './login.html' }, window.location.origin);
+                } else {
+                    // Fallback para ambiente de desenvolvimento fora do iframe
+                    window.location.href = './login.html';
+                }
             }
-            */
-            alert("Verifique o console para ver os dados que seriam enviados ao Firebase!");
         });
 
-        // Chamadas iniciais para adicionar a primeira seção de conteúdo e fonte ao carregar a página
-        // Isso garante que sempre haja pelo menos um campo para começar a preencher
-        addContentSection();
-        addSource();
+        // Carrega dados do artigo para edição
+        async function loadArticleData(articleId) {
+            try {
+                // Coleção principal para artigos
+                const docRef = firestore.collection('articlesdoc').doc(articleId);
+                const doc = await docRef.get();
+
+                if (doc.exists) {
+                    const data = doc.data();
+                    articleTitleInput.value = data.title || '';
+                    articleDescriptionInput.value = data.description || '';
+                    articleSummaryInput.value = data.summary || '';
+                    articleAbstractInput.value = data.abstract || '';
+                    articleIntroductionInput.value = data.introduction || '';
+                    articleMethodologyInput.value = data.methodology || '';
+                    articleDiscussionInput.value = data.discussion || '';
+                    articleConclusionInput.value = data.conclusion || '';
+                    articleSourcesInput.value = (data.sources && Array.isArray(data.sources)) ? data.sources.join(', ') : '';
+
+                    // Atualiza o MDL para os campos pré-preenchidos
+                    if (window.componentHandler) {
+                        articleForm.querySelectorAll('.mdl-textfield').forEach(textfield => {
+                             if (textfield.MaterialTextfield) {
+                                textfield.MaterialTextfield.checkDirty();
+                                textfield.MaterialTextfield.checkValidity();
+                             }
+                        });
+                    }
+                } else {
+                    displayError("Artigo não encontrado.");
+                    console.error("Artigo com ID", articleId, "não encontrado na coleção 'articlesdoc'.");
+                }
+            } catch (error) {
+                displayError("Erro ao carregar dados do artigo: " + error.message);
+                console.error("Erro ao carregar dados do artigo da coleção 'articlesdoc':", error);
+            }
+        }
+
+        // Função para salvar (adicionar ou atualizar) o artigo
+        async function saveArticle(event) {
+            event.preventDefault(); // Impede o envio padrão do formulário
+
+            if (!currentUser) {
+                displayError("Você precisa estar logado para salvar artigos.");
+                return;
+            }
+
+            // Validação básica
+            if (!articleTitleInput.value.trim()) {
+                displayError("O Título do Artigo é obrigatório.");
+                articleTitleInput.focus();
+                return;
+            }
+
+            errorDisplay.style.display = 'none'; // Esconde erros anteriores
+            saveArticleBtn.disabled = true; // Desabilita o botão para evitar cliques múltiplos
+
+            const articleData = {
+                userId: currentUser.uid, // ID do usuário logado (quem criou ou editou)
+                title: articleTitleInput.value.trim(),
+                description: articleDescriptionInput.value.trim(),
+                summary: articleSummaryInput.value.trim(),
+                abstract: articleAbstractInput.value.trim(),
+                introduction: articleIntroductionInput.value.trim(),
+                methodology: articleMethodologyInput.value.trim(),
+                discussion: articleDiscussionInput.value.trim(),
+                conclusion: articleConclusionInput.value.trim(),
+                sources: articleSourcesInput.value.split(',').map(s => s.trim()).filter(s => s),
+                lastModified: firebase.firestore.FieldValue.serverTimestamp() // Sempre atualizado na modificação
+            };
+
+            try {
+                const articlesCollectionRef = firestore.collection('articlesdoc');
+
+                if (currentArticleId) {
+                    // Atualizar artigo existente
+                    await articlesCollectionRef.doc(currentArticleId).update(articleData);
+                    alert("Artigo atualizado com sucesso!");
+                    console.log("Artigo atualizado na coleção 'articlesdoc':", currentArticleId);
+                } else {
+                    // Criar novo artigo
+                    articleData.timestamp = firebase.firestore.FieldValue.serverTimestamp(); // Adiciona timestamp na criação
+                    const newDocRef = await articlesCollectionRef.add(articleData);
+                    currentArticleId = newDocRef.id; // Define o ID para futuras edições sem recarregar
+                    alert("Artigo adicionado com sucesso! ID: " + newDocRef.id);
+                    console.log("Novo artigo adicionado na coleção 'articlesdoc' com ID:", newDocRef.id);
+                    formTitle.textContent = 'Editar Artigo'; // Muda o título para edição
+                }
+
+                // Redirecionar ou enviar mensagem para a janela pai (se estiver em um iframe)
+                if (window.parent !== window && window.parent.postMessage) {
+                    window.parent.postMessage({ type: 'refreshArticlesList' }, window.location.origin);
+                } else {
+                    alert("Artigo salvo! (Em ambiente de desenvolvimento sem iframe)");
+                    // window.location.href = './gerenciar-artigos.html'; // Opcional: redirecionar para a página de listagem
+                }
+
+            } catch (error) {
+                displayError("Erro ao salvar artigo: " + error.message);
+                console.error("Erro ao salvar artigo na coleção 'articlesdoc':", error);
+            } finally {
+                saveArticleBtn.disabled = false; // Reabilita o botão
+            }
+        }
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            articleForm.addEventListener('submit', saveArticle);
+
+            cancelBtn.addEventListener('click', () => {
+                // Lógica para cancelar e voltar
+                if (window.parent !== window && window.parent.postMessage) {
+                    window.parent.postMessage({ type: 'refreshArticlesList' }, window.location.origin);
+                } else {
+                    window.history.back(); // Volta na história do navegador
+                }
+            });
+
+            // Garante que todos os componentes MDL na página sejam inicializados
+            if (window.componentHandler) {
+                window.componentHandler.upgradeDom();
+            }
+        });
     </script>
 </body>
 </html>
