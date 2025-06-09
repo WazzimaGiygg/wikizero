@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Novo Artigo - WikiZero</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #202122;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 30px;
+            border: 1px solid #a2a9b1;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #000;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #a2a9b1;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="url"],
+        .form-group textarea,
+        .form-group select {
+            width: calc(100% - 22px); /* Ajusta para padding e border */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            box-sizing: border-box; /* Inclui padding e border na largura total */
+        }
+        .form-group textarea {
+            resize: vertical; /* Permite redimensionar verticalmente */
+            min-height: 80px;
+        }
+        .form-section {
+            border: 1px solid #a2a9b1;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            background-color: #f0f3f6;
+        }
+        .form-section h2 {
+            margin-top: 0;
+            color: #000;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+        }
+        .add-item-button {
+            background-color: #0645ad;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        .add-item-button:hover {
+            background-color: #032b6e;
+        }
+        .remove-item-button {
+            background-color: #d33;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .remove-item-button:hover {
+            background-color: #a00;
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .button-group button {
+            background-color: #36c;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 0 10px;
+        }
+        .button-group button:hover {
+            background-color: #2a5585;
+        }
+        .button-group button.cancel {
+            background-color: #6c757d;
+        }
+        .button-group button.cancel:hover {
+            background-color: #5a6268;
+        }
+
+        /* Estilo para campos de conteúdo dinâmicos */
+        .content-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #ffffff;
+            border-radius: 4px;
+        }
+        .content-item h3 {
+            margin-top: 0;
+            color: #000;
+            font-size: 1.2em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .content-item select, .content-item textarea, .content-item input {
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Criar Novo Artigo WikiZero</h1>
+
+        <form id="articleForm">
+            <div class="form-section">
+                <h2>Informações Básicas do Artigo</h2>
+                <div class="form-group">
+                    <label for="titulo">Nome do Artigo:</label>
+                    <input type="text" id="titulo" name="titulo" required>
+                </div>
+                <div class="form-group">
+                    <label for="primeiraDescricao">Primeira Descrição:</label>
+                    <textarea id="primeiraDescricao" name="primeiraDescricao" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="linkLogo">Link do Logo (URL):</label>
+                    <input type="url" id="linkLogo" name="linkLogo">
+                    <small>Este será o logo principal do artigo. Utilize um link direto para a imagem.</small>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Caixa de Informações (Infobox)</h2>
+                <div class="form-group">
+                    <label for="infoboxTipoArtigo">Tipo de Artigo:</label>
+                    <input type="text" id="infoboxTipoArtigo" name="infoboxTipoArtigo" placeholder="Ex: Histórico, Científico, Biográfico">
+                </div>
+                <div class="form-group">
+                    <label for="infoboxLinkImagemExterna">Link da Imagem Externa (para Infobox):</label>
+                    <input type="url" id="infoboxLinkImagemExterna" name="infoboxLinkImagemExterna" placeholder="URL da imagem para a infobox">
+                </div>
+                <div class="form-group">
+                    <label for="infoboxCriadorConteudo">Criador do Conteúdo:</label>
+                    <input type="text" id="infoboxCriadorConteudo" name="infoboxCriadorConteudo" placeholder="Nome da equipe ou pessoa que criou o conteúdo">
+                </div>
+                <div class="form-group">
+                    <label for="infoboxCriadorArtigo">Criador do Artigo (Inicial):</label>
+                    <input type="text" id="infoboxCriadorArtigo" name="infoboxCriadorArtigo" placeholder="Nome do autor original do artigo">
+                    <small>Seu nome de usuário (ou UID) será registrado automaticamente ao salvar.</small>
+                </div>
+                <div class="form-group">
+                    <label for="infoboxTipoArtigoExterno">Tipo de Artigo (Externo):</label>
+                    <input type="text" id="infoboxTipoArtigoExterno" name="infoboxTipoArtigoExterno" placeholder="Ex: Enciclopédico, Noticioso">
+                </div>
+                <div class="form-group">
+                    <label for="infoboxTipoTema">Tipo de Tema:</label>
+                    <input type="text" id="infoboxTipoTema" name="infoboxTipoTema" placeholder="Ex: História Moderna, Física Quântica">
+                </div>
+                <div class="form-group">
+                    <label for="infoboxDataCriacao">Data da Criação (Infobox):</label>
+                    <input type="date" id="infoboxDataCriacao" name="infoboxDataCriacao">
+                    <small>Se não preenchido, será a data atual.</small>
+                </div>
+                <div class="form-group">
+                    <label for="infoboxResponsavel">Responsável pela Manutenção:</label>
+                    <input type="text" id="infoboxResponsavel" name="infoboxResponsavel" placeholder="Nome do responsável pela manutenção do artigo">
+                </div>
+                <div class="form-group">
+                    <label for="infoboxMatrizSubArtigo">Matriz do Sub-artigo:</label>
+                    <input type="text" id="infoboxMatrizSubArtigo" name="infoboxMatrizSubArtigo" placeholder="Ex: Grandes Invenções, Teorias da Computação">
+                    <small>Tópico mais específico ao qual este artigo pode ser vinculado.</small>
+                </div>
+                <div class="form-group">
+                    <label for="infoboxMatrizArtigo">Matriz do Artigo:</label>
+                    <input type="text" id="infoboxMatrizArtigo" name="infoboxMatrizArtigo" placeholder="Ex: História Mundial, Ciência e Tecnologia">
+                    <small>Tópico mais abrangente ao qual este artigo pertence.</small>
+                </div>
+                <div class="form-group">
+                    <label for="infoboxCargoChefeArtigo">Cargo Chefe do Artigo:</label>
+                    <input type="text" id="infoboxCargoChefeArtigo" name="infoboxCargoChefeArtigo" placeholder="Ex: Curador Principal de História">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>Conteúdo do Artigo</h2>
+                <div id="contentSections">
+                    <div class="content-item">
+                        <h3>Seção 1: História <button type="button" class="remove-item-button" onclick="removeItem(this)">Remover</button></h3>
+                        <div class="form-group">
+                            <label for="historiaContent">Conteúdo da História:</label>
+                            <textarea id="historiaContent" name="historiaContent" rows="5" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-item-button" onclick="addContentSection()">Adicionar Seção de Conteúdo</button>
+            </div>
+
+            <div class="form-section">
+                <h2>Fontes e Links Externos</h2>
+                <div id="sourcesContainer">
+                    <div class="content-item">
+                        <h3>Fonte 1 <button type="button" class="remove-item-button" onclick="removeItem(this)">Remover</button></h3>
+                        <div class="form-group">
+                            <label for="sourceTitle_1">Título da Fonte:</label>
+                            <input type="text" id="sourceTitle_1" name="sourceTitle[]" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sourceUrl_1">URL da Fonte:</label>
+                            <input type="url" id="sourceUrl_1" name="sourceUrl[]" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-item-button" onclick="addSource()">Adicionar Fonte</button>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="linkExternoGeral">Link Externo Geral do Artigo:</label>
+                    <input type="url" id="linkExternoGeral" name="linkExternoGeral" placeholder="Ex: Site oficial, portal de referência">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit">Criar Artigo</button>
+                <button type="button" class="cancel" onclick="window.history.back()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Funções JavaScript para adicionar/remover campos dinamicamente
+
+        let contentSectionCounter = 1;
+        let sourceCounter = 1;
+
+        // Adiciona uma nova seção de conteúdo (história, título personalizado, etc.)
+        function addContentSection() {
+            contentSectionCounter++;
+            const container = document.getElementById('contentSections');
+            const newSection = document.createElement('div');
+            newSection.classList.add('content-item');
+            newSection.innerHTML = `
+                <h3>
+                    Nova Seção de Conteúdo ${contentSectionCounter}
+                    <button type="button" class="remove-item-button" onclick="removeItem(this)">Remover</button>
+                </h3>
+                <div class="form-group">
+                    <label for="contentType_${contentSectionCounter}">Tipo de Conteúdo:</label>
+                    <select id="contentType_${contentSectionCounter}" name="contentType[]" onchange="toggleContentFields(this, ${contentSectionCounter})">
+                        <option value="paragrafo">Parágrafo</option>
+                        <option value="tituloPersonalizado">Título Personalizado</option>
+                        <option value="tituloPersonalizado2">Título Personalizado 2</option>
+                        <option value="lista">Lista</option>
+                        <option value="imagem">Imagem</option>
+                        <option value="secao">Seção (Título H2)</option>
+                    </select>
+                </div>
+                <div class="form-group content-field content-field-paragrafo" id="contentTextField_${contentSectionCounter}">
+                    <label for="contentText_${contentSectionCounter}">Conteúdo do Parágrafo:</label>
+                    <textarea id="contentText_${contentSectionCounter}" name="contentText[]" rows="5"></textarea>
+                </div>
+                <div class="form-group content-field content-field-tituloPersonalizado content-field-tituloPersonalizado2 content-field-secao" style="display:none;" id="contentTitleField_${contentSectionCounter}">
+                    <label for="contentTitle_${contentSectionCounter}">Título da Seção/Personalizado:</label>
+                    <input type="text" id="contentTitle_${contentSectionCounter}" name="contentTitle[]">
+                </div>
+                 <div class="form-group content-field content-field-lista" style="display:none;" id="contentListField_${contentSectionCounter}">
+                    <label for="contentList_${contentSectionCounter}">Itens da Lista (um por linha):</label>
+                    <textarea id="contentList_${contentSectionCounter}" name="contentList[]" rows="5"></textarea>
+                </div>
+                <div class="form-group content-field content-field-imagem" style="display:none;" id="contentImageField_${contentSectionCounter}">
+                    <label for="contentImageUrl_${contentSectionCounter}">URL da Imagem:</label>
+                    <input type="url" id="contentImageUrl_${contentSectionCounter}" name="contentImageUrl[]">
+                    <label for="contentImageAlt_${contentSectionCounter}">Texto Alternativo da Imagem:</label>
+                    <input type="text" id="contentImageAlt_${contentSectionCounter}" name="contentImageAlt[]">
+                    <label for="contentImageCaption_${contentSectionCounter}">Legenda da Imagem:</label>
+                    <textarea id="contentImageCaption_${contentSectionCounter}" name="contentImageCaption[]" rows="2"></textarea>
+                </div>
+            `;
+            container.appendChild(newSection);
+        }
+
+        // Alterna a visibilidade dos campos de conteúdo com base no tipo selecionado
+        function toggleContentFields(selectElement, counter) {
+            const selectedType = selectElement.value;
+            const allContentFields = newSection.querySelectorAll('.content-field'); // Busca dentro da nova seção
+            allContentFields.forEach(field => {
+                field.style.display = 'none';
+            });
+
+            // Mostra os campos relevantes para o tipo selecionado
+            if (selectedType === 'paragrafo') {
+                document.getElementById(`contentTextField_${counter}`).style.display = 'block';
+            } else if (selectedType === 'tituloPersonalizado' || selectedType === 'tituloPersonalizado2' || selectedType === 'secao') {
+                document.getElementById(`contentTitleField_${counter}`).style.display = 'block';
+                document.getElementById(`contentTextField_${counter}`).style.display = 'block'; // Títulos personalizados podem ter texto associado
+            } else if (selectedType === 'lista') {
+                document.getElementById(`contentListField_${counter}`).style.display = 'block';
+            } else if (selectedType === 'imagem') {
+                document.getElementById(`contentImageField_${counter}`).style.display = 'block';
+            }
+        }
+
+        // Adiciona um novo campo de fonte
+        function addSource() {
+            sourceCounter++;
+            const container = document.getElementById('sourcesContainer');
+            const newSource = document.createElement('div');
+            newSource.classList.add('content-item');
+            newSource.innerHTML = `
+                <h3>
+                    Fonte ${sourceCounter}
+                    <button type="button" class="remove-item-button" onclick="removeItem(this)">Remover</button>
+                </h3>
+                <div class="form-group">
+                    <label for="sourceTitle_${sourceCounter}">Título da Fonte:</label>
+                    <input type="text" id="sourceTitle_${sourceCounter}" name="sourceTitle[]" required>
+                </div>
+                <div class="form-group">
+                    <label for="sourceUrl_${sourceCounter}">URL da Fonte:</label>
+                    <input type="url" id="sourceUrl_${sourceCounter}" name="sourceUrl[]" required>
+                </div>
+            `;
+            container.appendChild(newSource);
+        }
+
+        // Remove um item dinamicamente adicionado (seção de conteúdo ou fonte)
+        function removeItem(button) {
+            button.closest('.content-item').remove();
+        }
+
+        // Lidar com o envio do formulário
+        document.getElementById('articleForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Impede o envio padrão do formulário
+
+            const formData = {
+                titulo: document.getElementById('titulo').value,
+                primeiraDescricao: document.getElementById('primeiraDescricao').value,
+                linkLogo: document.getElementById('linkLogo').value,
+                infobox: {
+                    tipoArtigo: document.getElementById('infoboxTipoArtigo').value,
+                    linkImagemExterna: document.getElementById('infoboxLinkImagemExterna').value,
+                    criadorConteudo: document.getElementById('infoboxCriadorConteudo').value,
+                    criadorArtigo: { /* Preencher com UID e Nome do usuário logado */ }, // Este campo será preenchido via JS/backend
+                    tipoArtigoExterno: document.getElementById('infoboxTipoArtigoExterno').value,
+                    tipoTema: document.getElementById('infoboxTipoTema').value,
+                    dataCriacao: document.getElementById('infoboxDataCriacao').value || new Date().toISOString(), // Usa a data do campo ou a atual
+                    responsavel: { /* Preencher com UID e Nome do usuário logado */ }, // Este campo será preenchido via JS/backend
+                    matrizSubArtigo: document.getElementById('infoboxMatrizSubArtigo').value,
+                    matrizArtigo: document.getElementById('infoboxMatrizArtigo').value,
+                    cargoChefeArtigo: document.getElementById('infoboxCargoChefeArtigo').value
+                },
+                conteudo: [],
+                fontes: [],
+                linkExternoGeral: document.getElementById('linkExternoGeral').value
+            };
+
+            // Processar seções de conteúdo dinâmicas
+            document.querySelectorAll('#contentSections .content-item').forEach((item, index) => {
+                const contentType = item.querySelector('select[name="contentType[]"]').value;
+                const contentObj = { tipo: contentType };
+
+                if (contentType === 'paragrafo') {
+                    contentObj.texto = item.querySelector('textarea[name="contentText[]"]').value;
+                } else if (contentType === 'tituloPersonalizado' || contentType === 'tituloPersonalizado2' || contentType === 'secao') {
+                    contentObj.titulo = item.querySelector('input[name="contentTitle[]"]').value;
+                    contentObj.texto = item.querySelector('textarea[name="contentText[]"]').value; // Pode ter texto associado
+                    // Gerar idSecao a partir do título para âncoras (normalizar para slug)
+                    contentObj.idSecao = contentObj.titulo.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+                } else if (contentType === 'lista') {
+                    contentObj.itens = item.querySelector('textarea[name="contentList[]"]').value.split('\n').filter(line => line.trim() !== '');
+                } else if (contentType === 'imagem') {
+                    contentObj.url = item.querySelector('input[name="contentImageUrl[]"]').value;
+                    contentObj.alt = item.querySelector('input[name="contentImageAlt[]"]').value;
+                    contentObj.legenda = item.querySelector('textarea[name="contentImageCaption[]"]').value;
+                }
+                formData.conteudo.push(contentObj);
+            });
+
+            // Processar fontes dinâmicas
+            document.querySelectorAll('#sourcesContainer .content-item').forEach((item, index) => {
+                const source = {
+                    titulo: item.querySelector('input[name="sourceTitle[]"]').value,
+                    url: item.querySelector('input[name="sourceUrl[]"]').value
+                };
+                formData.fontes.push(source);
+            });
+
+            // TODO: Aqui você enviaria os dados para o Firebase
+            // Exemplo (apenas para visualização no console):
+            console.log("Dados do Artigo para Firebase:", formData);
+
+            // Em um aplicativo real, você usaria o SDK do Firebase aqui:
+            /*
+            import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+            import { getAuth } from "firebase/auth";
+
+            const db = getFirestore();
+            const auth = getAuth();
+            const user = auth.currentUser; // Obtenha o usuário logado
+
+            if (user) {
+                // Preenche os campos de autor e responsável com os dados do usuário logado
+                formData.infobox.criadorArtigo = {
+                    uid: user.uid,
+                    nomeUsuario: user.displayName || user.email // Ou um campo de perfil do usuário
+                };
+                formData.infobox.responsavel = {
+                    uid: user.uid,
+                    nomeUsuario: user.displayName || user.email
+                };
+
+                // Adiciona timestamps automáticos do servidor
+                formData.dataCriacao = serverTimestamp();
+                formData.dataUltimaEdicao = serverTimestamp();
+                formData.autorUltimaEdicao = {
+                    uid: user.uid,
+                    nomeUsuario: user.displayName || user.email
+                };
+                formData.status = "rascunho"; // Ou "publicado" dependendo da sua lógica
+
+                addDoc(collection(db, "artigos"), formData)
+                    .then((docRef) => {
+                        console.log("Artigo adicionado com ID: ", docRef.id);
+                        alert("Artigo criado com sucesso! ID: " + docRef.id);
+                        // Redirecionar para a página do artigo recém-criado
+                        window.location.href = `visualizar-artigo.html?id=${docRef.id}`;
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao adicionar artigo: ", error);
+                        alert("Erro ao criar artigo: " + error.message);
+                    });
+            } else {
+                alert("Você precisa estar logado para criar um artigo.");
+                // Redirecionar para página de login
+            }
+            */
+            alert("Verifique o console para ver os dados que seriam enviados ao Firebase!");
+        });
+
+        // Chamada inicial para adicionar a primeira seção de conteúdo
+        addContentSection();
+        addSource(); // Adiciona uma fonte inicial
+    </script>
+</body>
+</html>
