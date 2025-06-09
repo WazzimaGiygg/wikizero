@@ -240,8 +240,6 @@
     </div>
 
     <script>
-        // Funções JavaScript para adicionar/remover campos dinamicamente
-
         let contentSectionCounter = 0; // Iniciar do 0 para que a primeira adição seja 1
         let sourceCounter = 0; // Iniciar do 0 para que a primeira adição seja 1
 
@@ -290,6 +288,7 @@
             `;
             container.appendChild(newSection);
             // Chama toggleContentFields para o tipo padrão (parágrafo) da nova seção
+            // Passamos o próprio elemento select recém-criado para a função
             toggleContentFields(newSection.querySelector(`#contentType_${contentSectionCounter}`), contentSectionCounter);
         }
 
@@ -306,14 +305,19 @@
 
             // Mostra os campos relevantes para o tipo selecionado
             if (selectedType === 'paragrafo') {
-                parentContentItem.querySelector(`#contentTextField_${counter}`).style.display = 'block';
+                const textField = parentContentItem.querySelector(`#contentTextField_${counter}`);
+                if (textField) textField.style.display = 'block';
             } else if (selectedType === 'tituloPersonalizado' || selectedType === 'tituloPersonalizado2' || selectedType === 'secao') {
-                parentContentItem.querySelector(`#contentTitleField_${counter}`).style.display = 'block';
-                parentContentItem.querySelector(`#contentTextField_${counter}`).style.display = 'block'; // Títulos personalizados podem ter texto associado
+                const titleField = parentContentItem.querySelector(`#contentTitleField_${counter}`);
+                if (titleField) titleField.style.display = 'block';
+                const textField = parentContentItem.querySelector(`#contentTextField_${counter}`); // Títulos personalizados podem ter texto associado
+                if (textField) textField.style.display = 'block';
             } else if (selectedType === 'lista') {
-                parentContentItem.querySelector(`#contentListField_${counter}`).style.display = 'block';
+                const listField = parentContentItem.querySelector(`#contentListField_${counter}`);
+                if (listField) listField.style.display = 'block';
             } else if (selectedType === 'imagem') {
-                parentContentItem.querySelector(`#contentImageField_${counter}`).style.display = 'block';
+                const imageField = parentContentItem.querySelector(`#contentImageField_${counter}`);
+                if (imageField) imageField.style.display = 'block';
             }
         }
 
@@ -470,6 +474,7 @@
         });
 
         // Chamadas iniciais para adicionar a primeira seção de conteúdo e fonte ao carregar a página
+        // Isso garante que sempre haja pelo menos um campo para começar a preencher
         addContentSection();
         addSource();
     </script>
