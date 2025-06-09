@@ -216,32 +216,14 @@
             <div class="form-section">
                 <h2>Conteúdo do Artigo</h2>
                 <div id="contentSections">
-                    <div class="content-item">
-                        <h3>Seção 1: História <button type="button" class="remove-item-button" onclick="removeItem(this)">Remover</button></h3>
-                        <div class="form-group">
-                            <label for="historiaContent">Conteúdo da História:</label>
-                            <textarea id="historiaContent" name="historiaContent" rows="5" required></textarea>
-                        </div>
                     </div>
-                </div>
                 <button type="button" class="add-item-button" onclick="addContentSection()">Adicionar Seção de Conteúdo</button>
             </div>
 
             <div class="form-section">
                 <h2>Fontes e Links Externos</h2>
                 <div id="sourcesContainer">
-                    <div class="content-item">
-                        <h3>Fonte 1 <button type="button" class="remove-item-button" onclick="removeItem(this)">Remover</button></h3>
-                        <div class="form-group">
-                            <label for="sourceTitle_1">Título da Fonte:</label>
-                            <input type="text" id="sourceTitle_1" name="sourceTitle[]" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="sourceUrl_1">URL da Fonte:</label>
-                            <input type="url" id="sourceUrl_1" name="sourceUrl[]" required>
-                        </div>
                     </div>
-                </div>
                 <button type="button" class="add-item-button" onclick="addSource()">Adicionar Fonte</button>
 
                 <div class="form-group" style="margin-top: 20px;">
@@ -260,8 +242,8 @@
     <script>
         // Funções JavaScript para adicionar/remover campos dinamicamente
 
-        let contentSectionCounter = 1;
-        let sourceCounter = 1;
+        let contentSectionCounter = 0; // Iniciar do 0 para que a primeira adição seja 1
+        let sourceCounter = 0; // Iniciar do 0 para que a primeira adição seja 1
 
         // Adiciona uma nova seção de conteúdo (história, título personalizado, etc.)
         function addContentSection() {
@@ -271,7 +253,7 @@
             newSection.classList.add('content-item');
             newSection.innerHTML = `
                 <h3>
-                    Nova Seção de Conteúdo ${contentSectionCounter}
+                    Seção ${contentSectionCounter}
                     <button type="button" class="remove-item-button" onclick="removeItem(this)">Remover</button>
                 </h3>
                 <div class="form-group">
@@ -307,26 +289,31 @@
                 </div>
             `;
             container.appendChild(newSection);
+            // Chama toggleContentFields para o tipo padrão (parágrafo) da nova seção
+            toggleContentFields(newSection.querySelector(`#contentType_${contentSectionCounter}`), contentSectionCounter);
         }
 
         // Alterna a visibilidade dos campos de conteúdo com base no tipo selecionado
         function toggleContentFields(selectElement, counter) {
             const selectedType = selectElement.value;
-            const allContentFields = newSection.querySelectorAll('.content-field'); // Busca dentro da nova seção
+            const parentContentItem = selectElement.closest('.content-item'); // Obtém o pai correto
+            
+            // Seleciona todos os campos de conteúdo DENTRO deste item
+            const allContentFields = parentContentItem.querySelectorAll('.content-field'); 
             allContentFields.forEach(field => {
-                field.style.display = 'none';
+                field.style.display = 'none'; // Esconde todos
             });
 
             // Mostra os campos relevantes para o tipo selecionado
             if (selectedType === 'paragrafo') {
-                document.getElementById(`contentTextField_${counter}`).style.display = 'block';
+                parentContentItem.querySelector(`#contentTextField_${counter}`).style.display = 'block';
             } else if (selectedType === 'tituloPersonalizado' || selectedType === 'tituloPersonalizado2' || selectedType === 'secao') {
-                document.getElementById(`contentTitleField_${counter}`).style.display = 'block';
-                document.getElementById(`contentTextField_${counter}`).style.display = 'block'; // Títulos personalizados podem ter texto associado
+                parentContentItem.querySelector(`#contentTitleField_${counter}`).style.display = 'block';
+                parentContentItem.querySelector(`#contentTextField_${counter}`).style.display = 'block'; // Títulos personalizados podem ter texto associado
             } else if (selectedType === 'lista') {
-                document.getElementById(`contentListField_${counter}`).style.display = 'block';
+                parentContentItem.querySelector(`#contentListField_${counter}`).style.display = 'block';
             } else if (selectedType === 'imagem') {
-                document.getElementById(`contentImageField_${counter}`).style.display = 'block';
+                parentContentItem.querySelector(`#contentImageField_${counter}`).style.display = 'block';
             }
         }
 
@@ -385,32 +372,47 @@
             };
 
             // Processar seções de conteúdo dinâmicas
-            document.querySelectorAll('#contentSections .content-item').forEach((item, index) => {
-                const contentType = item.querySelector('select[name="contentType[]"]').value;
+            document.querySelectorAll('#contentSections .content-item').forEach((item) => {
+                const contentTypeSelect = item.querySelector('select[name="contentType[]"]');
+                const contentType = contentTypeSelect ? contentTypeSelect.value : '';
+                
                 const contentObj = { tipo: contentType };
 
                 if (contentType === 'paragrafo') {
-                    contentObj.texto = item.querySelector('textarea[name="contentText[]"]').value;
+                    const textarea = item.querySelector('textarea[name="contentText[]"]');
+                    contentObj.texto = textarea ? textarea.value : '';
                 } else if (contentType === 'tituloPersonalizado' || contentType === 'tituloPersonalizado2' || contentType === 'secao') {
-                    contentObj.titulo = item.querySelector('input[name="contentTitle[]"]').value;
-                    contentObj.texto = item.querySelector('textarea[name="contentText[]"]').value; // Pode ter texto associado
+                    const titleInput = item.querySelector('input[name="contentTitle[]"]');
+                    contentObj.titulo = titleInput ? titleInput.value : '';
+
+                    const textarea = item.querySelector('textarea[name="contentText[]"]');
+                    contentObj.texto = textarea ? textarea.value : '';
+
                     // Gerar idSecao a partir do título para âncoras (normalizar para slug)
                     contentObj.idSecao = contentObj.titulo.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
                 } else if (contentType === 'lista') {
-                    contentObj.itens = item.querySelector('textarea[name="contentList[]"]').value.split('\n').filter(line => line.trim() !== '');
+                    const textarea = item.querySelector('textarea[name="contentList[]"]');
+                    contentObj.itens = textarea ? textarea.value.split('\n').filter(line => line.trim() !== '') : [];
                 } else if (contentType === 'imagem') {
-                    contentObj.url = item.querySelector('input[name="contentImageUrl[]"]').value;
-                    contentObj.alt = item.querySelector('input[name="contentImageAlt[]"]').value;
-                    contentObj.legenda = item.querySelector('textarea[name="contentImageCaption[]"]').value;
+                    const urlInput = item.querySelector('input[name="contentImageUrl[]"]');
+                    const altInput = item.querySelector('input[name="contentImageAlt[]"]');
+                    const captionTextarea = item.querySelector('textarea[name="contentImageCaption[]"]');
+                    
+                    contentObj.url = urlInput ? urlInput.value : '';
+                    contentObj.alt = altInput ? altInput.value : '';
+                    contentObj.legenda = captionTextarea ? captionTextarea.value : '';
                 }
                 formData.conteudo.push(contentObj);
             });
 
             // Processar fontes dinâmicas
-            document.querySelectorAll('#sourcesContainer .content-item').forEach((item, index) => {
+            document.querySelectorAll('#sourcesContainer .content-item').forEach((item) => {
+                const sourceTitleInput = item.querySelector('input[name="sourceTitle[]"]');
+                const sourceUrlInput = item.querySelector('input[name="sourceUrl[]"]');
+
                 const source = {
-                    titulo: item.querySelector('input[name="sourceTitle[]"]').value,
-                    url: item.querySelector('input[name="sourceUrl[]"]').value
+                    titulo: sourceTitleInput ? sourceTitleInput.value : '',
+                    url: sourceUrlInput ? sourceUrlInput.value : ''
                 };
                 formData.fontes.push(source);
             });
@@ -467,9 +469,9 @@
             alert("Verifique o console para ver os dados que seriam enviados ao Firebase!");
         });
 
-        // Chamada inicial para adicionar a primeira seção de conteúdo
+        // Chamadas iniciais para adicionar a primeira seção de conteúdo e fonte ao carregar a página
         addContentSection();
-        addSource(); // Adiciona uma fonte inicial
+        addSource();
     </script>
 </body>
 </html>
