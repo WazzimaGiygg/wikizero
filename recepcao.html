@@ -7,27 +7,25 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
     <style>
-        /* Estilos CSS para o layout do fórum */
+        /* Seus estilos CSS para o layout do fórum (os mesmos que te dei antes) */
         .forum-container {
             padding: 20px;
-            max-width: 800px; /* Largura máxima para o conteúdo do fórum */
-            margin: 20px auto; /* Centraliza o container na página */
+            max-width: 800px;
+            margin: 20px auto;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .mdl-textfield {
-            width: 100%; /* Faz os campos de texto ocuparem a largura total */
+            width: 100%;
             margin-bottom: 20px;
         }
         .mdl-button--colored {
-            background-color: #3f51b5; /* Cor primária do MDL */
+            background-color: #3f51b5;
         }
         .mdl-button--colored:hover {
             background-color: #303f9f;
         }
-
-        /* Estilos para cada postagem no fórum */
         .forum-post {
             border: 1px solid #e0e0e0;
             padding: 15px;
@@ -63,9 +61,6 @@
 <body>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
-
     <div class="forum-container">
         <h2>Criar Nova Publicação</h2>
 
@@ -93,7 +88,7 @@
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 
     <script>
-        // --- Configuração do Firebase ---
+        // --- Configuração do Firebase (apenas para autenticação) ---
         const firebaseConfig = {
             apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
             authDomain: "wzzm-ce3fc.firebaseapp.com",
@@ -104,16 +99,13 @@
             measurementId: "G-PLKNZNFCQ8"
         };
 
-        // Inicializa o Firebase apenas uma vez
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-        const firestore = firebase.firestore();
-        const auth = firebase.auth(); // Mantido caso precise do usuário autenticado diretamente aqui
+        const auth = firebase.auth();
 
-        // Obtém o UID do usuário da URL passada pelo iframe
-        const urlParams = new URLSearchParams(window.location.search);
-        const userUid = urlParams.get('uid');
+        // URL base do seu backend Express.js
+        const API_BASE_URL = 'http://localhost:3000/api/forum';
 
         // Referências aos elementos HTML
         const subjectInput = document.getElementById('subjectInput');
@@ -121,101 +113,134 @@
         const submitButton = document.getElementById('submitButton');
         const messageList = document.getElementById('messageList');
 
-        // Verifica se o UID foi passado. Se não, alerta e desabilita o formulário de postagem.
-        if (!userUid) {
-            alert("Erro: UID do usuário não fornecido. Você precisa estar logado para postar no fórum.");
-            // Desabilita os campos e o botão para impedir postagens sem UID
-            if (subjectInput) subjectInput.disabled = true;
-            if (contentInput) contentInput.disabled = true;
-            if (submitButton) submitButton.disabled = true;
-            if (messageList) messageList.innerHTML = '<p style="color: red;">Não foi possível carregar o fórum sem as informações do usuário. Por favor, retorne à página principal e faça login novamente.</p>';
-            // Opcional: Redirecionar a janela pai de volta para o index.html
-            // if (window.top) window.top.location.href = 'index.html';
-        }
+        let currentUserUid = null; // Para armazenar o UID do usuário logado
+
+        // Listener de estado de autenticação (para pegar o UID do Firebase Auth)
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUserUid = user.uid;
+                console.log("Usuário autenticado no fórum:", currentUserUid);
+                // Habilita os campos e botão se o usuário estiver logado
+                if (subjectInput) subjectInput.disabled = false;
+                if (contentInput) contentInput.disabled = false;
+                if (submitButton) submitButton.disabled = false;
+                // Carrega as mensagens assim que o UID estiver disponível
+                fetchMessages();
+            } else {
+                currentUserUid = null;
+                console.warn("Usuário não autenticado no fórum. Postagem desabilitada.");
+                // Desabilita os campos e botão se o usuário não estiver logado
+                if (subjectInput) subjectInput.disabled = true;
+                if (contentInput) contentInput.disabled = true;
+                if (submitButton) submitButton.disabled = true;
+                if (messageList) messageList.innerHTML = '<p style="color: red;">Você precisa estar logado para postar no fórum.</p>';
+            }
+        });
 
         // --- Event Listener para o Botão de Enviar ---
         submitButton.addEventListener('click', async () => {
-            const subject = subjectInput.value.trim(); // .trim() remove espaços em branco extras
+            const subject = subjectInput.value.trim();
             const content = contentInput.value.trim();
 
             if (!subject || !content) {
-                alert("Por favor, preencha o assunto e o conteúdo da mensagem.");
+                alert("Por favor, preença o assunto e o conteúdo da mensagem.");
                 return;
             }
 
-            // Garante que o UID existe antes de tentar postar
-            if (!userUid) {
+            if (!currentUserUid) {
                 alert("Você não está logado. Faça login para postar.");
                 return;
             }
 
             try {
-                // Adiciona um novo documento à coleção 'forum_posts'
-                // O Firestore irá gerar um ID automático para este documento.
-                // O UID do Google do usuário é salvo com a postagem.
-                await firestore.collection('forum_posts').add({
-                    subject: subject,
-                    content: content,
-                    authorUid: userUid, // O UID do Google do usuário logado
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp() // Carimbo de data/hora do servidor
+                const response = await fetch(`${API_BASE_URL}/posts`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Se você adicionar autenticação no backend (via token do Firebase, por exemplo),
+                        // o token JWT seria enviado aqui.
+                        // 'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
+                    },
+                    body: JSON.stringify({
+                        subject: subject,
+                        content: content,
+                        authorUid: currentUserUid // Envia o UID do Firebase para o backend
+                    })
                 });
 
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Erro ao enviar: ${errorText}`);
+                }
+
+                const newPost = await response.json();
                 alert("Sua publicação foi enviada com sucesso!");
-                subjectInput.value = ''; // Limpa os campos
+                subjectInput.value = '';
                 contentInput.value = '';
-                fetchMessages(); // Recarrega a lista de mensagens para mostrar a nova postagem
+                fetchMessages(); // Recarrega a lista para mostrar a nova postagem
+
             } catch (error) {
-                console.error("Erro ao enviar publicação para o Firestore:", error);
-                alert("Ocorreu um erro ao enviar sua publicação. Tente novamente.");
+                console.error("Erro ao enviar publicação:", error);
+                alert(`Ocorreu um erro ao enviar sua publicação: ${error.message}`);
             }
         });
 
         // --- Função para buscar e exibir mensagens ---
         async function fetchMessages() {
             try {
-                // Ordena as mensagens pela data/hora em ordem decrescente (mais recentes primeiro)
-                const snapshot = await firestore.collection('forum_posts')
-                                                .orderBy('timestamp', 'desc')
-                                                .get();
-                messageList.innerHTML = ''; // Limpa a lista existente antes de adicionar as novas
+                const response = await fetch(`${API_BASE_URL}/posts`, {
+                    method: 'GET'
+                });
 
-                if (snapshot.empty) {
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Erro ao buscar: ${errorText}`);
+                }
+
+                const posts = await response.json(); // Recebe o array de posts
+
+                messageList.innerHTML = ''; // Limpa a lista existente
+
+                if (posts.length === 0) {
                     messageList.innerHTML = '<p>Nenhuma publicação ainda. Seja o primeiro a postar!</p>';
                     return;
                 }
 
-                snapshot.forEach(doc => {
-                    const data = doc.data();
+                posts.forEach(post => {
                     const messageElement = document.createElement('div');
-                    messageElement.classList.add('forum-post'); // Adiciona classe para estilização
+                    messageElement.classList.add('forum-post');
 
-                    // Formata o timestamp para ser mais legível
-                    const date = data.timestamp ? new Date(data.timestamp.toDate()) : new Date();
+                    const date = new Date(post.timestamp); // Assume que o timestamp é um ISO string
                     const formattedDate = date.toLocaleString('pt-BR', {
                         day: '2-digit', month: '2-digit', year: 'numeric',
                         hour: '2-digit', minute: '2-digit'
                     });
 
                     messageElement.innerHTML = `
-                        <h3>${data.subject}</h3>
-                        <p>${data.content}</p>
-                        <small>Publicado por: ${data.authorUid} em ${formattedDate}</small>
+                        <h3>${post.subject}</h3>
+                        <p>${post.content}</p>
+                        <small>Publicado por: ${post.authorUid} em ${formattedDate}</small>
                     `;
                     messageList.appendChild(messageElement);
                 });
+
             } catch (error) {
-                console.error("Erro ao buscar publicações do Firestore:", error);
-                messageList.innerHTML = '<p style="color: red;">Erro ao carregar publicações do fórum.</p>';
+                console.error("Erro ao buscar publicações:", error);
+                messageList.innerHTML = `<p style="color: red;">Erro ao carregar publicações: ${error.message}</p>`;
             }
         }
 
         // --- Inicialização ao Carregar a Página ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Garante que os componentes MDL sejam ativados no HTML
             if (window.componentHandler) {
                 window.componentHandler.upgradeDom();
             }
-            fetchMessages(); // Carrega as mensagens existentes ao carregar a página
+            // Não chame fetchMessages() aqui diretamente,
+            // pois ela será chamada pelo onAuthStateChanged quando o UID estiver disponível.
+            // Apenas desabilite os campos no início, eles serão habilitados se logar.
+            if (subjectInput) subjectInput.disabled = true;
+            if (contentInput) contentInput.disabled = true;
+            if (submitButton) submitButton.disabled = true;
         });
     </script>
 </body>
