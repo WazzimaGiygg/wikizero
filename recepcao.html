@@ -8,80 +8,93 @@
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
     </head>
 <body>
-    <script>
-        // Função para obter o UID da URL
-        function getUidFromUrl() {
-            const params = new URLSearchParams(window.location.search);
-            return params.get('uid');
+   <script>
+    // Inicialize Firebase (mesma configuração do index.html)
+    const firebaseConfig = {
+        apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
+        authDomain: "wzzm-ce3fc.firebaseapp.com",
+        projectId: "wzzm-ce3fc",
+        storageBucket: "wzzm-ce3fc.appspot.com",
+        messagingSenderId: "249427877153",
+        appId: "1:249427877153:web:0e4297294794a5aadeb260",
+        measurementId: "G-PLKNZNFCQ8"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const firestore = firebase.firestore();
+    const auth = firebase.auth(); // Pode ser útil para confirmar o usuário no fórum
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const userUid = urlParams.get('uid');
+
+    // Referências aos elementos do formulário (você precisará adicioná-los ao seu HTML)
+    const subjectInput = document.getElementById('subjectInput');
+    const contentInput = document.getElementById('contentInput');
+    const submitButton = document.getElementById('submitButton');
+    const messageList = document.getElementById('messageList'); // Elemento onde as mensagens serão listadas
+
+    if (!userUid) {
+        alert("Erro: UID do usuário não fornecido. Por favor, faça login novamente.");
+        // Opcional: Redirecionar de volta para index.html
+        // window.top.location.href = 'index.html';
+    }
+
+    submitButton.addEventListener('click', async () => {
+        const subject = subjectInput.value;
+        const content = contentInput.value;
+
+        if (!subject || !content) {
+            alert("Por favor, preencha o assunto e o conteúdo da mensagem.");
+            return;
         }
 
-        // Função para carregar os tópicos do fórum
-        function loadForumContent() {
-            const uid = getUidFromUrl(); // Obtém o UID da URL
-            if (!uid) {
-                // Se não houver UID, significa que o usuário não está logado ou houve um erro
-                const forumContainer = document.getElementById('forum-content');
-                forumContainer.innerHTML = '<p>Você precisa estar logado para ver o fórum.</p>';
+        try {
+            // Adiciona um novo documento à coleção 'forum_posts'
+            // O Firestore irá gerar um ID automático para este documento
+            await firestore.collection('forum_posts').add({
+                subject: subject,
+                content: content,
+                authorUid: userUid, // O UID do Google do usuário logado
+                timestamp: firebase.firestore.FieldValue.serverTimestamp() // Carimbo de data/hora do servidor
+            });
+
+            alert("Mensagem enviada com sucesso!");
+            subjectInput.value = ''; // Limpa os campos
+            contentInput.value = '';
+            fetchMessages(); // Recarrega a lista de mensagens
+        } catch (error) {
+            console.error("Erro ao enviar mensagem para o Firestore:", error);
+            alert("Ocorreu um erro ao enviar sua mensagem. Tente novamente.");
+        }
+    });
+
+    // Função para buscar e exibir mensagens
+    async function fetchMessages() {
+        try {
+            // Ordena as mensagens pela data/hora em ordem decrescente (mais recentes primeiro)
+            const snapshot = await firestore.collection('forum_posts')
+                                            .orderBy('timestamp', 'desc')
+                                            .get();
+            messageList.innerHTML = ''; // Limpa a lista existente
+
+            if (snapshot.empty) {
+                messageList.innerHTML = '<p>Nenhuma mensagem ainda. Seja o primeiro a postar!</p>';
                 return;
             }
 
-            fetch('https://api.exemplo.com/forum', {
-                method: 'GET',
-                headers: {
-                    'X-Access-Key': '$2a$10$yYkleiX8VSZNdbcsN8o6iuVm56ZSSHYExMh.OZ8DW07Qx5B1OJpj6',
-                    'X-master-key': '$2a$10$cEA4Da43tn/93eVxBkR.AufLM/ALUPxOgh8KskR1QvSLsUHzLyb4y'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                displayForum(data, uid); // Passando o UID para associar com os tópicos
-            })
-            .catch(error => {
-                console.error('Erro ao carregar os tópicos do fórum:', error);
-                const forumContainer = document.getElementById('forum-content');
-                forumContainer.innerHTML = '<p>Erro ao carregar o fórum. Tente novamente mais tarde.</p>';
-            });
-        }
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('forum-post'); // Adicione uma classe para estilização
 
-        // Função para exibir os tópicos do fórum
-        function displayForum(data, uid) {
-            const forumContainer = document.getElementById('forum-content');
-            forumContainer.innerHTML = ''; // Limpar conteúdo existente
-            if (!data || !data.topics || data.topics.length === 0) {
-                forumContainer.innerHTML = '<p>Nenhum tópico encontrado no fórum.</p>';
-                return;
-            }
-            data.topics.forEach(topic => {
-                const topicElement = document.createElement('div');
-                topicElement.classList.add('forum-topic');
-                topicElement.innerHTML = `
-                    <h3>${topic.title}</h3>
-                    <p>${topic.content}</p>
-                    <small>Criado por: ${topic.author}</small>
-                `;
-                forumContainer.appendChild(topicElement);
+                // Formatar o timestamp para ser mais legível
+                const date = data.timestamp ? new Date(data.timestamp.toDate()) : new Date();
+                const formattedDate = date.toLocaleString('pt-BR');
 
-                // Verificando se o tópico foi criado pelo usuário logado
-                if (topic.authorUID === uid) {
-                    const editButton = document.createElement('button');
-                    editButton.innerText = 'Editar';
-                    editButton.addEventListener('click', () => editTopic(topic.id));
-                    topicElement.appendChild(editButton);
-                }
-            });
-        }
-
-        // Função para editar o tópico (apenas se o UID corresponder)
-        function editTopic(topicId) {
-            alert('Abrir formulário de edição para o tópico ' + topicId);
-            // Implemente a lógica de edição aqui
-        }
-
-        // Chama a função para carregar o conteúdo do fórum ao carregar a página
-        window.onload = function() {
-            loadForumContent();
-        };
-    </script>
+                messageElement.innerHTML = `
+                    <h3><span class="math-inline">\{data\.subject\}</h3\>
 
     <div id="forum-content" class="page-content">
         </div>
