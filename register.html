@@ -35,10 +35,51 @@
         <button type="submit">Cadastrar</button>
     </form>
 
-    <p>Já tem uma conta? <a href="login.html">Faça login aqui</a></p> <!-- Link para a página de login -->
-
     <script>
-        // Código de cadastro
+        const API_KEY = '$2a$10$cEA4Da43tn/93eVxBkR.AufLM/ALUPxOgh8KskR1QvSLsUHzLyb4y';  // Substitua com a chave da sua API JSONBin
+        const BIN_ID = 'SEU_BIN_ID';      // Substitua com o ID do bin de usuários
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const apelido = document.getElementById('apelido').value;
+            const telefone = document.getElementById('telefone').value;
+            const cpf = document.getElementById('cpf').value;
+            const senha = document.getElementById('senha').value;
+            const repetirSenha = document.getElementById('repetirSenha').value;
+
+            // Validação de senha
+            if (senha !== repetirSenha) {
+                alert("As senhas não coincidem!");
+                return;
+            }
+
+            // Enviar dados para o JSONBin
+            const user = {
+                email,
+                apelido,
+                telefone,
+                cpf,
+                senha
+            };
+
+            const response = await fetch(`https://api.jsonbin.io/b/${BIN_ID}`, {
+                method: 'PUT',  // Usando PUT para atualizar o bin
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}`  // Chave da API
+                },
+                body: JSON.stringify(user)
+            });
+
+            const data = await response.json();
+            if (data) {
+                alert('Usuário cadastrado com sucesso!');
+            } else {
+                alert('Erro ao cadastrar usuário.');
+            }
+        });
     </script>
 </body>
 </html>
