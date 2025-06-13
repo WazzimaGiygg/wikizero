@@ -186,15 +186,17 @@
         let isCurrentUserBanned = false;
 
        // Função para carregar a página no iframe
-       function loadPage(page, requiresAuth = true) {
-            // Se o usuário está banido e a página não é a recepção, exibe mensagem de banimento
-            if (isCurrentUserBanned && page !== 'recepcao.html') {
-                contentFrame.src = "about:blank";
-                contentFrame.style.display = 'none';
-                accessDeniedMessage.style.display = 'none';
-                bannedMessage.style.display = 'block';
-                return; // Impede que a página seja carregada
-            }
+function loadPage(page, requiresAuth = true) {
+    // ... (seu código existente) ...
+
+    // Se a página for o fórum e o usuário estiver logado, adicione o UID
+    if (page === 'forum.html' && auth.currentUser) {
+        pageToLoad += `?uid=${auth.currentUser.uid}`; // ESTA É A LINHA CRÍTICA
+        console.log(`Carregando fórum com UID: ${auth.currentUser.uid}`); // Log para depuração
+    }
+    contentFrame.src = pageToLoad;
+    // ... (o resto do seu código) ...
+}
 
             // Se a página não requer autenticação OU o usuário está logado
             if (!requiresAuth || auth.currentUser) {
