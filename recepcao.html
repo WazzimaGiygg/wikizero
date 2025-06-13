@@ -3,101 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fórum Wiki Zone</title>
+    <title>Fórum Wiki Zone Zero Mod</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
-    </head>
+    <style>
+        /* Estilos CSS para o layout do fórum */
+        .forum-container {
+            padding: 20px;
+            max-width: 800px; /* Largura máxima para o conteúdo do fórum */
+            margin: 20px auto; /* Centraliza o container na página */
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .mdl-textfield {
+            width: 100%; /* Faz os campos de texto ocuparem a largura total */
+            margin-bottom: 20px;
+        }
+        .mdl-button--colored {
+            background-color: #3f51b5; /* Cor primária do MDL */
+        }
+        .mdl-button--colored:hover {
+            background-color: #303f9f;
+        }
+
+        /* Estilos para cada postagem no fórum */
+        .forum-post {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            background-color: #fafafa;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+        .forum-post h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #424242;
+            font-size: 1.2em;
+        }
+        .forum-post p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            color: #616161;
+        }
+        .forum-post small {
+            display: block;
+            text-align: right;
+            color: #9e9e9e;
+            font-size: 0.85em;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #eeeeee;
+            margin: 30px 0;
+        }
+    </style>
+</head>
 <body>
-   <script>
-    // Inicialize Firebase (mesma configuração do index.html)
-    const firebaseConfig = {
-        apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
-        authDomain: "wzzm-ce3fc.firebaseapp.com",
-        projectId: "wzzm-ce3fc",
-        storageBucket: "wzzm-ce3fc.appspot.com",
-        messagingSenderId: "249427877153",
-        appId: "1:249427877153:web:0e4297294794a5aadeb260",
-        measurementId: "G-PLKNZNFCQ8"
-    };
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
 
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const firestore = firebase.firestore();
-    const auth = firebase.auth(); // Pode ser útil para confirmar o usuário no fórum
+    <div class="forum-container">
+        <h2>Criar Nova Publicação</h2>
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const userUid = urlParams.get('uid');
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="text" id="subjectInput">
+            <label class="mdl-textfield__label" for="subjectInput">Assunto da Publicação</label>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <textarea class="mdl-textfield__input" type="text" rows="5" id="contentInput"></textarea>
+            <label class="mdl-textfield__label" for="contentInput">Conteúdo da Publicação</label>
+        </div>
 
-    // Referências aos elementos do formulário (você precisará adicioná-los ao seu HTML)
-    const subjectInput = document.getElementById('subjectInput');
-    const contentInput = document.getElementById('contentInput');
-    const submitButton = document.getElementById('submitButton');
-    const messageList = document.getElementById('messageList'); // Elemento onde as mensagens serão listadas
+        <button id="submitButton" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
+            <i class="material-icons">send</i> Enviar Publicação
+        </button>
 
-    if (!userUid) {
-        alert("Erro: UID do usuário não fornecido. Por favor, faça login novamente.");
-        // Opcional: Redirecionar de volta para index.html
-        // window.top.location.href = 'index.html';
-    }
+        <hr>
 
-    submitButton.addEventListener('click', async () => {
-        const subject = subjectInput.value;
-        const content = contentInput.value;
+        <h2>Publicações Recentes</h2>
+        <div id="messageList">
+            <p>Carregando publicações...</p>
+        </div>
+    </div>
 
-        if (!subject || !content) {
-            alert("Por favor, preencha o assunto e o conteúdo da mensagem.");
-            return;
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+    <script>
+        // --- Configuração do Firebase ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
+            authDomain: "wzzm-ce3fc.firebaseapp.com",
+            projectId: "wzzm-ce3fc",
+            storageBucket: "wzzm-ce3fc.appspot.com",
+            messagingSenderId: "249427877153",
+            appId: "1:249427877153:web:0e4297294794a5aadeb260",
+            measurementId: "G-PLKNZNFCQ8"
+        };
+
+        // Inicializa o Firebase apenas uma vez
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const firestore = firebase.firestore();
+        const auth = firebase.auth(); // Mantido caso precise do usuário autenticado diretamente aqui
+
+        // Obtém o UID do usuário da URL passada pelo iframe
+        const urlParams = new URLSearchParams(window.location.search);
+        const userUid = urlParams.get('uid');
+
+        // Referências aos elementos HTML
+        const subjectInput = document.getElementById('subjectInput');
+        const contentInput = document.getElementById('contentInput');
+        const submitButton = document.getElementById('submitButton');
+        const messageList = document.getElementById('messageList');
+
+        // Verifica se o UID foi passado. Se não, alerta e desabilita o formulário de postagem.
+        if (!userUid) {
+            alert("Erro: UID do usuário não fornecido. Você precisa estar logado para postar no fórum.");
+            // Desabilita os campos e o botão para impedir postagens sem UID
+            if (subjectInput) subjectInput.disabled = true;
+            if (contentInput) contentInput.disabled = true;
+            if (submitButton) submitButton.disabled = true;
+            if (messageList) messageList.innerHTML = '<p style="color: red;">Não foi possível carregar o fórum sem as informações do usuário. Por favor, retorne à página principal e faça login novamente.</p>';
+            // Opcional: Redirecionar a janela pai de volta para o index.html
+            // if (window.top) window.top.location.href = 'index.html';
         }
 
-        try {
-            // Adiciona um novo documento à coleção 'forum_posts'
-            // O Firestore irá gerar um ID automático para este documento
-            await firestore.collection('forum_posts').add({
-                subject: subject,
-                content: content,
-                authorUid: userUid, // O UID do Google do usuário logado
-                timestamp: firebase.firestore.FieldValue.serverTimestamp() // Carimbo de data/hora do servidor
-            });
+        // --- Event Listener para o Botão de Enviar ---
+        submitButton.addEventListener('click', async () => {
+            const subject = subjectInput.value.trim(); // .trim() remove espaços em branco extras
+            const content = contentInput.value.trim();
 
-            alert("Mensagem enviada com sucesso!");
-            subjectInput.value = ''; // Limpa os campos
-            contentInput.value = '';
-            fetchMessages(); // Recarrega a lista de mensagens
-        } catch (error) {
-            console.error("Erro ao enviar mensagem para o Firestore:", error);
-            alert("Ocorreu um erro ao enviar sua mensagem. Tente novamente.");
-        }
-    });
-
-    // Função para buscar e exibir mensagens
-    async function fetchMessages() {
-        try {
-            // Ordena as mensagens pela data/hora em ordem decrescente (mais recentes primeiro)
-            const snapshot = await firestore.collection('forum_posts')
-                                            .orderBy('timestamp', 'desc')
-                                            .get();
-            messageList.innerHTML = ''; // Limpa a lista existente
-
-            if (snapshot.empty) {
-                messageList.innerHTML = '<p>Nenhuma mensagem ainda. Seja o primeiro a postar!</p>';
+            if (!subject || !content) {
+                alert("Por favor, preencha o assunto e o conteúdo da mensagem.");
                 return;
             }
 
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('forum-post'); // Adicione uma classe para estilização
+            // Garante que o UID existe antes de tentar postar
+            if (!userUid) {
+                alert("Você não está logado. Faça login para postar.");
+                return;
+            }
 
-                // Formatar o timestamp para ser mais legível
-                const date = data.timestamp ? new Date(data.timestamp.toDate()) : new Date();
-                const formattedDate = date.toLocaleString('pt-BR');
+            try {
+                // Adiciona um novo documento à coleção 'forum_posts'
+                // O Firestore irá gerar um ID automático para este documento.
+                // O UID do Google do usuário é salvo com a postagem.
+                await firestore.collection('forum_posts').add({
+                    subject: subject,
+                    content: content,
+                    authorUid: userUid, // O UID do Google do usuário logado
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp() // Carimbo de data/hora do servidor
+                });
 
-                messageElement.innerHTML = `
-                    <h3><span class="math-inline">\{data\.subject\}</h3\>
+                alert("Sua publicação foi enviada com sucesso!");
+                subjectInput.value = ''; // Limpa os campos
+                contentInput.value = '';
+                fetchMessages(); // Recarrega a lista de mensagens para mostrar a nova postagem
+            } catch (error) {
+                console.error("Erro ao enviar publicação para o Firestore:", error);
+                alert("Ocorreu um erro ao enviar sua publicação. Tente novamente.");
+            }
+        });
 
-    <div id="forum-content" class="page-content">
-        </div>
+        // --- Função para buscar e exibir mensagens ---
+        async function fetchMessages() {
+            try {
+                // Ordena as mensagens pela data/hora em ordem decrescente (mais recentes primeiro)
+                const snapshot = await firestore.collection('forum_posts')
+                                                .orderBy('timestamp', 'desc')
+                                                .get();
+                messageList.innerHTML = ''; // Limpa a lista existente antes de adicionar as novas
 
-    </body>
+                if (snapshot.empty) {
+                    messageList.innerHTML = '<p>Nenhuma publicação ainda. Seja o primeiro a postar!</p>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('forum-post'); // Adiciona classe para estilização
+
+                    // Formata o timestamp para ser mais legível
+                    const date = data.timestamp ? new Date(data.timestamp.toDate()) : new Date();
+                    const formattedDate = date.toLocaleString('pt-BR', {
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+
+                    messageElement.innerHTML = `
+                        <h3>${data.subject}</h3>
+                        <p>${data.content}</p>
+                        <small>Publicado por: ${data.authorUid} em ${formattedDate}</small>
+                    `;
+                    messageList.appendChild(messageElement);
+                });
+            } catch (error) {
+                console.error("Erro ao buscar publicações do Firestore:", error);
+                messageList.innerHTML = '<p style="color: red;">Erro ao carregar publicações do fórum.</p>';
+            }
+        }
+
+        // --- Inicialização ao Carregar a Página ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Garante que os componentes MDL sejam ativados no HTML
+            if (window.componentHandler) {
+                window.componentHandler.upgradeDom();
+            }
+            fetchMessages(); // Carrega as mensagens existentes ao carregar a página
+        });
+    </script>
+</body>
 </html>
