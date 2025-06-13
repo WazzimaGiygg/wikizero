@@ -187,29 +187,91 @@
         // Variável para armazenar o status de banimento do usuário
         let isCurrentUserBanned = false;
 
-        // Função para carregar a página no iframe
-        function loadPage(page, requiresAuth = true) {
-            if (isCurrentUserBanned && page !== 'recepcao.html') {
-                contentFrame.src = "about:blank";
-                contentFrame.style.display = 'none';
-                accessDeniedMessage.style.display = 'none';
-                bannedMessage.style.display = 'block'; 
-                return;
+       // Função para carregar a página no iframe
+    function loadPage(page, requiresAuth = true) {
+        if (isCurrentUserBanned && page !== 'recepcao.html') {
+            contentFrame.src = "about:blank";
+            contentFrame.style.display = 'none';
+            accessDeniedMessage.style.display = 'none';
+            bannedMessage.style.display = 'block';
+            return;
+        }
+
+        if (!requiresAuth || auth.currentUser) {
+            let pageToLoad = page;
+            // Se a página for o fórum e o usuário estiver logado, adicione o UID
+            if (page === 'forum.html' && auth.currentUser) {
+                pageToLoad += `?uid=${auth.currentUser.uid}`;
+            }
+            contentFrame.src = pageToLoad;
+            contentFrame.style.display = 'block';
+            accessDeniedMessage.style.display = 'none';
+            bannedMessage.style.display = 'none';
+        } else {
+            contentFrame.src = "about:blank";
+            contentFrame.style.display = 'none';
+            accessDeniedMessage.style.display = 'block';
+            bannedMessage.style.display = 'none';
+            alert("Você precisa estar logado para acessar esta página.");
+        }
+    }
+
+    // Adicione um link para o fórum no menu de navegação, se ainda não tiver
+    // Exemplo:
+    // No seu HTML dentro do <nav class="mdl-navigation" id="main-navigation">
+    // <a class="mdl-navigation__link" href="#" data-page-src="forum.html">Fórum</a>
+
+    // Modifique o listener de estado de autenticação para carregar o fórum se necessário
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            // ... (seu código existente para user.displayName, photoURL, etc.) ...
+
+            await createUserProfileDocument(user);
+
+            try {
+                const userProfileRef = firestore.collection('users').doc(user.uid);
+                const doc = await userProfileRef.get();
+
+                if (doc.exists && doc.data()) {
+                    isCurrentUserBanned = doc.data().isBan || false;
+
+                    if (isCurrentUserBanned) {
+                        // ... (seu código para usuário banido) ...
+                    } else {
+                        setNavLinksEnabled(true);
+                        logoutButton.style.display = 'inline-block';
+                        logoutButton.addEventListener('click', handleLogout);
+                        bannedMessage.style.display = 'none';
+
+                        if (doc.data().isAdmin === true) {
+                            adminPanelButton.style.display = 'inline-block';
+                        } else {
+                            adminPanelButton.style.display = 'none';
+                        }
+
+                        // Carrega o fórum se for a página atual ou se não houver outra página carregada
+                        const currentPage = contentFrame.src.split('/').pop().split('?')[0]; // Pega a página sem parâmetros
+                        if (currentPage === 'recepcao.html' || currentPage === 'about:blank' || !currentPage) {
+                            // Se a página for "recepcao.html" ou não houver página carregada, carrega o fórum.
+                            // Você pode ajustar isso para carregar a página inicial desejada após o login.
+                            loadPage('recepcao.html');
+                        } else if (currentPage === 'forum.html') {
+                            loadPage('forum.html'); // Recarrega o fórum com o UID se já estava no fórum
+                        } else {
+                            loadPage(currentPage); // Carrega a página que estava antes
+                        }
+                    }
+                } else {
+                    // ... (seu código para perfil de usuário não encontrado) ...
+                }
+            } catch (error) {
+                // ... (seu tratamento de erro) ...
             }
 
-            if (!requiresAuth || auth.currentUser) {
-                contentFrame.src = page;
-                contentFrame.style.display = 'block';
-                accessDeniedMessage.style.display = 'none';
-                bannedMessage.style.display = 'none'; 
-            } else {
-                contentFrame.src = "about:blank";
-                contentFrame.style.display = 'none';
-                accessDeniedMessage.style.display = 'block';
-                bannedMessage.style.display = 'none'; 
-                alert("Você precisa estar logado para acessar esta página.");
-            }
+        } else {
+            // ... (seu código para usuário deslogado) ...
         }
+    });
 
         // Adiciona event listeners aos links de navegação
         navLinks.forEach(link => {
