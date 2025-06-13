@@ -30,20 +30,37 @@
         const auth = firebase.auth();
         const firestore = firebase.firestore();
 
+        // Função para fazer login com Google
+        function googleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).then(result => {
+                // O UID do usuário logado
+                const user = result.user;
+                console.log("Usuário logado:", user.displayName);
+                console.log("UID do usuário:", user.uid);
+
+                // Redirecionar para o fórum após o login
+                window.location.href = 'forum.html'; // Altere para a página do fórum
+            }).catch(error => {
+                console.error("Erro no login com Google:", error);
+            });
+        }
+
         // Função para verificar se o usuário está logado
         function checkUserStatus() {
             const user = auth.currentUser;
             if (user) {
                 // Exibir o conteúdo do fórum
-                loadForumContent();
+                loadForumContent(user.uid); // Passa o UID do usuário autenticado
             } else {
+                // Usuário não logado, redireciona para o login
                 alert("Você precisa estar logado para acessar o fórum!");
-                window.location.href = 'login.html'; // Redirecionar para página de login
+                window.location.href = 'login.html'; // Página de login
             }
         }
 
         // Função para carregar os tópicos do fórum
-        function loadForumContent() {
+        function loadForumContent(uid) {
             fetch('https://api.exemplo.com/forum', {
                 method: 'GET',
                 headers: {
@@ -53,13 +70,13 @@
             })
             .then(response => response.json())
             .then(data => {
-                displayForum(data);
+                displayForum(data, uid); // Passando o UID para associar com os tópicos
             })
             .catch(error => console.error('Erro ao carregar os tópicos do fórum:', error));
         }
 
         // Função para exibir os tópicos do fórum
-        function displayForum(data) {
+        function displayForum(data, uid) {
             const forumContainer = document.getElementById('forum-content');
             forumContainer.innerHTML = ''; // Limpar conteúdo existente
             data.topics.forEach(topic => {
@@ -71,7 +88,21 @@
                     <small>Criado por: ${topic.author}</small>
                 `;
                 forumContainer.appendChild(topicElement);
+
+                // Verificando se o tópico foi criado pelo usuário logado
+                if (topic.authorUID === uid) {
+                    const editButton = document.createElement('button');
+                    editButton.innerText = 'Editar';
+                    editButton.addEventListener('click', () => editTopic(topic.id));
+                    topicElement.appendChild(editButton);
+                }
             });
+        }
+
+        // Função para editar o tópico (apenas se o UID corresponder)
+        function editTopic(topicId) {
+            alert('Abrir formulário de edição para o tópico ' + topicId);
+            // Implemente a lógica de edição aqui
         }
 
         // Chama a função para verificar o status do usuário ao carregar a página
@@ -84,5 +115,8 @@
     <div id="forum-content" class="page-content">
         <!-- Os tópicos do fórum serão carregados aqui -->
     </div>
+
+    <!-- Botão de login Google -->
+    <button onclick="googleLogin()">Login com Google</button>
 </body>
 </html>
