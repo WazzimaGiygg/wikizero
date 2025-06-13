@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wiki Zero</title>
+    <title>Wiki Zone Zero Mod</title>
     <link rel="icon" href="favicom.png" type="image/x-icon">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
@@ -24,6 +24,29 @@
             color: #777 !important; /* Adicionado !important para sobrepor estilos do MDL */
             pointer-events: none; /* Impede cliques */
         }
+
+        /* Estilos para a imagem de perfil e ícone do Google Apps */
+        #user-profile-pic {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* Torna a imagem circular */
+            margin-right: 8px; /* Espaçamento entre a imagem e o texto */
+            object-fit: cover; /* Garante que a imagem preencha o espaço sem distorcer */
+        }
+        #google-apps-button {
+            /* Ajustes para o botão de ícone */
+            min-width: 32px; /* Garante tamanho mínimo para o ícone */
+            height: 32px;
+            padding: 0;
+            display: flex; /* Para centralizar o ícone */
+            align-items: center;
+            justify-content: center;
+        }
+        /* Estilos para o pop-up dos serviços Google */
+        #google-apps-popup a.mdl-button {
+            margin-bottom: 4px; /* Espaçamento entre os botões de serviço */
+            justify-content: flex-start; /* Alinha o texto à esquerda */
+        }
     </style>
 </head>
 <body>
@@ -37,19 +60,45 @@
             <div class="mdl-layout__header-row">
                 <span class="mdl-layout-title">Wiki Zone Zero Mod</span>
                 <div class="mdl-layout-spacer"></div>
-                <div id="user-info" class="mdl-typography--body-1-force-preferred-font-color-contrast" style="margin-right: 16px;"></div>
+                <div style="position: relative; display: flex; align-items: center;">
+                    <button class="mdl-button mdl-js-button mdl-button--icon" id="google-apps-button" style="display: none; margin-right: 8px;">
+                        <i class="material-icons">apps</i>
+                    </button>
+                    <div id="google-apps-popup" style="
+                        display: none;
+                        position: absolute;
+                        top: 48px; /* Ajuste a posição vertical conforme necessário */
+                        right: 0;
+                        background-color: white;
+                        border: 1px solid #ccc;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        z-index: 100;
+                        padding: 10px;
+                        min-width: 180px;
+                        border-radius: 4px;
+                    ">
+                        <a href="https://mail.google.com/" target="_blank" class="mdl-button mdl-js-button mdl-button--flat">Gmail</a>
+                        <a href="https://drive.google.com/" target="_blank" class="mdl-button mdl-js-button mdl-button--flat">Drive</a>
+                        <a href="https://calendar.google.com/" target="_blank" class="mdl-button mdl-js-button mdl-button--flat">Agenda</a>
+                        <a href="https://photos.google.com/" target="_blank" class="mdl-button mdl-js-button mdl-button--flat">Fotos</a>
+                        <a href="https://www.youtube.com/" target="_blank" class="mdl-button mdl-js-button mdl-button--flat">YouTube</a>
+                        <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+                        <a href="https://myaccount.google.com/" target="_blank" class="mdl-button mdl-js-button mdl-button--flat">Minha Conta Google</a>
+                        </div>
+                    <div id="user-info-container" style="display: flex; align-items: center;">
+                        <img id="user-profile-pic" src="" alt="Foto de Perfil" style="display: none;">
+                        <div id="user-info" class="mdl-typography--body-1-force-preferred-font-color-contrast"></div>
+                    </div>
+                </div>
             </div>
         </header>
 
         <div class="mdl-layout__drawer">
             <span class="mdl-layout-title">Menu</span>
             <nav class="mdl-navigation" id="main-navigation">
-                <a class="mdl-navigation__link" href="#" data-page-src="recepcao.html" data-requires-auth="false">Página Inicio</a>
-                <a class="mdl-navigation__link" href="#" data-page-src="adicionarartigo.html" data-requires-auth="false">Novo Artigo</a>
 
 
                 <a class="mdl-navigation__link" href="http://www.wzzm.org/POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf" target="_blank">Políticas da WZZM</a>
-                
             </nav>
         </div>
 
@@ -108,6 +157,10 @@
             measurementId: "G-PLKNZNFCQ8"
         };
 
+        if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+        }
+
         // Inicialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -122,20 +175,25 @@
         const adminPanelButton = document.getElementById('admin-panel-button'); 
         const contentFrame = document.getElementById('contentFrame');
         const accessDeniedMessage = document.getElementById('access-denied-message');
-        const bannedMessage = document.getElementById('banned-message'); // Novo elemento de mensagem de banimento
+        const bannedMessage = document.getElementById('banned-message'); 
         const navLinks = document.querySelectorAll('.mdl-navigation__link'); 
+
+        // Novos elementos da UI para a imagem de perfil e ícone do Google Apps
+        const userProfilePic = document.getElementById('user-profile-pic');
+        const googleAppsButton = document.getElementById('google-apps-button');
+        const userInfoContainer = document.getElementById('user-info-container');
+        const googleAppsPopup = document.getElementById('google-apps-popup'); // Referência ao pop-up
 
         // Variável para armazenar o status de banimento do usuário
         let isCurrentUserBanned = false;
 
         // Função para carregar a página no iframe
         function loadPage(page, requiresAuth = true) {
-            // Se o usuário estiver banido, ele só pode ver a página de recepção
             if (isCurrentUserBanned && page !== 'recepcao.html') {
                 contentFrame.src = "about:blank";
                 contentFrame.style.display = 'none';
                 accessDeniedMessage.style.display = 'none';
-                bannedMessage.style.display = 'block'; // Mostra a mensagem de banimento
+                bannedMessage.style.display = 'block'; 
                 return;
             }
 
@@ -143,12 +201,12 @@
                 contentFrame.src = page;
                 contentFrame.style.display = 'block';
                 accessDeniedMessage.style.display = 'none';
-                bannedMessage.style.display = 'none'; // Esconde a mensagem de banimento
+                bannedMessage.style.display = 'none'; 
             } else {
                 contentFrame.src = "about:blank";
                 contentFrame.style.display = 'none';
                 accessDeniedMessage.style.display = 'block';
-                bannedMessage.style.display = 'none'; // Esconde a mensagem de banimento
+                bannedMessage.style.display = 'none'; 
                 alert("Você precisa estar logado para acessar esta página.");
             }
         }
@@ -165,7 +223,6 @@
                 const pageSrc = this.dataset.pageSrc;
                 const requiresAuth = pageSrc !== 'recepcao.html';
                 
-                // Impede cliques em links desabilitados, a menos que seja a recepção
                 if (this.classList.contains('disabled') && requiresAuth) {
                     return; 
                 }
@@ -181,7 +238,6 @@
         // Função para habilitar/desabilitar links do menu lateral
         function setNavLinksEnabled(enabled) {
             navLinks.forEach(link => {
-                // 'recepcao.html' e links sem data-page-src (como políticas) sempre habilitados
                 if (link.dataset.pageSrc === 'recepcao.html' || !link.dataset.pageSrc || link.href.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) { 
                     link.classList.remove('disabled');
                     return;
@@ -195,7 +251,7 @@
             });
         }
 
-        // --- Nova função para criar/atualizar o perfil do usuário no Firestore ---
+        // --- Função para criar/atualizar o perfil do usuário no Firestore ---
         async function createUserProfileDocument(user) {
             if (!user) return;
 
@@ -203,9 +259,8 @@
             const docSnapshot = await userRef.get();
 
             if (!docSnapshot.exists) {
-                // Se o documento não existe, cria um novo
                 const { displayName, email, photoURL } = user;
-                const createdAt = firebase.firestore.FieldValue.serverTimestamp(); // Pega o timestamp do servidor
+                const createdAt = firebase.firestore.FieldValue.serverTimestamp(); 
 
                 try {
                     await userRef.set({
@@ -214,16 +269,15 @@
                         email: email,
                         profilePictureUrl: photoURL,
                         createdAt: createdAt,
-                        lastLoginAt: createdAt, // Define o primeiro login também
-                        isBan: false, // Adicionado: novo usuário não é banido por padrão
-                        isAdmin: false, // Adicionado: novo usuário não é admin por padrão
+                        lastLoginAt: createdAt, 
+                        isBan: false, 
+                        isAdmin: false, 
                     });
                     console.log("Novo perfil de usuário criado no Firestore!");
                 } catch (error) {
                     console.error("Erro ao criar perfil de usuário no Firestore:", error);
                 }
             } else {
-                // Se o documento já existe, você pode atualizá-lo (por exemplo, a data do último login)
                 try {
                     await userRef.update({
                         lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -238,12 +292,20 @@
         // Listener de estado de autenticação (Firebase)
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Usuário logado
                 userInfo.textContent = `Olá, ${user.displayName || user.email}!`;
                 loginGoogleButton.style.display = 'none';
                 loginGitHubButton.style.display = 'none';
                 
-                // --- CHAME A FUNÇÃO AQUI PARA SALVAR/ATUALIZAR NO FIRESTORE ---
+                if (user.photoURL) {
+                    userProfilePic.src = user.photoURL;
+                    userProfilePic.style.display = 'inline-block'; 
+                } else {
+                    userProfilePic.style.display = 'none'; 
+                }
+
+                googleAppsButton.style.display = 'inline-block';
+                userInfoContainer.style.display = 'flex';
+
                 await createUserProfileDocument(user);
 
                 try {
@@ -251,22 +313,21 @@
                     const doc = await userProfileRef.get();
                     
                     if (doc.exists && doc.data()) {
-                        isCurrentUserBanned = doc.data().isBan || false; // Pega o status de banimento
+                        isCurrentUserBanned = doc.data().isBan || false; 
                         
                         if (isCurrentUserBanned) {
                             console.warn(`Usuário ${user.uid} está banido.`);
-                            setNavLinksEnabled(false); // Desabilita todos os links
-                            logoutButton.style.display = 'none'; // Esconde o botão de logout
-                            logoutButton.removeEventListener('click', handleLogout); // Remove o event listener de logout
-                            adminPanelButton.style.display = 'none'; // Esconde o botão de admin
-                            loadPage('recepcao.html', false); // Redireciona para a recepção
-                            bannedMessage.style.display = 'block'; // Mostra a mensagem de banimento
+                            setNavLinksEnabled(false); 
+                            logoutButton.style.display = 'none'; 
+                            logoutButton.removeEventListener('click', handleLogout); 
+                            adminPanelButton.style.display = 'none'; 
+                            loadPage('recepcao.html', false); 
+                            bannedMessage.style.display = 'block'; 
                         } else {
-                            // Usuário não banido
-                            setNavLinksEnabled(true); // Habilita os links
-                            logoutButton.style.display = 'inline-block'; // Mostra o botão de logout
-                            logoutButton.addEventListener('click', handleLogout); // Adiciona o event listener de logout
-                            bannedMessage.style.display = 'none'; // Esconde a mensagem de banimento
+                            setNavLinksEnabled(true); 
+                            logoutButton.style.display = 'inline-block'; 
+                            logoutButton.addEventListener('click', handleLogout); 
+                            bannedMessage.style.display = 'none'; 
 
                             if (doc.data().isAdmin === true) { 
                                 adminPanelButton.style.display = 'inline-block';
@@ -282,7 +343,6 @@
                             }
                         }
                     } else {
-                        // Documento do usuário não encontrado, tratar como não banido
                         isCurrentUserBanned = false;
                         setNavLinksEnabled(true);
                         logoutButton.style.display = 'inline-block';
@@ -294,7 +354,7 @@
                 } catch (error) {
                     console.error("Erro ao verificar perfil de usuário ou status de banimento:", error);
                     adminPanelButton.style.display = 'none';
-                    isCurrentUserBanned = false; // Por segurança, assume que não está banido em caso de erro
+                    isCurrentUserBanned = false; 
                     setNavLinksEnabled(true);
                     logoutButton.style.display = 'inline-block';
                     logoutButton.addEventListener('click', handleLogout);
@@ -303,16 +363,21 @@
                 }
 
             } else {
-                // Usuário não logado
                 userInfo.textContent = '';
                 loginGoogleButton.style.display = 'inline-block';
                 loginGitHubButton.style.display = 'inline-block';
                 logoutButton.style.display = 'none';
                 adminPanelButton.style.display = 'none'; 
-                isCurrentUserBanned = false; // Redefine o status de banimento ao deslogar
-                bannedMessage.style.display = 'none'; // Esconde a mensagem de banimento
+                isCurrentUserBanned = false; 
+                bannedMessage.style.display = 'none'; 
                 setNavLinksEnabled(false);
                 loadPage('recepcao.html', false);
+
+                userProfilePic.style.display = 'none';
+                userProfilePic.src = ''; 
+                googleAppsButton.style.display = 'none';
+                userInfoContainer.style.display = 'none'; 
+                googleAppsPopup.style.display = 'none'; // Garante que o pop-up esteja escondido
             }
         });
 
@@ -320,7 +385,6 @@
         const handleLogout = () => {
             auth.signOut().then(() => {
                 console.log("Usuário deslogado.");
-                // onAuthStateChanged cuidará de redefinir a UI
             }).catch((error) => {
                 console.error("Erro ao fazer logout:", error);
                 alert(`Erro ao fazer logout: ${error.message}`);
@@ -332,8 +396,6 @@
             const provider = new firebase.auth.GoogleAuthProvider();
             try {
                 await auth.signInWithPopup(provider); 
-                // O onAuthStateChanged será acionado automaticamente após o login bem-sucedido
-                // e chamará createUserProfileDocument e verificará o banimento.
             } catch (error) {
                 console.error("Erro ao fazer login com Google:", error);
                 alert(`Erro ao fazer login com Google: ${error.message}`);
@@ -345,14 +407,30 @@
             const provider = new firebase.auth.GithubAuthProvider();
             try {
                 await auth.signInWithPopup(provider); 
-                // O onAuthStateChanged também será acionado aqui.
             } catch (error) {
                 console.error("Erro ao fazer login com GitHub:", error);
                 alert(`Erro ao fazer login com GitHub: ${error.message}`);
             }
         });
 
-        // O event listener para o botão de logout será adicionado/removido no onAuthStateChanged
+        // --- Lógica para o pop-up do Google Apps ---
+        googleAppsButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Impede que o clique no botão feche o pop-up imediatamente
+            if (googleAppsPopup.style.display === 'block') {
+                googleAppsPopup.style.display = 'none';
+            } else {
+                googleAppsPopup.style.display = 'block';
+            }
+        });
+
+        // Fecha o pop-up se o usuário clicar fora dele
+        document.addEventListener('click', (event) => {
+            if (googleAppsPopup.style.display === 'block' && 
+                !googleAppsButton.contains(event.target) && 
+                !googleAppsPopup.contains(event.target)) {
+                googleAppsPopup.style.display = 'none';
+            }
+        });
 
         // Inicialização do estado ao carregar a página
         document.addEventListener('DOMContentLoaded', () => {
