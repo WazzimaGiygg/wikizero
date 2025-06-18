@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Cliente - WZZM</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Alinha no topo */
+            min-height: calc(100vh - 200px);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .mdl-card {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .mdl-textfield {
+            width: 100%;
+            margin-bottom: 16px; /* Espaçamento entre os campos */
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .form-actions button {
+            margin-left: 10px;
+        }
+        #message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        #message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        #message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        .mdl-selectfield {
+            width: 100%;
+            margin-bottom: 16px;
+        }
+        .mdl-selectfield label {
+            width: 100%;
+            padding-bottom: 8px;
+            color: rgba(0,0,0,.54);
+            font-size: 16px;
+        }
+        .mdl-selectfield select {
+            width: 100%;
+            padding: 8px 0;
+            border: none;
+            border-bottom: 1px solid rgba(0,0,0,.12);
+            background-color: transparent;
+            font-size: 16px;
+            -webkit-appearance: none; /* Remove default arrow on select */
+            -moz-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+        .mdl-selectfield select:focus {
+            outline: none;
+            border-bottom: 2px solid #3f51b5; /* Highlight on focus */
+        }
+        .mdl-selectfield {
+            position: relative; /* Needed for custom arrow */
+        }
+        .mdl-selectfield:after {
+            content: '▼'; /* Custom arrow */
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none; /* Make sure it doesn't interfere with select click */
+            color: rgba(0,0,0,.54);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title mdl-card--expand">
+            <h2 class="mdl-card__title-text">Cadastro de Cliente</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+            <form id="clientForm">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="fullName" required>
+                    <label class="mdl-textfield__label" for="fullName">Nome Completo</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" pattern="[0-9]{11}" id="cpf" required>
+                    <label class="mdl-textfield__label" for="cpf">CPF (somente números)</label>
+                    <span class="mdl-textfield__error">Apenas 11 dígitos numéricos são permitidos!</span>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="rg">
+                    <label class="mdl-textfield__label" for="rg">RG</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="socialName">
+                    <label class="mdl-textfield__label" for="socialName">Nome Social (opcional)</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="date" id="birthDate" required>
+                    <label class="mdl-textfield__label" for="birthDate">Data de Nascimento</label>
+                </div>
+                <div class="mdl-selectfield mdl-js-selectfield mdl-selectfield--floating-label">
+                    <label for="gender">Gênero</label>
+                    <select id="gender" class="mdl-textfield__input">
+                        <option value=""></option> <option value="masculino">Masculino</option>
+                        <option value="feminino">Feminino</option>
+                        <option value="nao-binario">Não Binário</option>
+                        <option value="outro">Outro</option>
+                        <option value="prefiro-nao-dizer">Prefiro não dizer</option>
+                    </select>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="address" required>
+                    <label class="mdl-textfield__label" for="address">Endereço (Rua, Número, Bairro)</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" pattern="[0-9]{8}" id="zipCode" required>
+                    <label class="mdl-textfield__label" for="zipCode">CEP (somente números)</label>
+                    <span class="mdl-textfield__error">Apenas 8 dígitos numéricos são permitidos!</span>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="city" required>
+                    <label class="mdl-textfield__label" for="city">Cidade</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="state" required>
+                    <label class="mdl-textfield__label" for="state">Estado (Ex: SP)</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="country" required value="Brasil">
+                    <label class="mdl-textfield__label" for="country">País</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="tel" id="phoneNumber" required>
+                    <label class="mdl-textfield__label" for="phoneNumber">Telefone (com DDD)</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="email" id="emailAddress" required>
+                    <label class="mdl-textfield__label" for="emailAddress">E-mail de Contato</label>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <p>Já possui cadastro completo? <a href="#" id="goToClientInfoLink">Clique aqui para ver suas informações</a>.</p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
+                        Cadastrar Cliente
+                    </button>
+                    <button type="reset" class="mdl-button mdl-js-button mdl-js-ripple-effect">
+                        Limpar
+                    </button>
+                </div>
+            </form>
+            <div id="message"></div>
+        </div>
+    </div>
+
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script>
+        // Sua configuração do Firebase (substitua com suas próprias chaves)
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
+            authDomain: "wzzm-ce3fc.firebaseapp.com",
+            projectId: "wzzm-ce3fc",
+            storageBucket: "wzzm-ce3fc.appspot.com",
+            messagingSenderId: "249427877153",
+            appId: "1:249427877153:web:0e4297294794a5aadeb260",
+            measurementId: "G-PLKNZNFCQ8"
+        };
+
+        // Inicializa o Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const firestore = firebase.firestore();
+        const auth = firebase.auth();
+
+        const clientForm = document.getElementById('clientForm');
+        const messageDiv = document.getElementById('message');
+        const fullNameInput = document.getElementById('fullName');
+        const cpfInput = document.getElementById('cpf');
+        const rgInput = document.getElementById('rg');
+        const socialNameInput = document.getElementById('socialName');
+        const birthDateInput = document.getElementById('birthDate');
+        const genderSelect = document.getElementById('gender');
+        const addressInput = document.getElementById('address');
+        const zipCodeInput = document.getElementById('zipCode');
+        const cityInput = document.getElementById('city');
+        const stateInput = document.getElementById('state');
+        const countryInput = document.getElementById('country');
+        const phoneNumberInput = document.getElementById('phoneNumber');
+        const emailAddressInput = document.getElementById('emailAddress');
+
+        // Função para exibir mensagens de sucesso/erro
+        function showMessage(msg, type) {
+            messageDiv.textContent = msg;
+            messageDiv.className = ''; // Limpa classes existentes
+            messageDiv.classList.add(type);
+            messageDiv.style.display = 'block';
+        }
+
+        // Função para obter o parâmetro UID da URL (para pré-preencher campos se vier do Google)
+        function getParameterByName(name, url = window.location.href) {
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        // Pré-preenche o email de contato com o email do usuário logado, se houver
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                if (user.email) {
+                    emailAddressInput.value = user.email;
+                    // Força o MDL a atualizar o label para o campo preenchido
+                    emailAddressInput.parentElement.MaterialTextfield.checkDirty();
+                }
+                // Tenta pré-preencher o nome completo se disponível no perfil do Google
+                if (user.displayName) {
+                    fullNameInput.value = user.displayName;
+                    fullNameInput.parentElement.MaterialTextfield.checkDirty();
+                }
+
+                // --- NOVO: Lógica para o link "Já possui cadastro" ---
+                const goToClientInfoLink = document.getElementById('goToClientInfoLink');
+                if (goToClientInfoLink) {
+                    goToClientInfoLink.addEventListener('click', (e) => {
+                        e.preventDefault(); // Impede o comportamento padrão do link
+
+                        const currentUser = auth.currentUser;
+                        if (currentUser && currentUser.uid) {
+                            // Redireciona para a página de informações do cliente, passando o UID
+                            // Verifica se está dentro de um iframe e usa a função do parent, se disponível
+                            if (window.parent && window.parent.loadPage) {
+                                window.parent.loadPage('informacoes_cliente/?uid=' + currentUser.uid, true);
+                            } else {
+                                // Caso não esteja em um iframe ou a função loadPage não exista no parent
+                                window.location.href = 'informacoes_cliente/?uid=' + currentUser.uid;
+                            }
+                        } else {
+                            // Se não há usuário logado, redireciona para a página principal de login
+                            if (window.parent && window.parent.location) {
+                                window.parent.location.href = 'index.html'; // Ou sua página principal de login
+                            } else {
+                                window.location.href = 'index.html';
+                            }
+                        }
+                    });
+                }
+                // --- FIM NOVO ---
+                
+            } else {
+                // Se não há usuário logado, redireciona para a página principal para fazer login
+                if (window.parent && window.parent.location) {
+                    window.parent.location.href = 'index.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+
+
+        clientForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const currentUser = auth.currentUser;
+            if (!currentUser) {
+                showMessage('Você precisa estar logado para cadastrar um cliente.', 'error');
+                return;
+            }
+
+            const uidGoogle = currentUser.uid; // UID do Firebase Auth (Google)
+
+            const clientData = {
+                uidGoogle: uidGoogle, // Associa o UID do Google ao cadastro do cliente
+                fullName: fullNameInput.value,
+                cpf: cpfInput.value,
+                rg: rgInput.value,
+                socialName: socialNameInput.value,
+                birthDate: birthDateInput.value, // Formato YYYY-MM-DD
+                gender: genderSelect.value,
+                address: addressInput.value,
+                zipCode: zipCodeInput.value,
+                city: cityInput.value,
+                state: stateInput.value,
+                country: countryInput.value,
+                isActive: true, // Define como ativo por padrão
+                isBanned: false, // Não banido por padrão
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            const phoneNumber = phoneNumberInput.value;
+            const emailAddress = emailAddressInput.value;
+
+            try {
+                // Salva o documento principal do cliente usando o UID do Google como ID do documento
+                await firestore.collection('clients').doc(uidGoogle).set(clientData);
+
+                // Salva o telefone em uma subcoleção 'clientPhones'
+                // Você pode adicionar um campo 'isPrimary: true' se for o telefone principal
+                await firestore.collection('clientPhones').add({
+                    clientId: uidGoogle,
+                    phoneNumber: phoneNumber,
+                    isPrimary: true, // Exemplo: marcando como primário
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Salva o email em uma subcoleção 'clientEmails'
+                // Se o email do Firebase Auth for o principal, você pode salvar apenas adicionais aqui
+                await firestore.collection('clientEmails').add({
+                    clientId: uidGoogle,
+                    emailAddress: emailAddress,
+                    isPrimary: true, // Exemplo: marcando como primário
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showMessage('Cliente cadastrado com sucesso!', 'success');
+                clientForm.reset(); // Limpa o formulário
+
+                // Redireciona para a página de informações do cliente após o cadastro
+                if (window.parent && window.parent.loadPage) {
+                    window.parent.loadPage('informacoes_cliente/?uid=' + uidGoogle, true);
+                } else {
+                    window.location.href = 'informacoes_cliente/?uid=' + uidGoogle;
+                }
+
+            } catch (error) {
+                console.error("Erro ao cadastrar cliente:", error);
+                showMessage(`Erro ao cadastrar cliente: ${error.message}`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

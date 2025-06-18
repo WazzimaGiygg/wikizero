@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informações do Cliente - WZZM</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: calc(100vh - 200px);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .mdl-card {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+        .info-item strong {
+            display: inline-block;
+            width: 120px; /* Ajuste conforme necessário */
+        }
+        #loadingClientInfo, #clientError {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #loadingClientInfo { color: #3f51b5; }
+        #clientError { color: #F44336; }
+    </style>
+</head>
+<body>
+
+    <div class="mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title mdl-card--expand">
+            <h2 class="mdl-card__title-text">Detalhes do Cliente</h2>
+        </div>
+        <div class="mdl-card__supporting-text" id="clientInfoContent">
+            <div id="loadingClientInfo">Carregando informações do cliente...</div>
+            <div id="clientError" style="display:none;">Não foi possível carregar as informações do cliente.</div>
+            
+            <div id="clientDataDisplay" style="display:none;">
+                <div class="info-item"><strong>Nome Completo:</strong> <span id="displayFullName"></span></div>
+                <div class="info-item"><strong>CPF:</strong> <span id="displayCpf"></span></div>
+                <div class="info-item"><strong>RG:</strong> <span id="displayRg"></span></div>
+                <div class="info-item"><strong>Nome Social:</strong> <span id="displaySocialName"></span></div>
+                <div class="info-item"><strong>Telefone:</strong> <span id="displayPhoneNumber"></span></div>
+                <div class="info-item"><strong>E-mail:</strong> <span id="displayEmail"></span></div>
+                <div class="info-item"><strong>Status:</strong> <span id="displayStatus"></span></div>
+                <div class="info-item"><strong>Cadastrado em:</strong> <span id="displayCreatedAt"></span></div>
+                </div>
+        </div>
+    </div>
+     <div style="text-align: center; margin-top: 20px;">
+                    <p>Já possui cadastro completo? <a href="#" id="goToClientInfoLink">Clique aqui para ver suas informações</a>.</p>
+                </div>
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
+            authDomain: "wzzm-ce3fc.firebaseapp.com",
+            projectId: "wzzm-ce3fc",
+            storageBucket: "wzzm-ce3fc.appspot.com",
+            messagingSenderId: "249427877153",
+            appId: "1:249427877153:web:0e4297294794a5aadeb260",
+            measurementId: "G-PLKNZNFCQ8"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const firestore = firebase.firestore();
+        const auth = firebase.auth();
+
+        const loadingClientInfo = document.getElementById('loadingClientInfo');
+        const clientError = document.getElementById('clientError');
+        const clientDataDisplay = document.getElementById('clientDataDisplay');
+
+        // Função para obter o parâmetro UID da URL
+        function getParameterByName(name, url = window.location.href) {
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        async function loadClientData() {
+            loadingClientInfo.style.display = 'block';
+            clientError.style.display = 'none';
+            clientDataDisplay.style.display = 'none';
+
+            let clientId = getParameterByName('uid');
+
+            // Se o UID não veio na URL, tenta pegar do usuário logado
+            if (!clientId && auth.currentUser) {
+                clientId = auth.currentUser.uid;
+            }
+
+            if (!clientId) {
+                clientError.textContent = "UID do cliente não encontrado.";
+                clientError.style.display = 'block';
+                loadingClientInfo.style.display = 'none';
+                return;
+            }
+
+            try {
+                const clientDoc = await firestore.collection('clients').doc(clientId).get();
+
+                if (clientDoc.exists) {
+                    const data = clientDoc.data();
+                    document.getElementById('displayFullName').textContent = data.fullName || 'N/A';
+                    document.getElementById('displayCpf').textContent = data.cpf ? formatCpf(data.cpf) : 'N/A';
+                    document.getElementById('displayRg').textContent = data.rg || 'N/A';
+                    document.getElementById('displaySocialName').textContent = data.socialName || 'N/A';
+                    document.getElementById('displayStatus').textContent = data.isBanned ? 'Banido' : (data.isActive ? 'Ativo' : 'Inativo');
+                    document.getElementById('displayCreatedAt').textContent = data.createdAt ? new Date(data.createdAt.toDate()).toLocaleString() : 'N/A';
+
+                    // Buscar telefone(s)
+                    const phoneSnapshot = await firestore.collection('clientPhones').where('clientId', '==', clientId).limit(1).get();
+                    if (!phoneSnapshot.empty) {
+                        document.getElementById('displayPhoneNumber').textContent = phoneSnapshot.docs[0].data().phoneNumber || 'N/A';
+                    } else {
+                        document.getElementById('displayPhoneNumber').textContent = 'N/A';
+                    }
+
+                    // Buscar e-mail(s)
+                    const emailSnapshot = await firestore.collection('clientEmails').where('clientId', '==', clientId).limit(1).get();
+                    if (!emailSnapshot.empty) {
+                        document.getElementById('displayEmail').textContent = emailSnapshot.docs[0].data().emailAddress || 'N/A';
+                    } else {
+                        // Se não houver email em clientEmails, tentar o email do Firebase Auth
+                        document.getElementById('displayEmail').textContent = auth.currentUser ? auth.currentUser.email : 'N/A';
+                    }
+                    
+                    clientDataDisplay.style.display = 'block';
+
+                } else {
+                    clientError.textContent = "Informações do cliente não encontradas para o UID fornecido.";
+                    clientError.style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Erro ao carregar dados do cliente:", error);
+                clientError.textContent = `Erro ao carregar dados: ${error.message}`;
+                clientError.style.display = 'block';
+            } finally {
+                loadingClientInfo.style.display = 'none';
+            }
+        }
+
+        // Função para formatar CPF (ex: 12345678900 -> 123.456.789-00)
+        function formatCpf(cpf) {
+            cpf = cpf.replace(/\D/g, ''); // Remove tudo que não é dígito
+            if (cpf.length === 11) {
+                return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            }
+            return cpf;
+        }
+
+        // Carregar dados quando a página for carregada
+        document.addEventListener('DOMContentLoaded', loadClientData);
+
+        // Opcional: recarregar dados se o UID do usuário logado mudar (menos comum em iframes)
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Se o UID na URL for diferente do UID do usuário logado, recarrega
+                const uidFromUrl = getParameterByName('uid');
+                if (uidFromUrl && uidFromUrl !== user.uid) {
+                    loadClientData();
+                } else if (!uidFromUrl) { // Se não tem UID na URL, mas tem user logado, carrega
+                    loadClientData();
+                }
+            } else {
+                // Se não há usuário logado, o cliente não deveria estar aqui.
+                // Redirecionar para a página principal de login (do parent)
+                if (window.parent && window.parent.location) {
+                    window.parent.location.href = 'index.html'; // Ou sua página principal de login
+                } else {
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+
+        // --- NOVO: Lógica para o link "Já possui cadastro" ---
+        const goToClientInfoLink = document.getElementById('goToClientInfoLink');
+        if (goToClientInfoLink) {
+            goToClientInfoLink.addEventListener('click', (e) => {
+                e.preventDefault(); // Impede o comportamento padrão do link
+
+                const currentUser = auth.currentUser;
+                if (currentUser && currentUser.uid) {
+                    // Redireciona para a página de informações do cliente, passando o UID
+                    // Verifica se está dentro de um iframe e usa a função do parent, se disponível
+                    if (window.parent && window.parent.loadPage) {
+                        window.parent.loadPage('informacoes_cliente/?uid=' + currentUser.uid, true);
+                    } else {
+                        // Caso não esteja em um iframe ou a função loadPage não exista no parent
+                        window.location.href = 'informacoes_cliente/?uid=' + currentUser.uid;
+                    }
+                } else {
+                    // Se não há usuário logado, redireciona para a página principal de login
+                    if (window.parent && window.parent.location) {
+                        window.parent.location.href = 'index.html'; // Ou sua página principal de login
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                }
+            });
+        }
+        // --- FIM NOVO ---
+    </script>
+</body>
+</html>
