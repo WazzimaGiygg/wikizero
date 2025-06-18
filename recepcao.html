@@ -3,92 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fórum Wiki Zone Zero Mod</title>
+    <title>Transparência Financeira - WZZM</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
     <style>
-        /* Seus estilos CSS para o layout do fórum (os mesmos que te dei antes) */
-        .forum-container {
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
             padding: 20px;
-            max-width: 800px;
-            margin: 20px auto;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-sizing: border-box;
         }
-        .mdl-textfield {
+        .mdl-card {
             width: 100%;
-            margin-bottom: 20px;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
         }
-        .mdl-button--colored {
-            background-color: #3f51b5;
+        .mdl-list {
+            padding: 0;
         }
-        .mdl-button--colored:hover {
-            background-color: #303f9f;
+        .mdl-list__item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+            justify-content: space-between;
         }
-        .forum-post {
-            border: 1px solid #e0e0e0;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            background-color: #fafafa;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        .mdl-list__item-primary-content {
+            font-weight: bold;
         }
-        .forum-post h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #424242;
+        .mdl-list__item-secondary-action {
+            color: #3f51b5;
+        }
+        .summary-card {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e8eaf6;
+            color: #3f51b5;
             font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 4px;
         }
-        .forum-post p {
+        .summary-card.positive {
+            background-color: #e0f2f1;
+            color: #00796b;
+        }
+        .summary-card.negative {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        .donation-section {
+            margin-top: 20px;
+            text-align: center;
+            padding: 20px;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        .progress-container {
+            margin-top: 20px;
+        }
+        .progress-bar-wrapper {
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            height: 25px;
             margin-bottom: 10px;
-            line-height: 1.5;
-            color: #616161;
+            overflow: hidden;
+            position: relative;
         }
-        .forum-post small {
-            display: block;
+        .progress-bar {
+            height: 100%;
+            background-color: #4CAF50; /* Verde para contribuições */
+            width: 0%;
+            text-align: center;
+            color: white;
+            line-height: 25px;
+            font-weight: bold;
+            transition: width 0.5s ease-in-out;
+            position: absolute;
+        }
+        .cost-bar {
+            background-color: #f44336; /* Vermelho para custos */
+            width: 0%;
             text-align: right;
-            color: #9e9e9e;
-            font-size: 0.85em;
+            padding-right: 5px;
+            line-height: 25px;
+            font-weight: bold;
+            color: white;
+            transition: width 0.5s ease-in-out;
+            position: absolute;
+            right: 0;
+            z-index: 1;
         }
-        hr {
-            border: none;
-            border-top: 1px solid #eeeeee;
-            margin: 30px 0;
+        .bar-label {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 25px;
+            color: #333;
+            z-index: 2;
+            font-weight: bold;
+        }
+
+        /* Tabela de Notas Fiscais */
+        .mdl-data-table {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .mdl-data-table th, .mdl-data-table td {
+            text-align: left;
+        }
+        .mdl-data-table th:nth-child(4), .mdl-data-table td:nth-child(4) {
+             text-align: right;
+        }
+        .mdl-data-table__cell--non-numeric {
+            white-space: normal;
+        }
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #fff3cd; /* Amarelo claro para alerta */
+            color: #856404;
+            border: 1px solid #ffeeba;
+            text-align: center;
+            font-weight: bold;
+        }
+        .connected-services {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #555;
+            text-align: center;
+        }
+        .connected-services ul {
+            list-style: none;
+            padding: 0;
+            margin: 5px 0;
+            display: inline-block;
+        }
+        .connected-services li {
+            display: inline-block;
+            margin: 0 5px;
+            background-color: #e0e0e0;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
         }
     </style>
 </head>
 <body>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <div class="forum-container">
-        <h2>Criar Nova Publicação</h2>
 
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-            <input class="mdl-textfield__input" type="text" id="subjectInput">
-            <label class="mdl-textfield__label" for="subjectInput">Assunto da Publicação</label>
+    <div class="mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title mdl-card--expand">
+            <h2 class="mdl-card__title-text">Transparência Financeira WZZM</h2>
         </div>
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-            <textarea class="mdl-textfield__input" type="text" rows="5" id="contentInput"></textarea>
-            <label class="mdl-textfield__label" for="contentInput">Conteúdo da Publicação</label>
-        </div>
+        <div class="mdl-card__supporting-text">
+            <p>O projeto WZZM opera sem fins lucrativos e depende de doações para cobrir seus custos de infraestrutura, como Firebase e Google Workspace. Agradecemos imensamente seu apoio!</p>
 
-        <button id="submitButton" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect">
-            <i class="material-icons">send</i> Enviar Publicação
-        </button>
+            <div id="statusMessage" class="status-message" style="display: none;">
+                </div>
 
-        <hr>
+            <h3 style="margin-top: 20px;">Resumo Mensal (<span id="currentMonthYear"></span>)</h3>
+            <ul class="mdl-list">
+                <li class="mdl-list__item">
+                    <span class="mdl-list__item-primary-content">Doações Recebidas:</span>
+                    <span class="mdl-list__item-secondary-action" id="totalDonations">R$ 0,00</span>
+                </li>
+                <li class="mdl-list__item">
+                    <span class="mdl-list__item-primary-content">Custo Firebase (Previsão):</span>
+                    <span class="mdl-list__item-secondary-action" id="costFirebase">R$ 0,00</span>
+                </li>
+                <li class="mdl-list__item">
+                    <span class="mdl-list__item-primary-content">Custo Google Workspace (Previsão):</span>
+                    <span class="mdl-list__item-secondary-action" id="costWorkspace">R$ 0,00</span>
+                </li>
+            </ul>
 
-        <h2>Publicações Recentes</h2>
-        <div id="messageList">
-            <p>Carregando publicações...</p>
+            <div id="balanceCard" class="summary-card">
+                Saldo Atual: <span id="currentBalance">R$ 0,00</span>
+            </div>
+            
+            <div id="connectedServicesDiv" class="connected-services">
+                <strong>Serviços Conectados (Este mês):</strong>
+                <ul id="servicesList">
+                    </ul>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 0.9em; color: #555;">
+                *Os valores de custo são estimativas e podem variar ligeiramente de acordo com o uso e o ciclo de faturamento.
+                As informações são atualizadas periodicamente para garantir a maior transparência possível.
+            </p>
+
+            <div class="progress-container">
+                <h4>Status de Cobertura de Custos</h4>
+                <div class="progress-bar-wrapper">
+                    <div id="contributionsBar" class="progress-bar"></div>
+                    <div id="costsBar" class="cost-bar"></div>
+                    <div class="bar-label" id="barLabel">Carregando...</div>
+                </div>
+                <p style="text-align: center; font-size: 0.9em; color: #555;">
+                    Verde: Contribuições Recebidas | Vermelho: Custos Mensais
+                </p>
+            </div>
+
+
+            <div class="donation-section">
+                <h4>Apoie o Projeto WZZM!</h4>
+                <p>Sua doação ajuda a manter a plataforma funcionando e crescendo.</p>
+                <p style="font-weight: bold; color: #3f51b5;">Funcionalidade de Doação: Ainda a ser implementada.</p>
+                </div>
+
+            <h3 style="margin-top: 30px;">Notas Fiscais de Custos</h3>
+            <p>Detalhes das notas fiscais dos serviços utilizados:</p>
+            <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th class="mdl-data-table__cell--non-numeric">Serviço</th>
+                        <th class="mdl-data-table__cell--non-numeric">Nº Nota Fiscal</th>
+                        <th class="mdl-data-table__cell--non-numeric">Data</th>
+                        <th>Valor (R$)</th>
+                        <th class="mdl-data-table__cell--non-numeric">Link</th>
+                    </tr>
+                </thead>
+                <tbody id="invoicesTableBody">
+                    <tr><td colspan="5" style="text-align: center;">Carregando notas fiscais...</td></tr>
+                </tbody>
+            </table>
+
         </div>
     </div>
 
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <script>
-        // --- Configuração do Firebase (apenas para autenticação) ---
+        // Sua configuração do Firebase (substitua com suas próprias chaves)
         const firebaseConfig = {
             apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
             authDomain: "wzzm-ce3fc.firebaseapp.com",
@@ -99,149 +251,166 @@
             measurementId: "G-PLKNZNFCQ8"
         };
 
+        // Inicializa o Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-        const auth = firebase.auth();
+        const firestore = firebase.firestore();
 
-        // URL base do seu backend Express.js
-        const API_BASE_URL = 'http://localhost:3000/api/forum';
+        // Elementos HTML
+        const totalDonationsEl = document.getElementById('totalDonations');
+        const costFirebaseEl = document.getElementById('costFirebase');
+        const costWorkspaceEl = document.getElementById('costWorkspace');
+        const currentBalanceEl = document.getElementById('currentBalance');
+        const balanceCardEl = document.getElementById('balanceCard');
+        const currentMonthYearEl = document.getElementById('currentMonthYear');
+        const contributionsBar = document.getElementById('contributionsBar');
+        const costsBar = document.getElementById('costsBar');
+        const barLabel = document.getElementById('barLabel');
+        const invoicesTableBody = document.getElementById('invoicesTableBody');
+        const statusMessageDiv = document.getElementById('statusMessage');
+        const servicesList = document.getElementById('servicesList');
 
-        // Referências aos elementos HTML
-        const subjectInput = document.getElementById('subjectInput');
-        const contentInput = document.getElementById('contentInput');
-        const submitButton = document.getElementById('submitButton');
-        const messageList = document.getElementById('messageList');
+        // Função para formatar moeda
+        function formatCurrency(value) {
+            return `R$ ${value.toFixed(2).replace('.', ',')}`;
+        }
 
-        let currentUserUid = null; // Para armazenar o UID do usuário logado
+        // Função para carregar dados financeiros e de notas fiscais
+        async function loadFinancialData() {
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1; // getMonth() é 0-index
+            const currentYear = now.getFullYear();
+            const monthYearId = `${currentYear}-${String(currentMonth).padStart(2, '0')}`; // Ex: "2025-06"
+            
+            // Exibir o mês/ano atual no cabeçalho
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            currentMonthYearEl.textContent = `${monthNames[now.getMonth()]} de ${currentYear}`;
 
-        // Listener de estado de autenticação (para pegar o UID do Firebase Auth)
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUserUid = user.uid;
-                console.log("Usuário autenticado no fórum:", currentUserUid);
-                // Habilita os campos e botão se o usuário estiver logado
-                if (subjectInput) subjectInput.disabled = false;
-                if (contentInput) contentInput.disabled = false;
-                if (submitButton) submitButton.disabled = false;
-                // Carrega as mensagens assim que o UID estiver disponível
-                fetchMessages();
-            } else {
-                currentUserUid = null;
-                console.warn("Usuário não autenticado no fórum. Postagem desabilitada.");
-                // Desabilita os campos e botão se o usuário não estiver logado
-                if (subjectInput) subjectInput.disabled = true;
-                if (contentInput) contentInput.disabled = true;
-                if (submitButton) submitButton.disabled = true;
-                if (messageList) messageList.innerHTML = '<p style="color: red;">Você precisa estar logado para postar no fórum.</p>';
-            }
-        });
-
-        // --- Event Listener para o Botão de Enviar ---
-        submitButton.addEventListener('click', async () => {
-            const subject = subjectInput.value.trim();
-            const content = contentInput.value.trim();
-
-            if (!subject || !content) {
-                alert("Por favor, preença o assunto e o conteúdo da mensagem.");
-                return;
-            }
-
-            if (!currentUserUid) {
-                alert("Você não está logado. Faça login para postar.");
-                return;
-            }
+            let totalDonations = 0;
+            let firebaseCost = 0;
+            let workspaceCost = 0;
+            let statusText = "";
+            let connectedServices = [];
 
             try {
-                const response = await fetch(`${API_BASE_URL}/posts`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // Se você adicionar autenticação no backend (via token do Firebase, por exemplo),
-                        // o token JWT seria enviado aqui.
-                        // 'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
-                    },
-                    body: JSON.stringify({
-                        subject: subject,
-                        content: content,
-                        authorUid: currentUserUid // Envia o UID do Firebase para o backend
-                    })
-                });
+                // 1. Buscar dados financeiros do mês atual
+                const financialDocRef = firestore.collection('financialData').doc(monthYearId);
+                const financialDoc = await financialDocRef.get();
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Erro ao enviar: ${errorText}`);
+                if (financialDoc.exists) {
+                    const data = financialDoc.data();
+                    totalDonations = data.totalDonations || 0;
+                    firebaseCost = data.firebaseCost || 0;
+                    workspaceCost = data.workspaceCost || 0;
+                    statusText = data.statusMessage || ""; // Obter mensagem de status
+                    connectedServices = data.connectedServices || []; // Obter lista de serviços
+                } else {
+                    console.warn(`Dados financeiros para ${monthYearId} não encontrados no Firestore. Exibindo zeros.`);
+                    statusText = "Dados financeiros para este mês ainda não foram registrados.";
                 }
 
-                const newPost = await response.json();
-                alert("Sua publicação foi enviada com sucesso!");
-                subjectInput.value = '';
-                contentInput.value = '';
-                fetchMessages(); // Recarrega a lista para mostrar a nova postagem
-
-            } catch (error) {
-                console.error("Erro ao enviar publicação:", error);
-                alert(`Ocorreu um erro ao enviar sua publicação: ${error.message}`);
-            }
-        });
-
-        // --- Função para buscar e exibir mensagens ---
-        async function fetchMessages() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/posts`, {
-                    method: 'GET'
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Erro ao buscar: ${errorText}`);
+                // Exibir mensagem de status
+                if (statusText) {
+                    statusMessageDiv.textContent = statusText;
+                    statusMessageDiv.style.display = 'block';
+                } else {
+                    statusMessageDiv.style.display = 'none';
                 }
 
-                const posts = await response.json(); // Recebe o array de posts
-
-                messageList.innerHTML = ''; // Limpa a lista existente
-
-                if (posts.length === 0) {
-                    messageList.innerHTML = '<p>Nenhuma publicação ainda. Seja o primeiro a postar!</p>';
-                    return;
-                }
-
-                posts.forEach(post => {
-                    const messageElement = document.createElement('div');
-                    messageElement.classList.add('forum-post');
-
-                    const date = new Date(post.timestamp); // Assume que o timestamp é um ISO string
-                    const formattedDate = date.toLocaleString('pt-BR', {
-                        day: '2-digit', month: '2-digit', year: 'numeric',
-                        hour: '2-digit', minute: '2-digit'
+                // Exibir serviços conectados
+                servicesList.innerHTML = ''; // Limpa a lista existente
+                if (connectedServices.length > 0) {
+                    connectedServices.forEach(service => {
+                        const li = document.createElement('li');
+                        li.textContent = service;
+                        servicesList.appendChild(li);
                     });
+                } else {
+                    servicesList.innerHTML = '<li>Nenhum serviço conectado listado.</li>';
+                }
 
-                    messageElement.innerHTML = `
-                        <h3>${post.subject}</h3>
-                        <p>${post.content}</p>
-                        <small>Publicado por: ${post.authorUid} em ${formattedDate}</small>
-                    `;
-                    messageList.appendChild(messageElement);
-                });
+                const totalCosts = firebaseCost + workspaceCost;
+                const balance = totalDonations - totalCosts;
+
+                totalDonationsEl.textContent = formatCurrency(totalDonations);
+                costFirebaseEl.textContent = formatCurrency(firebaseCost);
+                costWorkspaceEl.textContent = formatCurrency(workspaceCost);
+                currentBalanceEl.textContent = formatCurrency(balance);
+
+                if (balance >= 0) {
+                    balanceCardEl.classList.add('positive');
+                    balanceCardEl.classList.remove('negative');
+                } else {
+                    balanceCardEl.classList.add('negative');
+                    balanceCardEl.classList.remove('positive');
+                }
+
+                // --- Lógica das Barras de Progresso ---
+                const maxAmount = Math.max(totalDonations, totalCosts, 1);
+                let contributionsPercentage = (totalDonations / maxAmount) * 100;
+                let costsPercentage = (totalCosts / maxAmount) * 100;
+
+                // Para garantir que as barras não sejam maiores que 100% visivelmente
+                if (contributionsPercentage > 100) contributionsPercentage = 100;
+                if (costsPercentage > 100) costsPercentage = 100;
+
+                contributionsBar.style.width = `${contributionsPercentage}%`;
+                costsBar.style.width = `${costsPercentage}%`;
+
+                if (totalDonations > 0 || totalCosts > 0) {
+                    barLabel.textContent = `Doações: ${formatCurrency(totalDonations)} / Custos: ${formatCurrency(totalCosts)}`;
+                } else {
+                    barLabel.textContent = "Nenhum dado financeiro registrado ainda para este mês.";
+                }
+                
+                // 2. Buscar Notas Fiscais
+                invoicesTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Carregando notas fiscais...</td></tr>';
+                const invoicesSnapshot = await firestore.collection('invoices')
+                                                          .where('monthYear', '==', monthYearId)
+                                                          .orderBy('date', 'desc')
+                                                          .get();
+                
+                if (!invoicesSnapshot.empty) {
+                    invoicesTableBody.innerHTML = '';
+                    invoicesSnapshot.forEach(doc => {
+                        const invoice = doc.data();
+                        const row = invoicesTableBody.insertRow();
+                        row.insertCell(0).textContent = invoice.service || 'N/A';
+                        row.insertCell(1).textContent = invoice.invoiceNumber || 'N/A';
+                        row.insertCell(2).textContent = invoice.date ? new Date(invoice.date.seconds * 1000).toLocaleDateString() : 'N/A';
+                        row.insertCell(3).textContent = formatCurrency(invoice.amount || 0);
+                        const linkCell = row.insertCell(4);
+                        if (invoice.fileURL) {
+                            const link = document.createElement('a');
+                            link.href = invoice.fileURL;
+                            link.textContent = 'Ver Nota';
+                            link.target = '_blank';
+                            linkCell.appendChild(link);
+                        } else {
+                            linkCell.textContent = 'N/A';
+                        }
+                    });
+                } else {
+                    invoicesTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhuma nota fiscal encontrada para este mês.</td></tr>';
+                }
 
             } catch (error) {
-                console.error("Erro ao buscar publicações:", error);
-                messageList.innerHTML = `<p style="color: red;">Erro ao carregar publicações: ${error.message}</p>`;
+                console.error("Erro ao carregar dados financeiros ou notas fiscais:", error);
+                totalDonationsEl.textContent = 'Erro!';
+                costFirebaseEl.textContent = 'Erro!';
+                costWorkspaceEl.textContent = 'Erro!';
+                currentBalanceEl.textContent = 'Erro!';
+                balanceCardEl.classList.remove('positive', 'negative');
+                barLabel.textContent = "Erro ao carregar dados.";
+                invoicesTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Erro ao carregar notas fiscais.</td></tr>';
+                statusMessageDiv.textContent = "Houve um erro ao carregar os dados de status. Por favor, tente novamente mais tarde.";
+                statusMessageDiv.style.display = 'block';
             }
         }
 
-        // --- Inicialização ao Carregar a Página ---
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.componentHandler) {
-                window.componentHandler.upgradeDom();
-            }
-            // Não chame fetchMessages() aqui diretamente,
-            // pois ela será chamada pelo onAuthStateChanged quando o UID estiver disponível.
-            // Apenas desabilite os campos no início, eles serão habilitados se logar.
-            if (subjectInput) subjectInput.disabled = true;
-            if (contentInput) contentInput.disabled = true;
-            if (submitButton) submitButton.disabled = true;
-        });
+        // Carregar dados ao carregar a página
+        document.addEventListener('DOMContentLoaded', loadFinancialData);
     </script>
 </body>
 </html>
