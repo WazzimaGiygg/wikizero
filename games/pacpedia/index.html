@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pac-Man Simples - Labirinto Nuclear</title>
+    <style>
+        body {
+            background-color: #222;
+            color: #eee;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column; /* Changed to column for vertical alignment */
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #game-area { /* New container for game and ranking */
+            display: flex;
+            gap: 20px; /* Space between game and ranking */
+            align-items: flex-start; /* Align content to the top */
+        }
+
+        #game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%; /* Will be set by JS based on map size */
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            color: #0f0;
+        }
+
+        #game-container {
+            border: 2px solid #0f0;
+            background-color: #333;
+            padding: 10px;
+            display: grid;
+            gap: 0;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            outline: none;
+        }
+
+        .cell {
+            width: 30px;
+            height: 30px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+        }
+
+        .wall {
+            background-color: #050;
+            border: 1px solid #0a0;
+        }
+
+        .path {
+            background-color: #1a1a1a;
+        }
+
+        .player {
+            background-color: #ff0;
+            border: 2px solid #fff;
+            border-radius: 5px;
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            transition: left 0.1s linear, top 0.1s linear;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .dot {
+            background-color: #fff;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: absolute;
+            z-index: 5;
+        }
+
+        .power-pellet { /* New style for invulnerability bonus */
+            background-color: #00f; /* Blue pellet */
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            position: absolute;
+            z-index: 6;
+        }
+
+        .ghost {
+            background-color: #f00;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            transition: left 0.2s linear, top 0.2s linear;
+            box-sizing: border-box;
+            z-index: 8;
+        }
+
+        .ghost.scared { /* Ghost when player is invulnerable */
+            background-color: #00f; /* Blue when scared */
+            animation: flashScared 0.8s infinite alternate; /* Flashing effect */
+        }
+
+        @keyframes flashScared {
+            from { background-color: #00f; }
+            to { background-color: #55f; }
+        }
+
+        #score-display, #lives-display, #message-display {
+            font-size: 1.2em;
+            color: #0f0;
+            text-align: center;
+        }
+
+        #message-display {
+            margin-top: 10px;
+        }
+
+        #start-button, #name-input-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1.5em;
+            background-color: #0a0;
+            color: #eee;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #start-button:hover, #name-input-button:hover {
+            background-color: #070;
+        }
+
+        #name-input-container {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        #player-name-input {
+            padding: 8px;
+            font-size: 1.2em;
+            width: 200px;
+            margin-bottom: 10px;
+            background-color: #444;
+            color: #eee;
+            border: 1px solid #0f0;
+            border-radius: 3px;
+        }
+
+        #high-scores-container {
+            margin-left: 30px; /* Space from game */
+            background-color: #333;
+            border: 2px solid #0f0;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+            border-radius: 8px;
+            width: 250px; /* Fixed width for ranking */
+            box-sizing: border-box;
+        }
+
+        #high-scores-container h2 {
+            color: #0f0;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #070;
+            padding-bottom: 10px;
+        }
+
+        #high-scores-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #high-scores-list li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #444;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1em;
+        }
+
+        #high-scores-list li:last-child {
+            border-bottom: none;
+        }
+
+        #high-scores-list li .player-name {
+            color: #fff;
+        }
+
+        #high-scores-list li .player-score {
+            color: #ff0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pac-Man Simples - Labirinto Nuclear</h1>
+    <div id="game-info">
+        <div id="score-display">Pontos: 0</div>
+        <div id="lives-display">Vidas: ❤️ ❤️ ❤️</div>
+    </div>
+    <div id="game-area">
+        <div id="game-container">
+            </div>
+        <div id="high-scores-container">
+            <h2>Recordes</h2>
+            <ul id="high-scores-list">
+                </ul>
+        </div>
+    </div>
+    <div id="message-display">Use as setas do teclado para mover. Clique em "Iniciar Jogo" para começar!</div>
+    <button id="start-button">Iniciar Jogo</button>
+
+    <div id="name-input-container">
+        <p>Parabéns! Você fez um novo recorde!</p>
+        <input type="text" id="player-name-input" placeholder="Seu nome">
+        <button id="name-input-button">Salvar Recorde</button>
+    </div>
+
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const scoreDisplay = document.getElementById('score-display');
+        const livesDisplay = document.getElementById('lives-display');
+        const messageDisplay = document.getElementById('message-display');
+        const startButton = document.getElementById('start-button');
+        const nameInputContainer = document.getElementById('name-input-container');
+        const playerNameInput = document.getElementById('player-name-input');
+        const nameInputButton = document.getElementById('name-input-button');
+        const highScoresList = document.getElementById('high-scores-list');
+        const gameInfo = document.getElementById('game-info'); // New element
+
+        const CELL_SIZE = 30; // pixels
+        let score = 0;
+        let lives = 3; // New: Player lives
+        let gameRunning = false;
+        let playerX = 0;
+        let playerY = 0;
+        let playerDirection = '';
+        let playerSpeed = 100; // milliseconds per cell move (lower is faster)
+        let ghostSpeed = 300; // milliseconds per cell move for ghosts
+        let currentLevel = 0; // New: Track current level/map
+
+        let ghostInterval;
+        let playerMoveInterval;
+        let invulnerabilityTimeout; // To clear timeout for invulnerability
+
+        let isInvulnerable = false; // New: State for player invulnerability
+
+        // 0: path, 1: wall, 2: dot, 3: player start, 4: ghost start, 5: power pellet
+        const maps = [
+            // Map 0 (Initial map)
+            [
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+                [1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1],
+                [1, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 1],
+                [1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1],
+                [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+                [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
+                [1, 2, 2, 5, 2, 2, 3, 2, 2, 2, 2, 2, 2, 4, 1], /* Player (3), Ghost (4), Power Pellet (5) */
+                [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
+                [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+                [1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1],
+                [1, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 1],
+                [1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1],
+                [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            ],
+            // Map 1 (Example of a second map, slightly different)
+            [
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+                [1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1],
+                [1, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 1],
+                [1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1],
+                [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+                [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1],
+                [1, 5, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 4, 1],
+                [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1],
+                [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+                [1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1],
+                [1, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 1, 2, 1],
+                [1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1],
+                [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            ]
+            // Add more maps as needed
+        ];
+
+        let dotsCount = 0;
+        const gameElements = {}; // To store references to player, dots, ghosts, pellets
+
+        function initializeGame(mapIndex) {
+            gameContainer.innerHTML = ''; // Clear previous map
+            const currentMapData = maps[mapIndex];
+            gameContainer.style.gridTemplateColumns = `repeat(${currentMapData[0].length}, ${CELL_SIZE}px)`;
+            gameContainer.style.gridTemplateRows = `repeat(${currentMapData.length}, ${CELL_SIZE}px)`;
+            
+            // Set width of game-info to match game-container
+            gameInfo.style.width = `${currentMapData[0].length * CELL_SIZE + 20}px`; // +20 for padding
+
+            dotsCount = 0;
+            gameElements.dots = [];
+            gameElements.powerPellets = [];
+            gameElements.ghosts = [];
+            gameElements.ghostElements = []; // To keep track of ghost DOM elements
+
+            // Create a temporary map to find player/ghost start positions for this level
+            let tempMap = currentMapData.map(row => [...row]); // Deep copy
+
+            // Place ghosts for the current level
+            let initialGhostPositions = [];
+            for (let r = 0; r < tempMap.length; r++) {
+                for (let c = 0; c < tempMap[r].length; c++) {
+                    const cellValue = tempMap[r][c];
+                    if (cellValue === 3) { // Player start
+                        playerX = c;
+                        playerY = r;
+                        tempMap[r][c] = 0; // Treat as path after placing player
+                    } else if (cellValue === 4) { // Ghost start
+                        initialGhostPositions.push({ x: c, y: r });
+                        tempMap[r][c] = 0; // Treat as path after placing ghost
+                    }
+                }
+            }
+            
+            // Render the map and elements
+            for (let r = 0; r < tempMap.length; r++) {
+                for (let c = 0; c < tempMap[r].length; c++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+
+                    if (tempMap[r][c] === 1) {
+                        cell.classList.add('wall');
+                    } else {
+                        cell.classList.add('path');
+                        if (currentMapData[r][c] === 2) { // Use original map for dots/pellets
+                            const dot = document.createElement('div');
+                            dot.classList.add('dot');
+                            dot.style.left = `${c * CELL_SIZE + (CELL_SIZE / 2 - 4)}px`;
+                            dot.style.top = `${r * CELL_SIZE + (CELL_SIZE / 2 - 4)}px`;
+                            gameContainer.appendChild(dot);
+                            gameElements.dots.push({ element: dot, x: c, y: r });
+                            dotsCount++;
+                        } else if (currentMapData[r][c] === 5) {
+                            const pellet = document.createElement('div');
+                            pellet.classList.add('power-pellet');
+                            pellet.style.left = `${c * CELL_SIZE + (CELL_SIZE / 2 - 7.5)}px`; // Center pellet
+                            pellet.style.top = `${r * CELL_SIZE + (CELL_SIZE / 2 - 7.5)}px`;
+                            gameContainer.appendChild(pellet);
+                            gameElements.powerPellets.push({ element: pellet, x: c, y: r });
+                        }
+                    }
+                    gameContainer.appendChild(cell);
+                }
+            }
+
+            // Add player
+            const player = document.createElement('div');
+            player.classList.add('player');
+            gameContainer.appendChild(player);
+            gameElements.player = player;
+
+            // Add ghosts based on initial positions and current level
+            gameElements.ghosts = []; // Clear previous ghosts logic objects
+            gameElements.ghostElements.forEach(g => g.remove()); // Remove old ghost DOM elements
+            gameElements.ghostElements = []; // Clear ghost DOM elements array
+
+            const numGhostsForLevel = Math.min(initialGhostPositions.length, currentLevel + 1); // Add one ghost per level
+            for (let i = 0; i < numGhostsForLevel; i++) {
+                const ghostPos = initialGhostPositions[i % initialGhostPositions.length]; // Cycle through available ghost starts
+                const ghostElement = document.createElement('div');
+                ghostElement.classList.add('ghost');
+                // Assign different colors to ghosts
+                const colors = ['#f00', '#ffb0f0', '#0ff', '#f90']; // Red, Pink, Cyan, Orange
+                ghostElement.style.backgroundColor = colors[i % colors.length];
+                gameContainer.appendChild(ghostElement);
+                gameElements.ghosts.push({
+                    element: ghostElement,
+                    x: ghostPos.x,
+                    y: ghostPos.y,
+                    initialX: ghostPos.x, // Store initial position for respawn
+                    initialY: ghostPos.y,
+                    isEaten: false // New: State if ghost is eaten
+                });
+                gameElements.ghostElements.push(ghostElement); // Store DOM element
+            }
+
+            updatePlayerPosition();
+            updateGhostPositions();
+            updateLivesDisplay(); // Update lives display
+        }
+
+        function updatePlayerPosition() {
+            if (gameElements.player) {
+                gameElements.player.style.left = `${playerX * CELL_SIZE + 2}px`;
+                gameElements.player.style.top = `${playerY * CELL_SIZE + 2}px`;
+            }
+        }
+
+        function updateGhostPositions() {
+            gameElements.ghosts.forEach(ghost => {
+                ghost.element.style.left = `${ghost.x * CELL_SIZE + 2}px`;
+                ghost.element.style.top = `${ghost.y * CELL_SIZE + 2}px`;
+            });
+        }
+
+        function updateLivesDisplay() {
+            livesDisplay.innerHTML = 'Vidas: ' + '❤️ '.repeat(lives);
+        }
+
+        function activateInvulnerability() {
+            isInvulnerable = true;
+            gameElements.player.style.backgroundColor = '#00f'; // Player turns blue
+            gameElements.ghosts.forEach(ghost => {
+                if (!ghost.isEaten) { // Only scare ghosts that haven't been eaten
+                    ghost.element.classList.add('scared');
+                    ghost.speedMultiplier = 0.5; // Make scared ghosts slower
+                }
+            });
+
+            // Clear any existing timeout to prevent overlapping invulnerability
+            if (invulnerabilityTimeout) {
+                clearTimeout(invulnerabilityTimeout);
+            }
+
+            invulnerabilityTimeout = setTimeout(() => {
+                deactivateInvulnerability();
+            }, 7000); // Invulnerable for 7 seconds (adjust as needed)
+        }
+
+        function deactivateInvulnerability() {
+            isInvulnerable = false;
+            gameElements.player.style.backgroundColor = '#ff0'; // Player returns to yellow
+            gameElements.ghosts.forEach(ghost => {
+                ghost.element.classList.remove('scared');
+                ghost.speedMultiplier = 1; // Reset ghost speed
+            });
+            // Ensure any flashing animation is removed if not scared
+            gameElements.ghostElements.forEach(g => g.style.animation = '');
+        }
+
+        function checkCollisions() {
+            // Check dot collisions
+            gameElements.dots.forEach((dot, index) => {
+                if (dot.element.style.display !== 'none' && dot.x === playerX && dot.y === playerY) {
+                    dot.element.style.display = 'none';
+                    score++;
+                    dotsCount--;
+                    scoreDisplay.textContent = `Pontos: ${score}`;
+                }
+            });
+
+            // Check power pellet collisions
+            gameElements.powerPellets.forEach((pellet, index) => {
+                if (pellet.element.style.display !== 'none' && pellet.x === playerX && pellet.y === playerY) {
+                    pellet.element.style.display = 'none';
+                    activateInvulnerability();
+                }
+            });
+
+            // Check ghost collisions
+            gameElements.ghosts.forEach(ghost => {
+                if (ghost.x === playerX && ghost.y === playerY && !ghost.isEaten) {
+                    if (isInvulnerable) {
+                        // Player eats ghost
+                        ghost.isEaten = true;
+                        ghost.element.style.display = 'none'; // Hide eaten ghost
+                        score += 10; // Bonus points for eating ghost
+                        scoreDisplay.textContent = `Pontos: ${score}`;
+
+                        // Respawn ghost after a short delay
+                        setTimeout(() => {
+                            ghost.x = ghost.initialX;
+                            ghost.y = ghost.initialY;
+                            ghost.element.style.display = 'block';
+                            ghost.isEaten = false;
+                            ghost.element.classList.remove('scared'); // Remove scared class when respawning
+                            ghost.speedMultiplier = 1; // Reset speed
+                            updateGhostPositions();
+                        }, 3000); // Respawn after 3 seconds
+                    } else {
+                        // Player hit by ghost, lose a life
+                        lives--;
+                        updateLivesDisplay();
+                        if (lives <= 0) {
+                            endGame('Você foi pego pelos fantasmas e perdeu todas as vidas! Fim de jogo.');
+                        } else {
+                            messageDisplay.textContent = 'Você perdeu uma vida!';
+                            // Briefly pause game, reset player and ghost positions
+                            clearInterval(playerMoveInterval);
+                            clearInterval(ghostInterval);
+                            setTimeout(() => {
+                                // Reset player position to start of current map
+                                const currentMapData = maps[currentLevel];
+                                for (let r = 0; r < currentMapData.length; r++) {
+                                    for (let c = 0; c < currentMapData[r].length; c++) {
+                                        if (currentMapData[r][c] === 3) {
+                                            playerX = c;
+                                            playerY = r;
+                                            break;
+                                        }
+                                    }
+                                }
+                                // Reset ghosts to their initial positions for the level
+                                gameElements.ghosts.forEach(ghost => {
+                                    ghost.x = ghost.initialX;
+                                    ghost.y = ghost.initialY;
+                                    ghost.element.style.display = 'block'; // Ensure it's visible
+                                    ghost.isEaten = false; // Not eaten anymore
+                                    ghost.element.classList.remove('scared');
+                                    ghost.speedMultiplier = 1;
+                                });
+                                updatePlayerPosition();
+                                updateGhostPositions();
+                                playerDirection = ''; // Stop player movement
+                                messageDisplay.textContent = 'Use as setas do teclado para mover.';
+                                playerMoveInterval = setInterval(movePlayer, playerSpeed);
+                                ghostInterval = setInterval(moveGhosts, ghostSpeed);
+                                deactivateInvulnerability(); // Ensure invulnerability is off
+                            }, 1000); // 1 second pause before restart round
+                        }
+                    }
+                }
+            });
+
+            // Check win condition (all dots collected)
+            if (dotsCount === 0) {
+                if (currentLevel < maps.length - 1) {
+                    messageDisplay.textContent = 'Todos os pontos coletados! Preparando próximo nível...';
+                    clearInterval(playerMoveInterval);
+                    clearInterval(ghostInterval);
+                    deactivateInvulnerability(); // Reset invulnerability
+                    setTimeout(() => {
+                        currentLevel++;
+                        startGame(); // Load next level
+                    }, 2000); // 2 second pause
+                } else {
+                    endGame('Parabéns! Você completou todos os níveis e coletou todos os pontos!');
+                }
+            }
+        }
+
+        function movePlayer() {
+            let newPlayerX = playerX;
+            let newPlayerY = playerY;
+
+            switch (playerDirection) {
+                case 'up': newPlayerY--; break;
+                case 'down': newPlayerY++; break;
+                case 'left': newPlayerX--; break;
+                case 'right': newPlayerX++; break;
+                case 'stop': return;
+            }
+
+            const currentMapData = maps[currentLevel];
+            // Check for wall collision
+            if (newPlayerY >= 0 && newPlayerY < currentMapData.length &&
+                newPlayerX >= 0 && newPlayerX < currentMapData[0].length &&
+                currentMapData[newPlayerY][newPlayerX] !== 1) { // 1 is wall
+                playerX = newPlayerX;
+                playerY = newPlayerY;
+                updatePlayerPosition();
+                checkCollisions();
+            } else {
+                playerDirection = 'stop';
+            }
+        }
+
+        function moveGhosts() {
+            gameElements.ghosts.forEach(ghost => {
+                if (ghost.isEaten) return; // Don't move eaten ghosts
+
+                const currentGhostSpeed = ghostSpeed * (ghost.speedMultiplier || 1); // Adjust speed if scared
+                if (Date.now() - (ghost.lastMoveTime || 0) < currentGhostSpeed) {
+                    return; // Not time to move yet
+                }
+                ghost.lastMoveTime = Date.now();
+
+                let possibleMoves = [];
+                const currentMapData = maps[currentLevel];
+
+                // Check all 4 directions for valid moves
+                if (ghost.y > 0 && currentMapData[ghost.y - 1][ghost.x] !== 1) possibleMoves.push({ x: ghost.x, y: ghost.y - 1 }); // Up
+                if (ghost.y < currentMapData.length - 1 && currentMapData[ghost.y + 1][ghost.x] !== 1) possibleMoves.push({ x: ghost.x, y: ghost.y + 1 }); // Down
+                if (ghost.x > 0 && currentMapData[ghost.y][ghost.x - 1] !== 1) possibleMoves.push({ x: ghost.x - 1, y: ghost.y }); // Left
+                if (ghost.x < currentMapData[0].length - 1 && currentMapData[ghost.y][ghost.x + 1] !== 1) possibleMoves.push({ x: ghost.x + 1, y: ghost.y }); // Right
+
+                if (possibleMoves.length > 0) {
+                    let chosenMove = null;
+
+                    if (isInvulnerable) { // Flee from player when player is invulnerable
+                        let furthestDistance = -1;
+                        for (const move of possibleMoves) {
+                            const dist = Math.abs(playerX - move.x) + Math.abs(playerY - move.y);
+                            if (dist > furthestDistance) {
+                                furthestDistance = dist;
+                                chosenMove = move;
+                            }
+                        }
+                    } else { // Chase player
+                        let closestDistance = Infinity;
+                        for (const move of possibleMoves) {
+                            const dist = Math.abs(playerX - move.x) + Math.abs(playerY - move.y);
+                            if (dist < closestDistance) {
+                                closestDistance = dist;
+                                chosenMove = move;
+                            }
+                        }
+                    }
+
+                    if (chosenMove) {
+                        ghost.x = chosenMove.x;
+                        ghost.y = chosenMove.y;
+                    } else { // Fallback to random if no good move found (shouldn't happen with valid moves)
+                         chosenMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+                         ghost.x = chosenMove.x;
+                         ghost.y = chosenMove.y;
+                    }
+                }
+            });
+            updateGhostPositions();
+            checkCollisions(); // Check after ghost moves as well
+        }
+
+        function startGame() {
+            if (gameRunning && currentLevel === 0 && lives === 3) {
+                 // Game is already running or just started, do nothing unless it's a new game reset
+            } else if (gameRunning && currentLevel > 0) {
+                // Already running and progressing to next level
+            } else {
+                // New game or restart after game over
+                score = 0;
+                lives = 3;
+                currentLevel = 0;
+                messageDisplay.textContent = 'Use as setas do teclado para mover.';
+                startButton.style.display = 'none';
+                nameInputContainer.style.display = 'none'; // Hide name input
+                playerDirection = ''; // Reset player direction
+                deactivateInvulnerability(); // Ensure no lingering invulnerability
+            }
+
+            gameRunning = true;
+            startButton.style.display = 'none';
+            messageDisplay.textContent = `Nível ${currentLevel + 1}...`;
+
+            initializeGame(currentLevel);
+
+            // Clear any existing intervals before starting new ones
+            clearInterval(playerMoveInterval);
+            clearInterval(ghostInterval);
+            clearTimeout(invulnerabilityTimeout); // Also clear invulnerability timeout
+
+            playerMoveInterval = setInterval(movePlayer, playerSpeed);
+            ghostInterval = setInterval(moveGhosts, ghostSpeed);
+        }
+
+        function endGame(message) {
+            gameRunning = false;
+            clearInterval(playerMoveInterval);
+            clearInterval(ghostInterval);
+            clearTimeout(invulnerabilityTimeout); // Ensure timeout is cleared
+            deactivateInvulnerability(); // Reset player/ghost states
+
+            messageDisplay.textContent = message;
+            startButton.textContent = 'Jogar Novamente';
+            startButton.style.display = 'block';
+            playerDirection = 'stop';
+
+            checkHighScore(score); // Check if score is a high score
+        }
+
+        // --- Keyboard Control ---
+        document.addEventListener('keydown', (event) => {
+            if (!gameRunning) return;
+
+            switch (event.key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    playerDirection = 'up';
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    playerDirection = 'down';
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    playerDirection = 'left';
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    playerDirection = 'right';
+                    break;
+                case ' ': // Spacebar to stop
+                    playerDirection = 'stop';
+                    break;
+            }
+            movePlayer(); // Attempt immediate move
+        });
+
+        // --- High Score Logic ---
+        const HIGH_SCORES_KEY = 'pacmanHighScores';
+
+        function loadHighScores() {
+            const scores = JSON.parse(localStorage.getItem(HIGH_SCORES_KEY) || '[]');
+            return scores.sort((a, b) => b.score - a.score); // Sort descending
+        }
+
+        function saveHighScores(scores) {
+            localStorage.setItem(HIGH_SCORES_KEY, JSON.stringify(scores));
+            displayHighScores();
+        }
+
+        function displayHighScores() {
+            const scores = loadHighScores();
+            highScoresList.innerHTML = ''; // Clear current list
+            if (scores.length === 0) {
+                highScoresList.innerHTML = '<li>Nenhum recorde ainda.</li>';
+                return;
+            }
+            scores.slice(0, 10).forEach((entry, index) => { // Display top 10
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="player-name">${index + 1}. ${entry.name || 'Anônimo'}</span> <span class="player-score">${entry.score}</span>`;
+                highScoresList.appendChild(li);
+            });
+        }
+
+        function checkHighScore(finalScore) {
+            const scores = loadHighScores();
+            const minScore = scores.length < 10 ? 0 : scores[scores.length - 1].score;
+
+            if (finalScore > minScore) {
+                messageDisplay.textContent = `Novo Recorde! Sua pontuação: ${finalScore}`;
+                nameInputContainer.style.display = 'flex'; // Show input field
+                playerNameInput.value = ''; // Clear previous name
+                playerNameInput.focus();
+                startButton.style.display = 'none'; // Hide start button until name is saved
+            } else {
+                messageDisplay.textContent += ` Sua pontuação final foi: ${finalScore}.`;
+            }
+        }
+
+        nameInputButton.addEventListener('click', () => {
+            let playerName = playerNameInput.value.trim();
+            if (playerName === '') {
+                playerName = 'Anônimo';
+            }
+            const newScoreEntry = { name: playerName, score: score };
+            const scores = loadHighScores();
+            scores.push(newScoreEntry);
+            saveHighScores(scores); // Sorts and saves
+
+            nameInputContainer.style.display = 'none'; // Hide input
+            startButton.style.display = 'block'; // Show start button again
+            messageDisplay.textContent = `Recorde salvo! ${playerName}: ${score} pontos.`;
+        });
+
+        // Initial setup
+        initializeGame(currentLevel); // Load initial map
+        displayHighScores(); // Load and display high scores on page load
+        startButton.addEventListener('click', startGame);
+    </script>
+</body>
+</html>
