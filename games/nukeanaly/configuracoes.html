@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações de Nuke Analy</title>
+    <link rel="icon" href="../favicom.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Alinha no topo, não centraliza verticalmente */
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .settings-card {
+            width: 800px;
+            max-width: 90%;
+            margin-top: 50px; /* Espaço do topo */
+            padding: 20px;
+        }
+        .mdl-textfield {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .mdl-slider__container {
+            width: 100%;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .mdl-slider {
+            flex-grow: 1;
+            margin: 0 10px;
+        }
+        .mdl-switch__label, .mdl-radio__label {
+            margin-left: 10px;
+        }
+        .color-picker-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .color-picker-group label {
+            margin-right: 15px;
+            white-space: nowrap;
+        }
+        input[type="color"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 50px;
+            height: 30px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            border-radius: 4px;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+        .mdl-card__actions {
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 20px;
+        }
+        .mdl-button {
+            margin-left: 10px;
+        }
+        .mdl-progress {
+            margin-top: 20px;
+        }
+        .mdl-grid {
+            margin-bottom: 20px;
+        }
+        .mdl-grid > .mdl-cell {
+            padding-bottom: 0;
+        }
+        /* Estilos padrão para as variáveis CSS (serão sobrescritos pelo JS) */
+        :root {
+            --mdl-color-primary: #3f51b5;
+            --mdl-color-accent: #ff4081;
+        }
+    </style>
+</head>
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">Configurações de Nuke Analy</span>
+                <div class="mdl-layout-spacer"></div>
+            </div>
+        </header>
+        <main class="mdl-layout__content">
+            <div class="settings-card mdl-card mdl-shadow--2dp">
+                <div class="mdl-card__title mdl-card--border">
+                    <h2 class="mdl-card__title-text">Ajustes do Jogo</h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <div class="mdl-grid">
+                        <div class="mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet mdl-cell--4-col-phone">
+                            <h4>Modo de Jogo</h4>
+                            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="online-mode-switch">
+                                <input type="checkbox" id="online-mode-switch" class="mdl-switch__input" checked>
+                                <span class="mdl-switch__label">Modo Online</span>
+                            </label>
+                            <p class="mdl-typography--font-light mdl-typography--caption">Conecta ao servidor para placares e multijogador.</p>
+                        </div>
+                        <div class="mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet mdl-cell--4-col-phone">
+                            <h4>Dificuldade</h4>
+                            <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-easy">
+                                <input type="radio" id="option-easy" class="mdl-radio__button" name="difficulty" value="easy">
+                                <span class="mdl-radio__label">Fácil</span>
+                            </label><br>
+                            <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-normal">
+                                <input type="radio" id="option-normal" class="mdl-radio__button" name="difficulty" value="normal" checked>
+                                <span class="mdl-radio__label">Normal</span>
+                            </label><br>
+                            <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-hard">
+                                <input type="radio" id="option-hard" class="mdl-radio__button" name="difficulty" value="hard">
+                                <span class="mdl-radio__label">Difícil</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <h4>Volume</h4>
+                    <div class="mdl-slider__container">
+                        <i class="material-icons">volume_down</i>
+                        <input class="mdl-slider mdl-js-slider" type="range" id="volume-slider" min="0" max="1" value="0.7" step="0.01">
+                        <i class="material-icons">volume_up</i>
+                    </div>
+
+                    <h4>Personalização da Interface (Tema)</h4>
+                    <div class="color-picker-group">
+                        <label for="primary-color-picker">Cor Primária:</label>
+                        <input type="color" id="primary-color-picker" value="#3f51b5">
+                    </div>
+                    <div class="color-picker-group">
+                        <label for="accent-color-picker">Cor de Destaque:</label>
+                        <input type="color" id="accent-color-picker" value="#ff4081">
+                    </div>
+
+                    <p id="status-message" style="color: green; display: none; margin-top: 15px;">Configurações salvas!</p>
+                    <div class="mdl-progress mdl-js-progress mdl-progress__indeterminate" id="loading-spinner" style="display: none;"></div>
+                </div>
+                <div class="mdl-card__actions mdl-card--border">
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" id="save-settings-button">
+                        Salvar Configurações
+                    </button>
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" id="reset-settings-button">
+                        Restaurar Padrões
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+        import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
+
+        // --- Configuração do Firebase ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
+            authDomain: "wzzm-ce3fc.firebaseapp.com",
+            projectId: "wzzm-ce3fc",
+            storageBucket: "wzzm-ce3fc.appspot.com",
+            messagingSenderId: "249427877153",
+            appId: "1:249427877153:web:0e4297294794a5aadeb260",
+            measurementId: "G-PLKNZNFCQ8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const firestore = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUser = null; // Armazena o usuário logado
+        const settingsDocRef = (userId) => doc(firestore, 'users', userId, 'configuracoes', 'jogo');
+
+        // Elementos da interface
+        const onlineModeSwitch = document.getElementById('online-mode-switch');
+        const difficultyRadios = document.querySelectorAll('input[name="difficulty"]');
+        const volumeSlider = document.getElementById('volume-slider');
+        const primaryColorPicker = document.getElementById('primary-color-picker');
+        const accentColorPicker = document.getElementById('accent-color-picker');
+        const saveButton = document.getElementById('save-settings-button');
+        const resetButton = document.getElementById('reset-settings-button');
+        const statusMessage = document.getElementById('status-message');
+        const loadingSpinner = document.getElementById('loading-spinner');
+
+        // Configurações padrão
+        const defaultSettings = {
+            onlineMode: true,
+            difficulty: 'normal',
+            volume: 0.7,
+            primaryColor: '#3f51b5',
+            accentColor: '#ff4081'
+        };
+
+        // Função para aplicar as cores personalizadas do usuário ao estilo da página
+        function applyCustomColors(primary, accent) {
+            document.documentElement.style.setProperty('--mdl-color-primary', primary);
+            document.documentElement.style.setProperty('--mdl-color-primary-dark', primary); // Pode ajustar para um tom mais escuro se desejar
+            document.documentElement.style.setProperty('--mdl-color-accent', accent);
+            if (componentHandler) { // Re-upgrade MDL components to apply new colors
+                componentHandler.upgradeDom();
+            }
+        }
+
+        // Função para carregar as configurações do Firestore
+        async function loadSettings() {
+            if (!currentUser) {
+                console.log("Nenhum usuário logado. Carregando configurações padrão.");
+                applySettingsToUI(defaultSettings);
+                applyCustomColors(defaultSettings.primaryColor, defaultSettings.accentColor);
+                return;
+            }
+
+            loadingSpinner.style.display = 'block';
+            statusMessage.style.display = 'none';
+
+            try {
+                const docSnap = await getDoc(settingsDocRef(currentUser.uid));
+                if (docSnap.exists()) {
+                    const settings = docSnap.data();
+                    console.log("Configurações carregadas:", settings);
+                    applySettingsToUI(settings);
+                    applyCustomColors(settings.primaryColor, settings.accentColor);
+                } else {
+                    console.log("Nenhuma configuração encontrada para este usuário. Aplicando padrões.");
+                    applySettingsToUI(defaultSettings);
+                    applyCustomColors(defaultSettings.primaryColor, defaultSettings.accentColor);
+                }
+            } catch (error) {
+                console.error("Erro ao carregar configurações:", error);
+                statusMessage.textContent = 'Erro ao carregar configurações.';
+                statusMessage.style.color = 'red';
+                statusMessage.style.display = 'block';
+                applySettingsToUI(defaultSettings); // Fallback para padrões
+                applyCustomColors(defaultSettings.primaryColor, defaultSettings.accentColor);
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        // Função para aplicar as configurações à UI
+        function applySettingsToUI(settings) {
+            onlineModeSwitch.checked = settings.onlineMode !== undefined ? settings.onlineMode : defaultSettings.onlineMode;
+            
+            // Re-upgrade o switch para refletir a mudança
+            if (onlineModeSwitch.parentElement.MaterialSwitch) {
+                onlineModeSwitch.parentElement.MaterialSwitch.checkToggleState();
+            }
+
+            Array.from(difficultyRadios).forEach(radio => {
+                radio.checked = (radio.value === (settings.difficulty || defaultSettings.difficulty));
+                // Re-upgrade o radio button
+                if (radio.parentElement.MaterialRadio) {
+                    radio.parentElement.MaterialRadio.checkToggleState();
+                }
+            });
+
+            volumeSlider.value = settings.volume !== undefined ? settings.volume : defaultSettings.volume;
+            // Re-upgrade o slider
+            if (volumeSlider.parentElement.MaterialSlider) {
+                volumeSlider.parentElement.MaterialSlider.change(volumeSlider.value);
+            }
+
+            primaryColorPicker.value = settings.primaryColor || defaultSettings.primaryColor;
+            accentColorPicker.value = settings.accentColor || defaultSettings.accentColor;
+        }
+
+        // Função para coletar as configurações da UI
+        function getSettingsFromUI() {
+            return {
+                onlineMode: onlineModeSwitch.checked,
+                difficulty: document.querySelector('input[name="difficulty"]:checked')?.value || defaultSettings.difficulty,
+                volume: parseFloat(volumeSlider.value),
+                primaryColor: primaryColorPicker.value,
+                accentColor: accentColorPicker.value
+            };
+        }
+
+        // Função para salvar as configurações no Firestore
+        async function saveSettings() {
+            if (!currentUser) {
+                alert("Você precisa estar logado para salvar configurações.");
+                return;
+            }
+
+            loadingSpinner.style.display = 'block';
+            statusMessage.style.display = 'none';
+
+            const settingsToSave = getSettingsFromUI();
+            try {
+                await setDoc(settingsDocRef(currentUser.uid), settingsToSave, { merge: true });
+                statusMessage.textContent = 'Configurações salvas com sucesso!';
+                statusMessage.style.color = 'green';
+                statusMessage.style.display = 'block';
+                console.log("Configurações salvas:", settingsToSave);
+                applyCustomColors(settingsToSave.primaryColor, settingsToSave.accentColor); // Aplica as cores imediatamente
+            } catch (error) {
+                console.error("Erro ao salvar configurações:", error);
+                statusMessage.textContent = 'Erro ao salvar configurações. Tente novamente.';
+                statusMessage.style.color = 'red';
+                statusMessage.style.display = 'block';
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        // Event Listeners
+        saveButton.addEventListener('click', saveSettings);
+        resetButton.addEventListener('click', () => {
+            applySettingsToUI(defaultSettings);
+            applyCustomColors(defaultSettings.primaryColor, defaultSettings.accentColor);
+            statusMessage.textContent = 'Padrões restaurados. Clique em Salvar para aplicar.';
+            statusMessage.style.color = 'orange';
+            statusMessage.style.display = 'block';
+        });
+
+        // Atualiza as cores em tempo real ao mudar no color picker
+        primaryColorPicker.addEventListener('input', (event) => {
+            applyCustomColors(event.target.value, accentColorPicker.value);
+        });
+        accentColorPicker.addEventListener('input', (event) => {
+            applyCustomColors(primaryColorPicker.value, event.target.value);
+        });
+
+
+        // Quando o estado de autenticação muda, carregue as configurações
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            loadSettings();
+        });
+
+        // Garante que os componentes MDL são atualizados após o DOM carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            if (componentHandler) {
+                componentHandler.upgradeDom();
+            }
+        });
+    </script>
+</body>
+</html>
