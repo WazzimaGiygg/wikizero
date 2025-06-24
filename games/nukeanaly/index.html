@@ -3,222 +3,1426 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuke Analy - O Jogo</title>
-    <link rel="icon" href="../favicom.png" type="image/x-icon">
+    <title>Simulador de Reator Nuclear</title>
     <style>
         body {
+            font-family: 'Arial', sans-serif;
+            background-color: #222;
+            color: #eee;
             margin: 0;
-            overflow: hidden; /* Garante que não haverá barras de rolagem indesejadas */
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            min-height: 100vh; /* Ocupa a altura total da viewport */
-            background-color: #000; /* Fundo preto para jogos */
-            color: #fff;
-            font-family: Arial, sans-serif;
+            justify-content: center;
+            min-height: 100vh;
         }
 
-        /* Estilos para o canvas ou container do jogo, se for usado */
-        #game-container {
-            width: 100%;
-            height: 100vh; /* Ocupa a altura total da viewport */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            /* Se o seu jogo for um canvas, ele pode ir aqui */
-        }
-
-        /* Estilos básicos para o menu de pausa/opções se você tiver um */
-        #pause-menu {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            border-radius: 8px;
-            display: none; /* Inicia oculto */
-            z-index: 1000;
+        #main-menu, #game-screen, #day-summary-screen, #cheat-menu, #difficulty-selection-screen, #workshop-screen {
+            background-color: #333;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
             text-align: center;
+            width: 80%;
+            max-width: 900px;
+            margin: 20px auto;
         }
-        #pause-menu button {
-            display: block;
-            width: 150px;
-            padding: 10px;
-            margin: 10px auto;
-            background-color: #4CAF50;
+
+        h1, h2, h3 {
+            color: #0f0;
+        }
+
+        button {
+            background-color: #0a0;
             color: white;
             border: none;
+            padding: 12px 25px;
+            margin: 10px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
-        #pause-menu button:hover {
-            background-color: #45a049;
+
+        button:hover {
+            background-color: #070;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #game-screen, #day-summary-screen, #cheat-menu, #difficulty-selection-screen, #workshop-screen {
+            display: none;
+            text-align: left;
+        }
+
+        #game-layout {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        #reactor-info-panel {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #reactor-status, #economic-status, #management-status, #employee-management, #message-box-container {
+            padding: 15px;
+            background-color: #444;
+            border-radius: 8px;
+            border: 1px solid #0f0;
+            margin-bottom: 15px;
+        }
+
+        #reactor-status p, #economic-status p, #management-status p, #employee-management p {
+            margin: 8px 0;
+            color: #ccc;
+        }
+
+        .status-good { color: #0f0; }
+        .status-warning { color: #ff0; }
+        .status-danger { color: #f00; }
+
+        #reactor-map-container {
+            background-color: #444;
+            border-radius: 8px;
+            border: 1px solid #0f0;
+            padding: 10px;
+            flex-shrink: 0;
+        }
+
+        #reactor-map {
+            display: grid;
+            grid-template-columns: repeat(5, 70px);
+            grid-template-rows: repeat(4, 70px);
+            gap: 5px;
+            width: fit-content;
+            margin: 0 auto;
+            border: 2px solid #070;
+            padding: 5px;
+            background-color: #2a2a2a;
+        }
+
+        /* RBMK Specific Styles */
+        .rbmk #reactor-map {
+            grid-template-columns: repeat(6, 60px); /* Adjust for RBMK layout */
+            grid-template-rows: repeat(5, 60px);
+            gap: 4px;
+        }
+
+        .rbmk .fuel-channel {
+            background-color: #007700; /* Darker green for RBMK fuel */
+            border-color: #0f0;
+        }
+
+        .rbmk .control-rod {
+            background-color: #B22222; /* Firered for RBMK control rods */
+            border-color: #ff4500;
+        }
+
+        .rbmk .control-rod-inserted-level {
+            background-color: #4169e1; /* Royalblue for RBMK inserted level */
+        }
+
+
+        .reactor-cell {
+            width: 70px;
+            height: 70px;
+            background-color: #555;
+            border: 1px solid #777;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            color: #ccc;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+            position: relative;
+        }
+
+        .reactor-cell:hover {
+            background-color: #666;
+            border-color: #0f0;
+        }
+
+        .fuel-channel {
+            background-color: #005500;
+            border-color: #0f0;
+        }
+
+        .fuel-channel.empty {
+            background-color: #660000;
+            border-color: #ff0000;
+        }
+
+        .fuel-channel:hover {
+            background-color: #007700;
+        }
+
+        .control-rod {
+            background-color: #8B0000;
+            border-color: #ff0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            cursor: grab;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-rod:hover {
+            background-color: #A00000;
+        }
+
+        .control-rod-inserted-level {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #00f;
+            opacity: 0.7;
+            transition: height 0.2s ease;
+        }
+
+        .control-rod-label {
+            position: relative;
+            z-index: 1;
+            font-size: 0.7em;
+            text-align: center;
+            line-height: 1;
+        }
+
+        #game-controls {
+            margin-top: 20px;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        #drag-all-rods {
+            background-color: #0f9;
+            margin-top: 15px;
+            padding: 10px 20px;
+        }
+
+        #drag-all-rods:hover {
+            background-color: #0c7;
+        }
+
+        #message-box {
+            height: 150px;
+            background-color: #2a2a2a;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+            padding: 10px;
+            overflow-y: scroll;
+            font-size: 0.9em;
+            color: #bbb;
+            text-align: left;
+        }
+
+        .message-entry {
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .message-info { color: #bbb; }
+        .message-warning { color: #ff0; }
+        .message-danger { color: #f00; }
+        .message-system { color: #0f0; }
+
+        #employee-management button {
+            margin: 5px;
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .current-level {
+            font-weight: bold;
+            color: #0f0;
+        }
+
+        #day-summary-screen p, #workshop-screen p {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        #day-summary-screen .summary-value {
+            font-weight: bold;
+            color: #0f0;
+        }
+
+        #cheat-menu label, #cheat-menu input, #cheat-menu button {
+            margin: 5px 0;
+            display: block;
+            width: calc(100% - 10px);
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #cheat-menu input[type="range"] {
+            width: 100%;
+        }
+
+        #difficulty-selection-screen button, #workshop-screen .reactor-option button {
+            background-color: #007bff;
+            margin: 15px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+        }
+        #difficulty-selection-screen button:hover, #workshop-screen .reactor-option button:hover {
+            background-color: #0056b3;
+        }
+
+        #workshop-screen .reactor-option {
+            border: 1px solid #0f0;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        #workshop-screen .reactor-option h3 {
+            margin-top: 0;
+            color: #0f0;
+        }
+        #workshop-screen .reactor-option p {
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+        #workshop-screen .reactor-option .price {
+            font-weight: bold;
+            color: #ff0;
+            font-size: 1.2em;
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <canvas id="nukeAnalyCanvas" width="800" height="600" style="border: 1px solid #333; background-color: #111;"></canvas>
-
-        <p>Carregando Nuke Analy...</p>
+    <div id="main-menu">
+        <h1 id="main-title-reactor">Simulador de Reator Nuclear BWR</h1>
+        <button onclick="openDifficultySelection()">Iniciar Novo Jogo</button>
+        <button onclick="openWorkshop()">Workshop</button>
+        <button onclick="loadGame()" disabled>Carregar Jogo (Em Breve)</button>
+        <button onclick="openSettings()" disabled>Configurações (Em Breve)</button>
     </div>
 
-    <div id="pause-menu">
-        <h2>Jogo Pausado</h2>
-        <button id="resume-button">Continuar Jogo</button>
-        <button id="settings-button">Configurações do Jogo</button>
-        <button id="exit-button">Sair do Jogo</button>
+    <div id="difficulty-selection-screen">
+        <h2>Selecione a Dificuldade</h2>
+        <button onclick="startGame('easy')">Fácil</button>
+        <button onclick="startGame('medium')">Médio</button>
+        <button onclick="startGame('hard')">Difícil</button>
+        <button onclick="backToMenu()">Voltar ao Menu</button>
     </div>
 
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
-        import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
-        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
+    <div id="workshop-screen">
+        <h2>Workshop de Reatores</h2>
+        <p>Dólares Nucleares Atuais: <span id="workshop-current-dollars">$0</span></p>
 
-        // --- Configuração do Firebase ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
-            authDomain: "wzzm-ce3fc.firebaseapp.com",
-            projectId: "wzzm-ce3fc",
-            storageBucket: "wzzm-ce3fc.appspot.com",
-            messagingSenderId: "249427877153",
-            appId: "1:249427877153:web:0e4297294794a5aadeb260",
-            measurementId: "G-PLKNZNFCQ8"
+        <div id="current-reactor-info">
+            <h3>Seu Reator Atual: <span id="current-reactor-type">BWR Padrão</span></h3>
+            <p id="current-reactor-description">Seu reator inicial, confiável mas sem recursos extras.</p>
+        </div>
+
+        <div class="reactor-option" id="reactor-option-bwr-plus">
+            <h3>BWR (Circuito Adicional)</h3>
+            <p>Uma versão aprimorada do reator BWR, com um circuito de resfriamento adicional para maior estabilidade.</p>
+            <p class="price" id="bwr-plus-price"></p>
+            <button onclick="buyReactor('bwr_plus')" id="buy-bwr-plus-button"></button>
+        </div>
+
+        <div class="reactor-option" id="reactor-option-rbmk">
+            <h3>RBMK</h3>
+            <p>Um reator com um design único de canais de combustível e barras de controle. Maior potência, mas exige gerenciamento diferente.</p>
+            <p class="price" id="rbmk-price"></p>
+            <button onclick="buyReactor('rbmk')" id="buy-rbmk-button"></button>
+        </div>
+
+        <button onclick="backToMenu()">Voltar ao Menu</button>
+    </div>
+
+    <div id="game-screen">
+        <h2>Reator Nuclear BWR</h2>
+        <div id="game-layout">
+            <div id="reactor-info-panel">
+                <div id="reactor-status">
+                    <h3>Status do Reator:</h3>
+                    <p>Estado: <span id="status-state" class="status-danger">Desligado</span></p>
+                    <p>Tipo de Reator: <span id="status-reactor-type">BWR Padrão</span></p>
+                    <p>Dificuldade: <span id="status-difficulty">Fácil</span></p>
+                    <p>Barras de Controle: <span id="status-control-rods" class="status-warning">Inseridas</span></p>
+                    <p>Fluxo de Água: <span id="status-water-flow" class="status-warning">Baixo</span></p>
+                    <p>Temperatura: <span id="status-temperature" class="status-good">25°C</span></p>
+                    <p>Pressão: <span id="status-pressure" class="status-good">1 atm</span></p>
+                    <p>Nível de Alarme: <span id="status-alarm-level" class="status-good">Nenhum</span></p>
+                </div>
+
+                <div id="economic-status">
+                    <h3>Economia:</h3>
+                    <p>Combustível Restante: <span id="status-fuel-percentage" class="status-good">100%</span></p>
+                    <p>Megawatts Gerados: <span id="status-megawatts" class="status-good">0 MW</span></p>
+                    <p>Dólares Nucleares: <span id="status-nuclear-dollars" class="status-good">$0</span></p>
+                </div>
+
+                <div id="management-status">
+                    <h3>Gerenciamento:</h3>
+                    <p>Dias Operacionais: <span id="status-days">0</span></p>
+                    <p>Custo Diário de Operação: <span id="status-daily-cost">$1000</span></p>
+                    <button onclick="buyFuelChannels()" id="buy-fuel-button" style="display: none;">Comprar Canais de Combustível (x14 - $140000)</button>
+                </div>
+
+                <div id="employee-management">
+                    <h3>Nível dos Funcionários:</h3>
+                    <p>Nível Atual: <span id="employee-level" class="current-level">Iniciante</span></p>
+                    <button onclick="setEmployeeLevel('beginner')">Iniciante ($1000/dia)</button>
+                    <button onclick="setEmployeeLevel('medium')">Médio ($2000/dia)</button>
+                    <button onclick="setEmployeeLevel('high')">Alto ($8000/dia)</button>
+                </div>
+            </div>
+
+            <div id="reactor-map-container">
+                <h3>Mapa do Reator (Canais de Combustível e Barras de Controle)</h3>
+                <div id="reactor-map">
+                    </div>
+                <button id="drag-all-rods" onmousedown="startDragAllRods(event)">Mover Todas as Barras de Controle</button>
+            </div>
+        </div>
+
+        <div id="message-box-container">
+            <h3>Caixa de Mensagens:</h3>
+            <div id="message-box">
+                </div>
+        </div>
+
+        <div id="game-controls">
+            <button onclick="powerOn()">Ligar</button>
+            <button onclick="powerOff()">Desligar</button>
+            <button onclick="removeControlRods()">Remover Todas as Barras</button>
+            <button onclick="addControlRods()">Adicionar Todas as Barras</button>
+            <button onclick="increaseWaterFlow()">Aumentar Fluxo de Água</button>
+            <button onclick="decreaseWaterFlow()">Diminuir Fluxo de Água</button>
+            <button onclick="emergencyShutdown()">Desligamento de Emergência</button>
+            <button onclick="ignoreAlarm()">Ignorar Alarme</button>
+            <button onclick="endDayImmediatelyFromGame()">Finalizar Dia Agora</button>
+        </div>
+        <button onclick="backToMenu()" style="margin-top: 20px;">Voltar ao Menu</button>
+    </div>
+
+    <div id="day-summary-screen">
+        <h2>Resumo do Dia <span id="summary-day-number"></span></h2>
+        <p>Ganhos de Megawatts: <span id="summary-mw-gain" class="summary-value">$0</span></p>
+        <p>Custos de Operação: <span id="summary-costs" class="summary-value">$0</span></p>
+        <p>Penalidades Aplicadas: <span id="summary-penalties" class="summary-value">$0</span></p>
+        <p>Eventos (Custos): <span id="summary-event-costs" class="summary-value">$0</span></p>
+        <p>Balanço do Dia: <span id="summary-daily-balance" class="summary-value">$0</span></p>
+        <p>Dólares Nucleares Totais: <span id="summary-total-dollars" class="summary-value">$0</span></p>
+        <button onclick="startNextDay()">Continuar para o Próximo Dia</button>
+        <button onclick="openWorkshop()">Workshop</button>
+    </div>
+
+    <div id="cheat-menu">
+        <h2>Menu de Cheats (Desenvolvedor)</h2>
+        <label for="cheat-dollars">Dólares Nucleares:</label>
+        <input type="number" id="cheat-dollars" value="0">
+        <button onclick="applyCheat('dollars')">Aplicar Dólares</button>
+
+        <label for="cheat-fuel">Combustível (%):</label>
+        <input type="range" id="cheat-fuel" min="0" max="100" value="100" oninput="document.getElementById('cheat-fuel-value').innerText = this.value + '%'">
+        <span id="cheat-fuel-value">100%</span>
+        <button onclick="applyCheat('fuel')">Aplicar Combustível</button>
+
+        <label for="cheat-temp">Temperatura (°C):</label>
+        <input type="number" id="cheat-temp" value="25">
+        <button onclick="applyCheat('temperature')">Aplicar Temperatura</button>
+
+        <label for="cheat-pressure">Pressão (atm):</label>
+        <input type="number" id="cheat-pressure" value="1">
+        <button onclick="applyCheat('pressure')">Aplicar Pressão</button>
+
+        <label for="cheat-mw">Megawatts (MW):</label>
+        <input type="number" id="cheat-mw" value="0">
+        <button onclick="applyCheat('megawatts')">Aplicar Megawatts</button>
+
+        <button onclick="toggleIgnorePenalties()">Ignorar Penalidades: <span id="cheat-ignore-penalties-status">Desativado</span></button>
+        <button onclick="endDayImmediatelyFromCheatMenu()">Finalizar Dia Imediatamente (Cheat)</button>
+        <button onclick="hideCheatMenu()">Voltar ao Menu Principal</button>
+    </div>
+
+    <script>
+        // --- Variáveis de Estado do Jogo ---
+        let reactorState = 'off'; // 'off', 'starting', 'running', 'emergency'
+        let controlRods = 'inserted'; // 'inserted', 'removed', 'partial'
+        let waterFlow = 'low'; // 'low', 'medium', 'high'
+        let temperature = 25; // em °C
+        let pressure = 1; // em atm
+        let alarmLevel = 'none'; // 'none', 'low', 'medium', 'high'
+        let gameInterval; // Para o loop principal do jogo
+        let elapsedGameSeconds = 0; // Tempo em segundos desde o início do jogo
+        let cheatClickCount = 0; // Contador para o cheat do menu principal
+
+        let fuelPercentage = 100; // Porcentagem de combustível restante
+        let megawattsGenerated = 0; // MW gerados no momento
+        let nuclearDollars = 10000; // Dinheiro do jogador - **Inicia com $10.000**
+        let daysOperated = 0; // Dias de operação
+        const FUEL_CHANNEL_COST = 10000; // Custo de cada canal
+        const MIN_STARTING_DOLLARS = 10000; // Mínimo de dólares para iniciar o jogo
+
+        // Variáveis para o resumo do dia
+        let dailyMegawattGain = 0;
+        let dailyCosts = 0;
+        let dailyPenalties = 0;
+        let dailyEventCosts = 0; // Novo para custos de eventos
+
+        // Variáveis de funcionários
+        let employeeLevel = 'beginner'; // 'beginner', 'medium', 'high'
+        const EMPLOYEE_COSTS = {
+            'beginner': 1000,
+            'medium': 2000,
+            'high': 8000
+        };
+        const EMPLOYEE_INFO_INTERVALS = { // Em segundos
+            'reactor_status': { 'beginner': 10, 'medium': Infinity, 'high': 5 },
+            'refuel_need': { 'beginner': 30, 'medium': Infinity, 'high': Infinity },
+            'energy_monitor': { 'beginner': 10, 'medium': 10, 'high': Infinity },
+            'admin_penalty': { 'beginner': 60, 'medium': 30, 'high': 30 }
+        };
+        const EMPLOYEE_AUTOMATION = {
+            'refuel_auto': { 'beginner': false, 'medium': true, 'high': false },
+            'reactor_maintenance': { 'beginner': false, 'medium': true, 'high': true },
+            'energy_maintenance': { 'beginner': false, 'medium': true, 'high': false },
+            'energy_auto_system': { 'beginner': false, 'medium': false, 'high': true }
+        };
+        const PENALTY_THRESHOLD_TEMP = 190;
+        const CRITICAL_TEMP_NO_MELTDOWN = 250;
+
+        // Variável para o cheat de ignorar penalidades
+        let ignorePenaltiesCheat = false;
+
+        // --- Configurações de Dificuldade ---
+        let currentDifficulty = 'easy'; // Padrão
+        const DIFFICULTY_SETTINGS = {
+            'easy': {
+                temp_inc_low_rods: 0.1, temp_inc_mid_rods: 0.4, temp_inc_high_rods: 1.0,
+                pressure_inc_low_rods: 0.01, pressure_inc_mid_rods: 0.04, pressure_inc_high_rods: 0.1,
+                temp_dec_medium_water: 0.05, temp_dec_high_water: 0.2,
+                pressure_dec_medium_water: 0.005, pressure_dec_high_water: 0.02,
+                random_temp_spike_chance: 0.05, random_pressure_spike_chance: 0.02,
+                random_temp_spike_max: 5, random_pressure_spike_max: 0.5,
+                event_frequency: 1200, // 20 minutos
+                event_cost_min: 500, event_cost_max: 2000
+            },
+            'medium': {
+                temp_inc_low_rods: 0.2, temp_inc_mid_rods: 0.8, temp_inc_high_rods: 2.0,
+                pressure_inc_low_rods: 0.02, pressure_inc_mid_rods: 0.08, pressure_inc_high_rods: 0.2,
+                temp_dec_medium_water: 0.1, temp_dec_high_water: 0.5,
+                pressure_dec_medium_water: 0.01, pressure_dec_high_water: 0.05,
+                random_temp_spike_chance: 0.1, random_pressure_spike_chance: 0.05,
+                random_temp_spike_max: 10, random_pressure_spike_max: 1.0,
+                event_frequency: 600, // 10 minutos
+                event_cost_min: 1000, event_cost_max: 5000
+            },
+            'hard': {
+                temp_inc_low_rods: 0.4, temp_inc_mid_rods: 1.5, temp_inc_high_rods: 4.0,
+                pressure_inc_low_rods: 0.04, pressure_inc_mid_rods: 0.15, pressure_inc_high_rods: 0.4,
+                temp_dec_medium_water: 0.2, temp_dec_high_water: 1.0,
+                pressure_dec_medium_water: 0.02, pressure_dec_high_water: 0.1,
+                random_temp_spike_chance: 0.2, random_pressure_spike_chance: 0.1,
+                random_temp_spike_max: 15, random_pressure_spike_max: 2.0,
+                event_frequency: 300, // 5 minutos
+                event_cost_min: 2000, event_cost_max: 10000
+            }
         };
 
-        const app = initializeApp(firebaseConfig);
-        const firestore = getFirestore(app);
-        const auth = getAuth(app);
-
-        let currentUser = null;
-        let gameSettings = {}; // Configurações do jogo para este usuário
-        let isGamePaused = false;
-        const pauseMenu = document.getElementById('pause-menu');
-
-        // Função para carregar as configurações do jogo do usuário
-        async function loadGameSettings(userId) {
-            const settingsRef = doc(firestore, 'users', userId, 'configuracoes', 'jogo');
-            try {
-                const docSnap = await getDoc(settingsRef);
-                if (docSnap.exists()) {
-                    gameSettings = docSnap.data();
-                    console.log("Configurações do jogo carregadas:", gameSettings);
-                    // Aqui você pode aplicar as configurações ao seu jogo
-                    // Ex: se o jogo tiver uma função `setVolume(volume)`
-                    // if (gameSettings.volume !== undefined && typeof window.setVolume === 'function') {
-                    //     window.setVolume(gameSettings.volume);
-                    // }
-                    // if (gameSettings.difficulty !== undefined && typeof window.setDifficulty === 'function') {
-                    //     window.setDifficulty(gameSettings.difficulty);
-                    // }
-                    // E assim por diante para outras configurações.
-                } else {
-                    console.log("Nenhuma configuração de jogo encontrada para o usuário, usando padrões.");
-                    // Defina configurações padrão se não existirem
-                    gameSettings = {
-                        onlineMode: true,
-                        volume: 0.7,
-                        difficulty: 'normal',
-                        primaryColor: '#3f51b5',
-                        accentColor: '#ff4081'
-                    };
-                    // Você pode optar por salvar essas configurações padrão imediatamente
-                    // await setDoc(settingsRef, gameSettings);
-                }
-            } catch (error) {
-                console.error("Erro ao carregar configurações do jogo:", error);
-                // Fallback para configurações padrão em caso de erro
-                gameSettings = { onlineMode: true, volume: 0.7, difficulty: 'normal', primaryColor: '#3f51b5', accentColor: '#ff4081' };
+        // --- Configurações de Reator ---
+        let currentReactorType = 'bwr_standard'; // 'bwr_standard', 'bwr_plus', 'rbmk'
+        const REACTOR_CONFIGS = {
+            'bwr_standard': {
+                name: 'BWR Padrão',
+                description: 'Seu reator inicial, confiável mas sem recursos extras.',
+                fuel_channels: [
+                    0, 1, 0, 1, 0,
+                    1, 0, 0, 0, 1,
+                    0, 0, 1, 0, 0,
+                    1, 0, 0, 0, 0
+                ],
+                control_rod_indices: [1, 3, 5, 9, 12, 15],
+                water_cooling_efficiency: {
+                    'low': 0, 'medium': 0.1, 'high': 0.2 // Redução percentual da temperatura/pressão
+                },
+                base_megawatt_output: 100, // MW a 100C
+                max_megawatt_output: 190, // MW a 190C
+                buy_cost: null // Não pode ser comprado
+            },
+            'bwr_plus': {
+                name: 'BWR (Circuito Adicional)',
+                description: 'Uma versão aprimorada do reator BWR, com um circuito de resfriamento adicional para maior estabilidade.',
+                fuel_channels: [
+                    0, 1, 0, 1, 0,
+                    1, 0, 0, 0, 1,
+                    0, 0, 1, 0, 0,
+                    1, 0, 0, 0, 0
+                ],
+                control_rod_indices: [1, 3, 5, 9, 12, 15],
+                water_cooling_efficiency: {
+                    'low': 0, 'medium': 0.2, 'high': 0.3 // Melhor eficiência de resfriamento
+                },
+                base_megawatt_output: 110,
+                max_megawatt_output: 210,
+                buy_cost: () => Math.floor(Math.random() * (200000 - 150000 + 1)) + 150000 // Preço entre 150k e 200k
+            },
+            'rbmk': {
+                name: 'RBMK',
+                description: 'Um reator com um design único de canais de combustível e barras de controle. Maior potência, mas exige gerenciamento diferente.',
+                fuel_channels: [ // Exemplo de layout RBMK (maior, mais canais de combustível)
+                    0, 1, 0, 0, 1, 0,
+                    1, 0, 0, 0, 0, 1,
+                    0, 0, 1, 0, 0, 0,
+                    1, 0, 0, 0, 0, 1,
+                    0, 1, 0, 0, 1, 0
+                ],
+                control_rod_indices: [1, 4, 6, 11, 14, 19, 22, 25, 28], // Mais barras de controle
+                water_cooling_efficiency: {
+                    'low': 0, 'medium': 0.05, 'high': 0.1 // Menor eficiência de resfriamento (característica RBMK)
+                },
+                base_megawatt_output: 150,
+                max_megawatt_output: 250,
+                buy_cost: () => Math.floor(Math.random() * (300000 - 250000 + 1)) + 250000 // Preço entre 250k e 300k
             }
-            return gameSettings;
+        };
+
+        let currentReactorMapConfig;
+        let currentControlRodIndices;
+        let controlRodInsertionLevels;
+
+        // --- Elementos HTML ---
+        const statusState = document.getElementById('status-state');
+        const statusReactorType = document.getElementById('status-reactor-type');
+        const statusDifficulty = document.getElementById('status-difficulty');
+        const statusControlRods = document.getElementById('status-control-rods');
+        const statusWaterFlow = document.getElementById('status-water-flow');
+        const statusTemperature = document.getElementById('status-temperature');
+        const statusPressure = document.getElementById('status-pressure');
+        const statusAlarmLevel = document.getElementById('status-alarm-level');
+
+        const statusFuelPercentage = document.getElementById('status-fuel-percentage');
+        const statusMegawatts = document.getElementById('status-megawatts');
+        const statusNuclearDollars = document.getElementById('status-nuclear-dollars');
+        const statusDays = document.getElementById('status-days');
+        const statusDailyCost = document.getElementById('status-daily-cost');
+        const buyFuelButton = document.getElementById('buy-fuel-button');
+        const employeeLevelDisplay = document.getElementById('employee-level');
+        const messageBox = document.getElementById('message-box');
+
+        const reactorMapElement = document.getElementById('reactor-map');
+
+        const summaryDayNumber = document.getElementById('summary-day-number');
+        const summaryMwGain = document.getElementById('summary-mw-gain');
+        const summaryCosts = document.getElementById('summary-costs');
+        const summaryPenalties = document.getElementById('summary-penalties');
+        const summaryEventCosts = document.getElementById('summary-event-costs'); // Novo elemento
+        const summaryDailyBalance = document.getElementById('summary-daily-balance');
+        const summaryTotalDollars = document.getElementById('summary-total-dollars');
+
+        const cheatDollarsInput = document.getElementById('cheat-dollars');
+        const cheatFuelInput = document.getElementById('cheat-fuel');
+        const cheatTempInput = document.getElementById('cheat-temp');
+        const cheatPressureInput = document.getElementById('cheat-pressure');
+        const cheatMwInput = document.getElementById('cheat-mw');
+        const cheatIgnorePenaltiesStatus = document.getElementById('cheat-ignore-penalties-status');
+
+        const workshopCurrentDollars = document.getElementById('workshop-current-dollars');
+        const currentReactorTypeDisplay = document.getElementById('current-reactor-type');
+        const currentReactorDescription = document.getElementById('current-reactor-description');
+        const bwrPlusPriceDisplay = document.getElementById('bwr-plus-price');
+        const buyBwrPlusButton = document.getElementById('buy-bwr-plus-button');
+        const rbmkPriceDisplay = document.getElementById('rbmk-price');
+        const buyRbmkButton = document.getElementById('buy-rbmk-button');
+
+
+        // --- Funções de Mensagens ---
+        function addMessage(text, type = 'info') {
+            const messageElement = document.createElement('p');
+            messageElement.classList.add('message-entry', `message-${type}`);
+            messageElement.textContent = `[Dia ${daysOperated}, Seg ${elapsedGameSeconds % 60}] ${text}`;
+            messageBox.prepend(messageElement);
+            if (messageBox.children.length > 50) {
+                messageBox.removeChild(messageBox.lastChild);
+            }
         }
 
-        // Função para pausar o jogo (exemplo)
-        function pauseGame() {
-            isGamePaused = true;
-            // Aqui você deve adicionar a lógica para pausar seu jogo real
-            // Ex: parar loops de animação, desativar inputs, etc.
-            pauseMenu.style.display = 'block';
-            console.log("Jogo Pausado!");
-        }
+        // --- Funções de Atualização de Display ---
+        function updateReactorStatusDisplay() {
+            statusState.textContent = reactorState === 'off' ? 'Desligado' :
+                                      reactorState === 'starting' ? 'Iniciando' :
+                                      reactorState === 'running' ? 'Funcionando' :
+                                      'Emergência';
+            statusState.className = reactorState === 'emergency' ? 'status-danger' :
+                                    reactorState === 'running' ? 'status-good' : 'status-warning';
 
-        // Função para resumir o jogo (exemplo)
-        function resumeGame() {
-            isGamePaused = false;
-            // Aqui você deve adicionar a lógica para resumir seu jogo real
-            pauseMenu.style.display = 'none';
-            console.log("Jogo Resumido!");
-        }
+            statusReactorType.textContent = REACTOR_CONFIGS[currentReactorType].name;
+            statusDifficulty.textContent = currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1);
 
-        // Listener para o estado de autenticação
-        onAuthStateChanged(auth, async (user) => {
-            currentUser = user;
-            if (currentUser) {
-                console.log("Usuário logado:", currentUser.uid);
-                await loadGameSettings(currentUser.uid);
+
+            const avgControlRodInsertion = controlRodInsertionLevels.reduce((sum, level) => sum + level, 0) / controlRodInsertionLevels.length;
+            if (avgControlRodInsertion > 90) {
+                controlRods = 'inserted';
+                statusControlRods.textContent = 'Inseridas';
+                statusControlRods.className = 'status-good';
+            } else if (avgControlRodInsertion < 10) {
+                controlRods = 'removed';
+                statusControlRods.textContent = 'Removidas';
+                statusControlRods.className = 'status-danger';
             } else {
-                console.log("Usuário não logado. Usando configurações padrão do jogo.");
-                gameSettings = { onlineMode: true, volume: 0.7, difficulty: 'normal', primaryColor: '#3f51b5', accentColor: '#ff4081' };
+                controlRods = 'partial';
+                statusControlRods.textContent = 'Parcialmente Inseridas';
+                statusControlRods.className = 'status-warning';
             }
-            // Inicia o jogo ou carrega recursos após as configurações
-            // iniciarNukeAnaly(gameSettings); // Chame a função que inicializa seu jogo real
-        });
 
-        // Simulação de jogo simples (remova isso e adicione seu jogo real)
-        const canvas = document.getElementById('nukeAnalyCanvas');
-        const ctx = canvas.getContext('2d');
-        let gameLoopId;
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'blue';
-            ctx.fillRect(50, 50, 100, 100);
-            ctx.fillStyle = 'white';
-            ctx.font = '20px Arial';
-            ctx.fillText("Nuke Analy Rodando!", 280, 300);
-            if (!isGamePaused) {
-                gameLoopId = requestAnimationFrame(draw);
+            statusWaterFlow.textContent = waterFlow === 'low' ? 'Baixo' :
+                                        waterFlow === 'medium' ? 'Médio' : 'Alto';
+            statusWaterFlow.className = waterFlow === 'low' ? 'status-warning' :
+                                        waterFlow === 'medium' ? 'status-good' : 'status-danger';
+
+            statusTemperature.textContent = `${temperature.toFixed(1)}°C`;
+            statusTemperature.className = temperature > 150 ? 'status-danger' :
+                                          temperature > 90 ? 'status-warning' : 'status-good';
+
+            statusPressure.textContent = `${pressure.toFixed(1)} atm`;
+            statusPressure.className = pressure > 15 ? 'status-danger' :
+                                       pressure > 8 ? 'status-warning' : 'status-good';
+
+            statusAlarmLevel.textContent = alarmLevel === 'none' ? 'Nenhum' :
+                                           alarmLevel === 'low' ? 'Baixo' :
+                                           alarmLevel === 'medium' ? 'Médio' : 'Alto';
+            statusAlarmLevel.className = alarmLevel === 'high' ? 'status-danger' :
+                                         alarmLevel === 'medium' ? 'status-warning' : 'status-good';
+
+            statusFuelPercentage.textContent = `${fuelPercentage.toFixed(1)}%`;
+            statusFuelPercentage.className = fuelPercentage < 10 ? 'status-danger' :
+                                             fuelPercentage < 30 ? 'status-warning' : 'status-good';
+            statusMegawatts.textContent = `${megawattsGenerated.toFixed(0)} MW`;
+            statusNuclearDollars.textContent = `$${nuclearDollars.toFixed(2)}`;
+
+            statusDays.textContent = daysOperated;
+            statusDailyCost.textContent = `$${EMPLOYEE_COSTS[employeeLevel] * 4}`;
+
+            if (fuelPercentage <= 0) {
+                buyFuelButton.style.display = 'block';
+            } else {
+                buyFuelButton.style.display = 'none';
+            }
+            employeeLevelDisplay.textContent = employeeLevel.charAt(0).toUpperCase() + employeeLevel.slice(1);
+        }
+
+        function createReactorMap() {
+            reactorMapElement.innerHTML = '';
+            reactorMapElement.className = ''; // Remove classes anteriores
+            reactorMapElement.classList.add(currentReactorType === 'rbmk' ? 'rbmk' : 'bwr'); // Adiciona classe específica para estilos
+
+            currentReactorMapConfig.forEach((cellType, index) => {
+                const cell = document.createElement('div');
+                cell.classList.add('reactor-cell');
+
+                if (cellType === 0) {
+                    cell.classList.add('fuel-channel');
+                    cell.title = `Canal de Combustível ${index + 1}`;
+                    if (fuelPercentage <= 0) {
+                        cell.classList.add('empty');
+                    } else {
+                        cell.classList.remove('empty');
+                    }
+                } else if (cellType === 1) {
+                    cell.classList.add('control-rod');
+                    cell.title = `Barra de Controle ${currentControlRodIndices.indexOf(index) + 1}`;
+                    cell.dataset.rodIndex = currentControlRodIndices.indexOf(index);
+                    cell.innerHTML = `<span class="control-rod-label">CR ${currentControlRodIndices.indexOf(index) + 1}</span><div class="control-rod-inserted-level"></div>`;
+                    setupControlRodDragging(cell);
+                }
+                reactorMapElement.appendChild(cell);
+            });
+            updateControlRodDisplay();
+        }
+
+        function updateControlRodDisplay() {
+            currentControlRodIndices.forEach((mapIndex, rodArrIndex) => {
+                const cell = reactorMapElement.children[mapIndex];
+                if (cell) {
+                    const insertedLevelDiv = cell.querySelector('.control-rod-inserted-level');
+                    if (insertedLevelDiv) {
+                        insertedLevelDiv.style.height = `${controlRodInsertionLevels[rodArrIndex]}%`;
+                    }
+                }
+            });
+        }
+
+        function updateFuelChannelDisplay() {
+            currentReactorMapConfig.forEach((cellType, index) => {
+                if (cellType === 0) {
+                    const cell = reactorMapElement.children[index];
+                    if (cell) {
+                        if (fuelPercentage <= 0) {
+                            cell.classList.add('empty');
+                        } else {
+                            cell.classList.remove('empty');
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Funções de Drag and Drop para Barras de Controle ---
+        let isDraggingRod = false;
+        let currentDraggedRod = null;
+        let initialMouseY;
+        let initialRodInsertionLevel;
+
+        function setupControlRodDragging(rodElement) {
+            rodElement.onmousedown = (e) => {
+                if (e.button === 0) {
+                    isDraggingRod = true;
+                    currentDraggedRod = rodElement;
+                    initialMouseY = e.clientY;
+                    initialRodInsertionLevel = controlRodInsertionLevels[parseInt(rodElement.dataset.rodIndex)];
+                    rodElement.style.cursor = 'grabbing';
+                }
+            };
+        }
+
+        let isDraggingAllRods = false;
+        let initialMouseYAllRods;
+        let initialAllRodInsertionLevels;
+
+        function startDragAllRods(e) {
+            if (e.button === 0) {
+                isDraggingAllRods = true;
+                initialMouseYAllRods = e.clientY;
+                initialAllRodInsertionLevels = [...controlRodInsertionLevels];
+                document.getElementById('drag-all-rods').style.cursor = 'grabbing';
             }
         }
-        // Inicia a simulação
-        gameLoopId = requestAnimationFrame(draw);
 
-        // Lógica para pausar/retomar com 'Esc' (exemplo)
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (isGamePaused) {
-                    resumeGame();
+        document.onmousemove = (e) => {
+            if (isDraggingRod && currentDraggedRod) {
+                const deltaY = e.clientY - initialMouseY;
+                const rodIndex = parseInt(currentDraggedRod.dataset.rodIndex);
+                const mapCellHeight = currentDraggedRod.offsetHeight;
+                let newInsertionLevel = initialRodInsertionLevel - (deltaY / mapCellHeight) * 100;
+                newInsertionLevel = Math.max(0, Math.min(100, newInsertionLevel));
+                controlRodInsertionLevels[rodIndex] = newInsertionLevel;
+                updateControlRodDisplay();
+                updateReactorStatusDisplay();
+            } else if (isDraggingAllRods) {
+                const deltaY = e.clientY - initialMouseYAllRods;
+                const mapHeightForDrag = reactorMapElement.offsetHeight;
+
+                controlRodInsertionLevels = initialAllRodInsertionLevels.map(level => {
+                    let newLevel = level - (deltaY / mapHeightForDrag) * 100;
+                    return Math.max(0, Math.min(100, newLevel));
+                });
+                updateControlRodDisplay();
+                updateReactorStatusDisplay();
+            }
+        };
+
+        document.onmouseup = () => {
+            if (isDraggingRod && currentDraggedRod) {
+                isDraggingRod = false;
+                currentDraggedRod.style.cursor = 'grab';
+                currentDraggedRod = null;
+            } else if (isDraggingAllRods) {
+                isDraggingAllRods = false;
+                document.getElementById('drag-all-rods').style.cursor = 'pointer';
+            }
+        };
+
+
+        // --- Funções do Menu ---
+        function openDifficultySelection() {
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('difficulty-selection-screen').style.display = 'block';
+        }
+
+        function startGame(difficulty) {
+            currentDifficulty = difficulty;
+            if (nuclearDollars < MIN_STARTING_DOLLARS) {
+                alert(`Você precisa de pelo menos $${MIN_STARTING_DOLLARS} Dólares Nucleares para iniciar um novo jogo. Seu saldo atual é $${nuclearDollars.toFixed(2)}.`);
+                return;
+            }
+            document.getElementById('difficulty-selection-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            resetGameState();
+            setReactorType(currentReactorType); // Configura o reator inicial
+            createReactorMap();
+            startGameLoop();
+        }
+
+        function loadGame() {
+            addMessage('Funcionalidade "Carregar Jogo" será implementada em breve!', 'info');
+        }
+
+        function openSettings() {
+            addMessage('Funcionalidade "Configurações" será implementada em breve!', 'info');
+        }
+
+        function backToMenu() {
+            clearInterval(gameInterval);
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('day-summary-screen').style.display = 'none';
+            document.getElementById('cheat-menu').style.display = 'none';
+            document.getElementById('difficulty-selection-screen').style.display = 'none';
+            document.getElementById('workshop-screen').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'block';
+        }
+
+        function openWorkshop() {
+            clearInterval(gameInterval); // Pausa o jogo se estiver rodando
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'none'; // Garante que a tela de jogo está oculta
+            document.getElementById('day-summary-screen').style.display = 'none'; // Garante que a tela de resumo está oculta
+            document.getElementById('workshop-screen').style.display = 'block';
+            updateWorkshopDisplay();
+        }
+
+        function updateWorkshopDisplay() {
+            workshopCurrentDollars.textContent = `$${nuclearDollars.toFixed(2)}`;
+            currentReactorTypeDisplay.textContent = REACTOR_CONFIGS[currentReactorType].name;
+            currentReactorDescription.textContent = REACTOR_CONFIGS[currentReactorType].description;
+
+            // Update BWR Plus
+            const bwrPlusCost = REACTOR_CONFIGS['bwr_plus'].buy_cost();
+            bwrPlusPriceDisplay.textContent = `Custo: $${bwrPlusCost.toFixed(2)}`;
+            if (currentReactorType === 'bwr_plus') {
+                buyBwrPlusButton.textContent = 'Adquirido';
+                buyBwrPlusButton.disabled = true;
+            } else if (nuclearDollars < bwrPlusCost) {
+                buyBwrPlusButton.textContent = 'Comprar (Fundos Insuficientes)';
+                buyBwrPlusButton.disabled = true;
+            } else {
+                buyBwrPlusButton.textContent = 'Comprar';
+                buyBwrPlusButton.disabled = false;
+            }
+
+            // Update RBMK
+            const rbmkCost = REACTOR_CONFIGS['rbmk'].buy_cost();
+            rbmkPriceDisplay.textContent = `Custo: $${rbmkCost.toFixed(2)}`;
+            if (currentReactorType === 'rbmk') {
+                buyRbmkButton.textContent = 'Adquirido';
+                buyRbmkButton.disabled = true;
+            } else if (nuclearDollars < rbmkCost) {
+                buyRbmkButton.textContent = 'Comprar (Fundos Insuficientes)';
+                buyRbmkButton.disabled = true;
+            } else {
+                buyRbmkButton.textContent = 'Comprar';
+                buyRbmkButton.disabled = false;
+            }
+        }
+
+        function buyReactor(reactorId) {
+            const reactorInfo = REACTOR_CONFIGS[reactorId];
+            const cost = reactorInfo.buy_cost();
+
+            if (nuclearDollars >= cost) {
+                nuclearDollars -= cost;
+                setReactorType(reactorId);
+                addMessage(`Você comprou o reator ${reactorInfo.name} por $${cost.toFixed(2)}!`, 'system');
+                updateWorkshopDisplay(); // Atualiza o workshop
+                // Se o jogo estava rodando, ele precisará ser reiniciado ou ter seu mapa atualizado
+                // Por simplicidade, vamos forçar o retorno ao menu principal e pedir para iniciar um novo jogo
+                // Ou você pode ir direto para a tela de jogo
+                alert(`Parabéns! Você adquiriu o ${reactorInfo.name}. Um novo jogo será iniciado com este reator.`);
+                backToMenu(); // Volta para o menu principal para iniciar um novo jogo com o novo reator
+            } else {
+                addMessage(`Você não tem dinheiro suficiente para comprar o reator ${reactorInfo.name}. Você precisa de $${cost.toFixed(2)}.`, 'warning');
+            }
+        }
+
+
+        // --- Funções de Controle do Reator ---
+        function setReactorType(type) {
+            currentReactorType = type;
+            currentReactorMapConfig = REACTOR_CONFIGS[currentReactorType].fuel_channels;
+            currentControlRodIndices = REACTOR_CONFIGS[currentReactorType].control_rod_indices;
+            controlRodInsertionLevels = new Array(currentControlRodIndices.length).fill(100);
+            createReactorMap(); // Recria o mapa com as novas configurações
+            addMessage(`Tipo de reator atualizado para: ${REACTOR_CONFIGS[currentReactorType].name}.`, 'system');
+            updateReactorStatusDisplay();
+        }
+
+        function resetGameState() {
+            reactorState = 'off';
+            fuelPercentage = 100;
+            megawattsGenerated = 0;
+            // nuclearDollars mantém o valor atual ao resetar para iniciar um novo jogo
+            daysOperated = 0;
+            elapsedGameSeconds = 0;
+            dailyMegawattGain = 0;
+            dailyCosts = 0;
+            dailyPenalties = 0;
+            dailyEventCosts = 0; // Resetar custos de eventos
+            ignorePenaltiesCheat = false;
+            cheatIgnorePenaltiesStatus.textContent = 'Desativado';
+            setEmployeeLevel('beginner'); // Reseta para iniciante
+            setReactorType(currentReactorType); // Redefine as configs do reator atual e recria o mapa
+            addMessage('Simulador reiniciado. Novo jogo iniciado!', 'system');
+            updateReactorStatusDisplay();
+        }
+
+        function startGameLoop() {
+            gameInterval = setInterval(() => {
+                elapsedGameSeconds++;
+
+                // Contagem de Dias e Salário dos Operários (1 dia a cada 10 minutos = 600 segundos)
+                if (elapsedGameSeconds % 600 === 0) {
+                    endDay();
+                    return;
+                }
+
+                // Eventos Aleatórios
+                if (elapsedGameSeconds % DIFFICULTY_SETTINGS[currentDifficulty].event_frequency === 0) {
+                    triggerRandomEvent();
+                }
+
+                // Consumo de Combustível (1% a cada 60 segundos)
+                if (elapsedGameSeconds % 60 === 0 && fuelPercentage > 0 && reactorState === 'running') {
+                    fuelPercentage -= 1;
+                    if (fuelPercentage < 0) fuelPercentage = 0;
+                    updateFuelChannelDisplay();
+                }
+
+                if (fuelPercentage <= 0 && reactorState === 'running') {
+                    addMessage('Combustível esgotado! Reator parou e precisa de recarga.', 'danger');
+                    powerOff();
+                    alarmLevel = 'high';
+                }
+
+                // Lógica de Simulação de Temperatura e Pressão baseada na dificuldade
+                let effectiveRodRemoval = 1 - (controlRodInsertionLevels.reduce((sum, level) => sum + level, 0) / currentControlRodIndices.length / 100);
+                const diff = DIFFICULTY_SETTINGS[currentDifficulty];
+                const reactorCoolingEfficiency = REACTOR_CONFIGS[currentReactorType].water_cooling_efficiency[waterFlow];
+
+                if (reactorState === 'running' && fuelPercentage > 0) {
+                    // Lógica de Temperatura e Pressão
+                    let temp_increase = 0;
+                    let pressure_increase = 0;
+
+                    if (effectiveRodRemoval < 0.2) { // Barras quase inseridas
+                        temp_increase = diff.temp_inc_low_rods;
+                        pressure_increase = diff.pressure_inc_low_rods;
+                    } else if (effectiveRodRemoval >= 0.2 && effectiveRodRemoval < 0.8) { // Barras parcialmente removidas
+                        temp_increase = diff.temp_inc_mid_rods * (1 + effectiveRodRemoval);
+                        pressure_increase = diff.pressure_inc_mid_rods * (1 + effectiveRodRemoval);
+                    } else { // Barras quase removidas
+                        temp_increase = diff.temp_inc_high_rods * (1 + effectiveRodRemoval * 2);
+                        pressure_increase = diff.pressure_inc_high_rods * (1 + effectiveRodRemoval * 2);
+
+                        if (Math.random() < diff.random_temp_spike_chance) temperature += Math.random() * diff.random_temp_spike_max;
+                        if (Math.random() < diff.random_pressure_spike_chance) pressure += Math.random() * diff.random_pressure_spike_max;
+                    }
+
+                    temperature += temp_increase;
+                    pressure += pressure_increase;
+
+                    // Aplica o resfriamento pela água
+                    if (temperature > 70 && waterFlow !== 'low') {
+                        temperature -= temperature * reactorCoolingEfficiency;
+                    }
+                    if (pressure > 5 && waterFlow !== 'low') {
+                        pressure -= pressure * reactorCoolingEfficiency;
+                    }
+
+                    if (temperature < 50) temperature = 50;
+                    if (pressure < 2) pressure = 2;
+
+
+                    // Geração de Megawatts (linear entre base e max)
+                    // Se o cheat de ignorar penalidades estiver ativo, o reator sempre gera no máximo se a temperatura estiver alta o suficiente.
+                    if (ignorePenaltiesCheat && (temperature >= PENALTY_THRESHOLD_TEMP || pressure >= 18)) {
+                        megawattsGenerated = REACTOR_CONFIGS[currentReactorType].max_megawatt_output;
+                    } else if (temperature >= 100 && temperature <= PENALTY_THRESHOLD_TEMP) {
+                        megawattsGenerated = REACTOR_CONFIGS[currentReactorType].base_megawatt_output +
+                                             ((temperature - 100) * (REACTOR_CONFIGS[currentReactorType].max_megawatt_output - REACTOR_CONFIGS[currentReactorType].base_megawatt_output) / (PENALTY_THRESHOLD_TEMP - 100));
+                    } else if (temperature > PENALTY_THRESHOLD_TEMP) {
+                        megawattsGenerated = REACTOR_CONFIGS[currentReactorType].max_megawatt_output;
+                    } else {
+                        megawattsGenerated = 0;
+                    }
+
+                    // Ganhos por Megawatt (a cada 1 segundo)
+                    const currentMwGain = (megawattsGenerated / 1000) * 1000;
+                    nuclearDollars += currentMwGain;
+                    dailyMegawattGain += currentMwGain;
+
+                } else if (reactorState === 'off' || fuelPercentage <= 0) {
+                    if (temperature > 25) temperature -= 1;
+                    if (temperature < 25) temperature = 25;
+                    if (pressure > 1) pressure -= 0.1;
+                    if (pressure < 1) pressure = 1;
+                    megawattsGenerated = 0;
+                }
+
+                // Lógica de Alarmes
+                if (temperature >= 180 || pressure >= 18) {
+                    alarmLevel = 'high';
+                } else if (temperature >= 150 || pressure >= 12) {
+                    alarmLevel = 'medium';
+                } else if (temperature >= 100 || pressure >= 7) {
+                    alarmLevel = 'low';
                 } else {
-                    pauseGame();
+                    alarmLevel = 'none';
+                }
+
+                // Lógica dos Funcionários (Mensagens e Automação)
+                handleEmployeeActions();
+
+                updateReactorStatusDisplay();
+                checkGameEndConditions();
+            }, 1000);
+        }
+
+        function checkGameEndConditions() {
+            if (pressure >= 20) {
+                addMessage('Pressão crítica! O reator explodiu! Fim de jogo.', 'danger');
+                emergencyShutdown(true);
+            }
+            if (nuclearDollars < -50000) {
+                addMessage('Você faliu! Não conseguiu gerenciar as finanças da usina. Fim de jogo.', 'danger');
+                backToMenu();
+            }
+        }
+
+        function triggerRandomEvent() {
+            const events = [
+                { name: "Falha na Turbina Auxiliar", cost: () => Math.floor(Math.random() * (diff.event_cost_max - diff.event_cost_min + 1)) + diff.event_cost_min, msg: "Uma turbina auxiliar apresentou falha. Custos de reparo." },
+                { name: "Vazamento de Vapor Secundário", cost: () => Math.floor(Math.random() * (diff.event_cost_max - diff.event_cost_min + 1)) + diff.event_cost_min, msg: "Pequeno vazamento de vapor secundário detectado. Reparos urgentes." },
+                { name: "Problema no Sistema Elétrico", cost: () => Math.floor(Math.random() * (diff.event_cost_max - diff.event_cost_min + 1)) + diff.event_cost_min, msg: "Falha no sistema elétrico temporária. Custos de manutenção." },
+                { name: "Manutenção Não Programada", cost: () => Math.floor(Math.random() * (diff.event_cost_max - diff.event_cost_min + 1)) + diff.event_cost_min, msg: "Equipamento crítico requer manutenção imediata." },
+                { name: "Inspeção Regulamentar Extra", cost: () => Math.floor(Math.random() * (diff.event_cost_max - diff.event_cost_min + 1)) + diff.event_cost_min, msg: "Inspeção regulamentar surpresa. Custos administrativos." }
+            ];
+            const diff = DIFFICULTY_SETTINGS[currentDifficulty];
+            const randomEvent = events[Math.floor(Math.random() * events.length)];
+            const eventCost = randomEvent.cost();
+
+            nuclearDollars -= eventCost;
+            dailyEventCosts += eventCost;
+            addMessage(`Evento: ${randomEvent.name} - $${eventCost.toFixed(2)} debitados. ${randomEvent.msg}`, 'warning');
+        }
+
+
+        function powerOn() {
+            const allRodsInserted = controlRodInsertionLevels.every(level => level >= 90);
+            if (reactorState === 'off' && allRodsInserted && fuelPercentage > 0) {
+                reactorState = 'starting';
+                addMessage('Reator iniciando. Aguarde a estabilização.', 'info');
+                setTimeout(() => {
+                    reactorState = 'running';
+                    addMessage('Reator funcionando! Mantenha a atenção.', 'system');
+                    updateReactorStatusDisplay();
+                }, 5000);
+            } else if (reactorState !== 'off') {
+                addMessage('O reator já está ligado ou em processo de ligamento.', 'warning');
+            } else if (fuelPercentage <= 0) {
+                addMessage('O reator não pode ser ligado: não há combustível!', 'warning');
+            } else {
+                addMessage('As barras de controle precisam estar inseridas (pelo menos 90%) para ligar o reator!', 'warning');
+            }
+            updateReactorStatusDisplay();
+        }
+
+        function powerOff() {
+            if (reactorState === 'running' || reactorState === 'starting' || reactorState === 'emergency') {
+                reactorState = 'off';
+                addMessage('Reator desligado. Iniciando processo de resfriamento.', 'info');
+                controlRodInsertionLevels.fill(100);
+                updateControlRodDisplay();
+            } else {
+                addMessage('O reator já está desligado.', 'warning');
+            }
+            updateReactorStatusDisplay();
+        }
+
+        function removeControlRods() {
+            if (reactorState === 'running') {
+                controlRodInsertionLevels.fill(0);
+                addMessage('Todas as barras de controle removidas. A potência do reator aumentará bruscamente!', 'danger');
+            } else {
+                addMessage('O reator precisa estar ligado para remover as barras de controle.', 'warning');
+            }
+            updateControlRodDisplay();
+            updateReactorStatusDisplay();
+        }
+
+        function addControlRods() {
+            if (controlRodInsertionLevels.some(level => level < 100)) {
+                controlRodInsertionLevels.fill(100);
+                addMessage('Todas as barras de controle inseridas. A potência do reator diminuirá.', 'info');
+            } else {
+                addMessage('Todas as barras de controle já estão inseridas.', 'warning');
+            }
+            updateControlRodDisplay();
+            updateReactorStatusDisplay();
+        }
+
+        function increaseWaterFlow() {
+            if (waterFlow === 'low') {
+                waterFlow = 'medium';
+            } else if (waterFlow === 'medium') {
+                waterFlow = 'high';
+            } else {
+                addMessage('O fluxo de água já está no máximo.', 'warning');
+                return;
+            }
+            addMessage(`Fluxo de água aumentado para: ${waterFlow}`, 'info');
+            updateReactorStatusDisplay();
+        }
+
+        function decreaseWaterFlow() {
+            if (waterFlow === 'high') {
+                waterFlow = 'medium';
+            } else if (waterFlow === 'medium') {
+                waterFlow = 'low';
+            } else {
+                addMessage('O fluxo de água já está no mínimo.', 'warning');
+                return;
+            }
+            addMessage(`Fluxo de água diminuído para: ${waterFlow}`, 'info');
+            updateReactorStatusDisplay();
+        }
+
+        function emergencyShutdown(isGameOver = false) {
+            reactorState = 'emergency';
+            controlRodInsertionLevels.fill(100);
+            waterFlow = 'high';
+            alarmLevel = 'high';
+            addMessage('DESLIGAMENTO DE EMERGÊNCIA ATIVADO! Todas as barras inseridas, fluxo de água máximo.', 'danger');
+            updateControlRodDisplay();
+            updateReactorStatusDisplay();
+
+            if (!isGameOver) {
+                setTimeout(() => {
+                    addMessage('Reator estabilizado após emergência. Volte para o menu para reiniciar.', 'system');
+                    backToMenu();
+                }, 5000);
+            } else {
+                backToMenu();
+            }
+        }
+
+        function ignoreAlarm() {
+            if (alarmLevel !== 'none') {
+                alarmLevel = 'none';
+                addMessage('Alarme ignorado. Os problemas subjacentes podem persistir!', 'warning');
+            } else {
+                addMessage('Não há alarmes para ignorar.', 'info');
+            }
+            updateReactorStatusDisplay();
+        }
+
+        function buyFuelChannels() {
+            const totalFuelCost = NUM_FUEL_CHANNELS * FUEL_CHANNEL_COST;
+            if (nuclearDollars >= totalFuelCost) {
+                nuclearDollars -= totalFuelCost;
+                fuelPercentage = 100;
+                updateFuelChannelDisplay();
+                addMessage(`Você comprou 14 canais de combustível por $${totalFuelCost}! Combustível recarregado.`, 'system');
+                updateReactorStatusDisplay();
+            } else {
+                addMessage(`Você não tem dinheiro suficiente! Precisa de $${totalFuelCost} para comprar novos canais de combustível.`, 'warning');
+            }
+        }
+
+        // --- Gerenciamento de Funcionários ---
+        function setEmployeeLevel(level) {
+            if (['beginner', 'medium', 'high'].includes(level)) {
+                employeeLevel = level;
+                addMessage(`Nível dos funcionários alterado para ${level.charAt(0).toUpperCase() + level.slice(1)}.`, 'system');
+                updateReactorStatusDisplay();
+            } else {
+                addMessage('Nível de funcionário inválido.', 'warning');
+            }
+        }
+
+        function handleEmployeeActions() {
+            // Funcionários da área do reator
+            if (EMPLOYEE_INFO_INTERVALS['reactor_status'][employeeLevel] !== Infinity && elapsedGameSeconds % EMPLOYEE_INFO_INTERVALS['reactor_status'][employeeLevel] === 0) {
+                addMessage(`(Reator) Status atual: Temp ${temperature.toFixed(1)}°C, Pressão ${pressure.toFixed(1)} atm.`, 'info');
+            }
+            if (EMPLOYEE_AUTOMATION['reactor_maintenance'][employeeLevel] && Math.random() < 0.005) {
+                const defect = Math.floor(Math.random() * 3);
+                if (defect === 0 && pressure > 5) {
+                    pressure = Math.max(1, pressure - 1);
+                    addMessage('(Reator) Funcionários repararam uma pequena falha na tubulação, pressão aliviada.', 'info');
+                } else if (defect === 1 && temperature > 70) {
+                    temperature = Math.max(25, temperature - 5);
+                    addMessage('(Reator) Funcionários ajustaram o sistema de resfriamento, temperatura estável.', 'info');
+                } else {
+                    addMessage('(Reator) Funcionários realizaram uma inspeção de rotina. Tudo ok.', 'info');
                 }
             }
-        });
 
-        // Listeners para os botões do menu de pausa
-        document.getElementById('resume-button').addEventListener('click', resumeGame);
-        document.getElementById('settings-button').addEventListener('click', () => {
-            // Abre a página de configurações em uma nova aba
-            window.open('./configuracoes.html', '_blank');
-        });
-        document.getElementById('exit-button').addEventListener('click', () => {
-            // Volta para a página de listagem de jogos
-            window.close(); // Tenta fechar a aba atual
-            // Ou redireciona a janela pai, se estiver em um iframe
-            // window.parent.location.href = '../games/index.html';
-        });
+            // Funcionários de Reabastecimento
+            if (EMPLOYEE_INFO_INTERVALS['refuel_need'][employeeLevel] !== Infinity && elapsedGameSeconds % EMPLOYEE_INFO_INTERVALS['refuel_need'][employeeLevel] === 0) {
+                if (fuelPercentage <= 20) {
+                    addMessage(`(Reabastecimento) Alerta: Combustível com ${fuelPercentage.toFixed(1)}%. Necessário recarga em breve!`, 'warning');
+                } else {
+                    addMessage(`(Reabastecimento) Nível de combustível: ${fuelPercentage.toFixed(1)}%.`, 'info');
+                }
+            }
+            if (EMPLOYEE_AUTOMATION['refuel_auto'][employeeLevel] && fuelPercentage <= 10 && nuclearDollars >= (NUM_FUEL_CHANNELS * FUEL_CHANNEL_COST)) {
+                addMessage('(Reabastecimento) Reabastecimento automático iniciado! Comprando novos canais de combustível.', 'system');
+                buyFuelChannels();
+            }
 
-        // Exemplo de como o jogo pode salvar um dado simples no Firestore (ex: high score)
-        async function saveHighScore(score) {
-            if (currentUser) {
-                const userDocRef = doc(firestore, 'users', currentUser.uid);
-                await setDoc(userDocRef, { nukeAnalyHighScore: score }, { merge: true });
-                console.log("High score salvo:", score);
+            // Funcionários de Geração de Energia
+            if (EMPLOYEE_INFO_INTERVALS['energy_monitor'][employeeLevel] !== Infinity && elapsedGameSeconds % EMPLOYEE_INFO_INTERVALS['energy_monitor'][employeeLevel] === 0) {
+                addMessage(`(Energia) Geração atual: ${megawattsGenerated.toFixed(0)} MW.`, 'info');
+            }
+            if (EMPLOYEE_AUTOMATION['energy_maintenance'][employeeLevel] && Math.random() < 0.003) {
+                 if (megawattsGenerated < REACTOR_CONFIGS[currentReactorType].max_megawatt_output && reactorState === 'running') {
+                    addMessage('(Energia) Funcionários otimizaram as turbinas, eficiência de geração melhorada.', 'info');
+                 }
+            }
+            if (EMPLOYEE_AUTOMATION['energy_auto_system'][employeeLevel] && reactorState === 'running') {
+                addMessage('(Energia) Sistema automático de energia operando. Monitoramento constante.', 'system');
+            }
+
+            // Funcionários da Administração
+            const adminPenaltyInterval = EMPLOYEE_INFO_INTERVALS['admin_penalty'][employeeLevel];
+            if (elapsedGameSeconds % adminPenaltyInterval === 0 && temperature >= PENALTY_THRESHOLD_TEMP && temperature <= CRITICAL_TEMP_NO_MELTDOWN) {
+                if (!ignorePenaltiesCheat) {
+                    const penaltyAmount = nuclearDollars * 0.50;
+                    nuclearDollars -= penaltyAmount;
+                    dailyPenalties += penaltyAmount;
+                    addMessage(`(Administração) Penalidade por pré-derretimento do núcleo! -$${penaltyAmount.toFixed(2)}. Verba reduzida em 50%.`, 'danger');
+                } else {
+                    addMessage('(Administração) Penalidade por pré-derretimento evitada devido ao cheat "Ignorar Penalidades".', 'system');
+                }
             }
         }
 
-        // saveHighScore(12345); // Exemplo de uso dentro do seu jogo
+        // --- Funções de Resumo do Dia ---
+        function endDay() {
+            clearInterval(gameInterval);
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('day-summary-screen').style.display = 'block';
+
+            daysOperated++;
+            const currentDailyCost = EMPLOYEE_COSTS[employeeLevel] * 4;
+            dailyCosts += currentDailyCost;
+
+            summaryDayNumber.textContent = daysOperated;
+            summaryMwGain.textContent = `$${dailyMegawattGain.toFixed(2)}`;
+            summaryCosts.textContent = `$${dailyCosts.toFixed(2)}`;
+            summaryPenalties.textContent = `$${dailyPenalties.toFixed(2)}`;
+            summaryEventCosts.textContent = `$${dailyEventCosts.toFixed(2)}`; // Exibe custos de eventos
+
+            const dailyBalance = dailyMegawattGain - dailyCosts - dailyPenalties - dailyEventCosts;
+            summaryDailyBalance.textContent = `$${dailyBalance.toFixed(2)}`;
+            summaryTotalDollars.textContent = `$${nuclearDollars.toFixed(2)}`;
+
+            dailyMegawattGain = 0;
+            dailyPenalties = 0;
+            dailyCosts = 0;
+            dailyEventCosts = 0; // Resetar
+        }
+
+        function startNextDay() {
+            document.getElementById('day-summary-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            elapsedGameSeconds = 0;
+            startGameLoop();
+            addMessage(`Dia ${daysOperated} iniciado!`, 'system');
+        }
+
+        // --- Cheats para Desenvolvedores ---
+        document.getElementById('main-title-reactor').addEventListener('click', () => {
+            cheatClickCount++;
+            if (cheatClickCount >= 10) {
+                alert('Cheats ativados!');
+                document.getElementById('main-title-reactor').textContent = 'Simulador de Reator Nuclear (Cheats Ativados)';
+                hideMainMenuAndShowCheatMenu();
+                cheatClickCount = 0;
+            }
+        });
+
+        function hideMainMenuAndShowCheatMenu() {
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('cheat-menu').style.display = 'block';
+            cheatDollarsInput.value = nuclearDollars.toFixed(0);
+            cheatFuelInput.value = fuelPercentage.toFixed(0);
+            document.getElementById('cheat-fuel-value').innerText = fuelPercentage.toFixed(0) + '%';
+            cheatTempInput.value = temperature.toFixed(0);
+            cheatPressureInput.value = pressure.toFixed(0);
+            cheatMwInput.value = megawattsGenerated.toFixed(0);
+            cheatIgnorePenaltiesStatus.textContent = ignorePenaltiesCheat ? 'Ativado' : 'Desativado';
+        }
+
+        function hideCheatMenu() {
+            document.getElementById('cheat-menu').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'block';
+        }
+
+        function applyCheat(type) {
+            switch (type) {
+                case 'dollars':
+                    nuclearDollars = parseFloat(cheatDollarsInput.value);
+                    addMessage(`Cheat: Dólares nucleares definidos para $${nuclearDollars.toFixed(2)}.`, 'system');
+                    break;
+                case 'fuel':
+                    fuelPercentage = parseFloat(cheatFuelInput.value);
+                    updateFuelChannelDisplay();
+                    addMessage(`Cheat: Combustível definido para ${fuelPercentage.toFixed(1)}%.`, 'system');
+                    break;
+                case 'temperature':
+                    temperature = parseFloat(cheatTempInput.value);
+                    addMessage(`Cheat: Temperatura definida para ${temperature.toFixed(1)}°C.`, 'system');
+                    break;
+                case 'pressure':
+                    pressure = parseFloat(cheatPressureInput.value);
+                    addMessage(`Cheat: Pressão definida para ${pressure.toFixed(1)} atm.`, 'system');
+                    break;
+                case 'megawatts':
+                    megawattsGenerated = parseFloat(cheatMwInput.value);
+                    addMessage(`Cheat: Megawatts gerados definidos para ${megawattsGenerated.toFixed(0)} MW.`, 'system');
+                    break;
+            }
+            updateReactorStatusDisplay();
+        }
+
+        function toggleIgnorePenalties() {
+            ignorePenaltiesCheat = !ignorePenaltiesCheat;
+            cheatIgnorePenaltiesStatus.textContent = ignorePenaltiesCheat ? 'Ativado' : 'Desativado';
+            addMessage(`Cheat "Ignorar Penalidades" ${ignorePenaltiesCheat ? 'ativado' : 'desativado'}.`, 'system');
+        }
+
+        function endDayImmediatelyFromGame() {
+            addMessage('Dia finalizado por comando manual.', 'system');
+            endDay();
+        }
+
+        function endDayImmediatelyFromCheatMenu() {
+             addMessage('Cheat: Finalizando o dia imediatamente.', 'system');
+             endDay();
+        }
+
+
+        // Inicializa o display ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            // Define o tipo de reator inicial ao carregar a página
+            setReactorType('bwr_standard');
+            updateReactorStatusDisplay();
+            addMessage('Bem-vindo ao Simulador de Reator Nuclear!', 'system');
+            addMessage('Seu saldo inicial é de $10.000 Dólares Nucleares.', 'system');
+            addMessage('Escolha a dificuldade para iniciar um novo jogo ou visite o Workshop para ver opções de reatores.', 'system');
+            addMessage('Dica: Clique 10 vezes na palavra "Reator" no título principal para ativar o menu de cheats.', 'system');
+        });
     </script>
 </body>
 </html>
