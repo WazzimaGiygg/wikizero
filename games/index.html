@@ -156,12 +156,12 @@
             // Adiciona listeners aos botões
             gameCard.querySelector('.play-button').addEventListener('click', () => {
                 // Abre na mesma aba: remova o '_blank'
-                window.location.href = `../${game.path}/index.html`; 
+                window.location.href = `./${game.path}/index.html`; 
             });
 
             gameCard.querySelector('.config-button').addEventListener('click', () => {
                 // Abre na mesma aba: remova o '_blank'
-                window.location.href = `../${game.path}/configuracoes.html`;
+                window.location.href = `./${game.path}/configuracoes.html`;
             });
 
             return gameCard;
