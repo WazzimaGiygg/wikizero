@@ -1,1 +1,600 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WZZM Chat</title>
+    <link rel="icon" href="favicom.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+        }
+        .mdl-layout__content {
+            flex-grow: 1;
+            display: flex;
+            padding: 0; /* Remover padding padrão para flexbox */
+        }
+        #left-panel {
+            width: 300px; /* Largura fixa para o painel de conversas */
+            background-color: #ffffff;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        #chat-main-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #fbfbfb;
+        }
+        #recent-chats-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+            overflow-y: auto; /* Rolagem para a lista de chats */
+        }
+        .chat-list-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .chat-list-item:hover {
+            background-color: #f0f0f0;
+        }
+        .chat-list-item.active {
+            background-color: #e0e0e0;
+        }
+        .chat-list-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        .chat-list-item-info strong {
+            display: block;
+            font-size: 16px;
+            color: #333;
+        }
+        .chat-list-item-info span {
+            font-size: 14px;
+            color: #777;
+        }
+
+        #messages-display {
+            flex-grow: 1;
+            overflow-y: auto; /* Rolagem para as mensagens */
+            padding: 20px;
+            display: flex;
+            flex-direction: column-reverse; /* Mensagens mais recentes embaixo */
+        }
+        .message-bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            word-wrap: break-word; /* Garante que palavras longas quebrem */
+        }
+        .message-bubble.sent {
+            background-color: #3f51b5; /* Azul índigo do MDL */
+            color: white;
+            align-self: flex-end; /* Alinhar à direita */
+            border-bottom-right-radius: 5px; /* Detalhe visual */
+        }
+        .message-bubble.received {
+            background-color: #e0e0e0;
+            color: #333;
+            align-self: flex-start; /* Alinhar à esquerda */
+            border-bottom-left-radius: 5px; /* Detalhe visual */
+        }
+        .message-meta {
+            font-size: 10px;
+            color: #999;
+            margin-top: 5px;
+            text-align: right;
+        }
+        .message-bubble.received .message-meta {
+            text-align: left;
+        }
+
+
+        #message-input-area {
+            padding: 15px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            background-color: #ffffff;
+        }
+        #message-input {
+            flex-grow: 1;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 16px;
+            margin-right: 10px;
+            outline: none;
+            resize: none; /* Desabilita redimensionamento manual */
+            min-height: 40px;
+            max-height: 100px; /* Limita a altura máxima para não ocupar muito espaço */
+            overflow-y: auto; /* Adiciona rolagem se o texto for longo */
+        }
+        #send-button {
+            min-width: 60px;
+            height: 40px;
+            padding: 0 15px;
+        }
+
+        /* Estilos para o cabeçalho da conversa */
+        #chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #chat-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+        #chat-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <main class="mdl-layout__content">
+            <div id="left-panel">
+                <div style="padding: 15px; border-bottom: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                    <h4 style="margin: 0; color: #555;">Conversas Recentes</h4>
+                </div>
+                <ul id="recent-chats-list">
+                    </ul>
+            </div>
+
+            <div id="chat-main-area">
+                <div id="chat-header">
+                    <h3>Selecione uma Conversa</h3>
+                </div>
+
+                <div id="messages-display">
+                    </div>
+
+                <div id="message-input-area">
+                    <textarea id="message-input" placeholder="Digite sua mensagem..." rows="1"></textarea>
+                    <button id="send-button" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+                        <i class="material-icons">send</i>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mdl-mini-footer">
+            <div class="mdl-mini-footer__left-section">
+                <div class="mdl-logo">WZZM © 2025</div>
+                <ul class="mdl-mini-footer__link-list">
+                    <li><a href="./Privacidade/">Privacidade</a></li>
+                    <li><a href="https://wikizero.wzzm.org/">Doações</a></li>
+                </ul>
+            </div>
+            <div class="mdl-mini-footer__right-section">
+                <button id="login-google" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="display: none;">
+                    <i class="material-icons">account_circle</i> Login com Google
+                </button>
+                <button id="login-github" class="mdl-button mdl-js-button mdl-button--raised" style="display: none;">
+                    <i class="material-icons">code</i> Login com GitHub
+                </button>
+                <button id="logout-button" class="mdl-button mdl-js-button mdl-button--accent" style="display: none;">
+                    <i class="material-icons">exit_to_app</i> Sair
+                </button>
+                <button id="admin-panel-button" class="mdl-button mdl-js-button mdl-button--primary" style="display: none;">
+                    <i class="material-icons">admin_panel_settings</i> Admin
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+    <script>
+        // --- Configuração do Firebase ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
+            authDomain: "wzzm-ce3fc.firebaseapp.com",
+            projectId: "wzzm-ce3fc",
+            storageBucket: "wzzm-ce3fc.appspot.com",
+            messagingSenderId: "249427877153",
+            appId: "1:249427877153:web:0e4297294794a5aadeb260",
+            measurementId: "G-PLKNZNFCQ8"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const firestore = firebase.firestore();
+        const analytics = firebase.analytics();
+
+        // --- Elementos da UI (do seu código original, mantidos para consistência) ---
+        const loginGoogleButton = document.getElementById('login-google');
+        const loginGitHubButton = document.getElementById('login-github');
+        const logoutButton = document.getElementById('logout-button');
+        const userInfo = document.getElementById('user-info'); // Não usado diretamente no chat, mas pode ser útil no cabeçalho.
+        const adminPanelButton = document.getElementById('admin-panel-button');
+        const userProfilePic = document.getElementById('user-profile-pic'); // Pode ser útil no cabeçalho.
+        const googleAppsButton = document.getElementById('google-apps-button'); // Pode ser útil no cabeçalho.
+        const userInfoContainer = document.getElementById('user-info-container'); // Pode ser útil no cabeçalho.
+        const googleAppsPopup = document.getElementById('google-apps-popup'); // Pode ser útil no cabeçalho.
+
+        // --- Elementos da UI do Chat ---
+        const recentChatsList = document.getElementById('recent-chats-list');
+        const chatHeader = document.getElementById('chat-header');
+        const messagesDisplay = document.getElementById('messages-display');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+
+        let currentUser = null; // O usuário atualmente logado
+        let currentChatId = null; // O ID da conversa atualmente selecionada
+        let unsubscribeMessages = null; // Variável para a função de desinscrição do listener de mensagens
+
+        // --- Funções de Autenticação (adaptadas do seu código original) ---
+        // Você já tem essa lógica no seu código principal. Vamos garantir que ela seja chamada.
+        const handleLogout = () => {
+            auth.signOut().then(() => {
+                console.log("Usuário deslogado.");
+            }).catch((error) => {
+                console.error("Erro ao fazer logout:", error);
+                alert(`Erro ao fazer logout: ${error.message}`);
+            });
+        };
+
+        loginGoogleButton.addEventListener('click', async () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                console.error("Erro ao fazer login com Google:", error);
+                alert(`Erro ao fazer login com Google: ${error.message}`);
+            }
+        });
+
+        loginGitHubButton.addEventListener('click', async () => {
+            const provider = new firebase.auth.GithubAuthProvider();
+            try {
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                console.error("Erro ao fazer login com GitHub:", error);
+                alert(`Erro ao fazer login com GitHub: ${error.message}`);
+            }
+        });
+
+        // --- Funções Firebase para o Chat ---
+
+        // 1. Criar um documento de perfil de usuário (mantido do seu código original)
+        async function createUserProfileDocument(user) {
+            if (!user) return;
+            const userRef = firestore.collection('users').doc(user.uid);
+            const docSnapshot = await userRef.get();
+
+            if (!docSnapshot.exists) {
+                const { displayName, email, photoURL } = user;
+                const createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                try {
+                    await userRef.set({
+                        uid: user.uid,
+                        name: displayName,
+                        email: email,
+                        profilePictureUrl: photoURL,
+                        createdAt: createdAt,
+                        lastLoginAt: createdAt,
+                        isBan: false,
+                        isAdmin: false,
+                    });
+                    console.log("Novo perfil de usuário criado no Firestore!");
+                } catch (error) {
+                    console.error("Erro ao criar perfil de usuário no Firestore:", error);
+                }
+            } else {
+                try {
+                    await userRef.update({
+                        lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    console.log("Perfil de usuário atualizado no Firestore (lastLoginAt).");
+                } catch (error) {
+                    console.error("Erro ao atualizar perfil de usuário no Firestore:", error);
+                }
+            }
+        }
+
+        // 2. Função para criar ou obter uma conversa
+        // Esta função tentará encontrar uma conversa existente entre os dois UIDs.
+        // Se não encontrar, criará uma nova.
+        async function getOrCreateChat(otherUserId) {
+            if (!currentUser) {
+                console.error("Nenhum usuário logado para criar/obter chat.");
+                return null;
+            }
+
+            const currentUserId = currentUser.uid;
+
+            // Consultar conversas onde ambos os usuários estão presentes
+            // Uma consulta para (currentUserId E otherUserId)
+            // É mais eficiente se você tiver um campo array `participants` no documento do chat.
+            const chatRef = firestore.collection('wwebmodmail');
+
+            // Abordagem 1: Usando array-contains-any (se `participants` for um array de UIDs)
+            // Seria ideal ter um campo `participants: [uid1, uid2]`
+            const query1 = await chatRef
+                .where('participants', 'array-contains', currentUserId)
+                .get();
+
+            let existingChatId = null;
+
+            for (const doc of query1.docs) {
+                const participants = doc.data().participants;
+                if (participants && participants.includes(otherUserId)) {
+                    existingChatId = doc.id;
+                    break;
+                }
+            }
+
+            if (existingChatId) {
+                console.log("Chat existente encontrado:", existingChatId);
+                return existingChatId;
+            } else {
+                // Se não encontrou, cria um novo chat
+                console.log("Criando novo chat com", otherUserId);
+                try {
+                    const newChat = await chatRef.add({
+                        participants: [currentUserId, otherUserId],
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastMessageTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                        // Você pode adicionar mais campos aqui, como nomes dos participantes, etc.
+                    });
+                    console.log("Novo chat criado com ID:", newChat.id);
+                    return newChat.id;
+                } catch (error) {
+                    console.error("Erro ao criar novo chat:", error);
+                    return null;
+                }
+            }
+        }
+
+        // 3. Função para enviar mensagem
+        async function sendMessage(chatId, text) {
+            if (!currentUser || !chatId || !text.trim()) {
+                console.warn("Não é possível enviar mensagem: usuário não logado, chat não selecionado ou mensagem vazia.");
+                return;
+            }
+
+            const messagesRef = firestore.collection('wwebmodmail').doc(chatId).collection('messages');
+            try {
+                await messagesRef.add({
+                    senderId: currentUser.uid,
+                    text: text.trim(),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+                // Opcional: Atualizar o lastMessageTimestamp no documento pai do chat
+                await firestore.collection('wwebmodmail').doc(chatId).update({
+                    lastMessageTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastMessageText: text.trim(), // Para exibir na lista de conversas
+                });
+                console.log("Mensagem enviada!");
+                messageInput.value = ''; // Limpa a caixa de texto
+                messageInput.style.height = 'auto'; // Reseta a altura do textarea
+                // Scroll para o final das mensagens (assumindo que são exibidas de baixo para cima)
+                messagesDisplay.scrollTop = messagesDisplay.scrollHeight;
+
+            } catch (error) {
+                console.error("Erro ao enviar mensagem:", error);
+                alert("Erro ao enviar mensagem.");
+            }
+        }
+
+        // 4. Carregar mensagens de um chat
+        function loadMessages(chatId) {
+            if (unsubscribeMessages) {
+                unsubscribeMessages(); // Desinscreve-se do listener anterior
+            }
+            messagesDisplay.innerHTML = ''; // Limpa as mensagens anteriores
+
+            if (!chatId) {
+                chatHeader.innerHTML = '<h3>Selecione uma Conversa</h3>';
+                return;
+            }
+
+            const messagesRef = firestore.collection('wwebmodmail').doc(chatId).collection('messages');
+
+            unsubscribeMessages = messagesRef.orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+                messagesDisplay.innerHTML = ''; // Limpa para redesenhar
+                snapshot.forEach(doc => {
+                    const message = doc.data();
+                    const isSent = message.senderId === currentUser.uid;
+                    const messageBubble = document.createElement('div');
+                    messageBubble.classList.add('message-bubble');
+                    messageBubble.classList.add(isSent ? 'sent' : 'received');
+
+                    const timestampDate = message.timestamp ? message.timestamp.toDate() : new Date();
+                    const timeString = timestampDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    messageBubble.innerHTML = `${message.text}
+                        <div class="message-meta">${isSent ? 'Você' : 'Contato'}, ${timeString}</div>`;
+                    messagesDisplay.appendChild(messageBubble);
+                });
+                // Manter scroll no final (ou topo, dependendo da ordem)
+                messagesDisplay.scrollTop = messagesDisplay.scrollHeight;
+            }, error => {
+                console.error("Erro ao carregar mensagens:", error);
+                messagesDisplay.innerHTML = `<p style="color: red;">Erro ao carregar mensagens: ${error.message}</p>`;
+            });
+        }
+
+        // 5. Carregar lista de conversas recentes
+        function loadRecentChats() {
+            if (!currentUser) {
+                recentChatsList.innerHTML = '';
+                return;
+            }
+
+            // Busca conversas onde o usuário atual é participante
+            firestore.collection('wwebmodmail')
+                .where('participants', 'array-contains', currentUser.uid)
+                .orderBy('lastMessageTimestamp', 'desc') // Ordenar pelas mais recentes
+                .onSnapshot(async snapshot => {
+                    recentChatsList.innerHTML = ''; // Limpa a lista existente
+                    for (const doc of snapshot.docs) {
+                        const chat = doc.data();
+                        const chatId = doc.id;
+                        const otherUserId = chat.participants.find(uid => uid !== currentUser.uid);
+
+                        let otherUserName = "Usuário Desconhecido";
+                        let otherUserPic = "https://via.placeholder.com/40"; // Imagem padrão
+
+                        // Tenta buscar o nome e foto do outro participante
+                        if (otherUserId) {
+                            try {
+                                const otherUserDoc = await firestore.collection('users').doc(otherUserId).get();
+                                if (otherUserDoc.exists) {
+                                    otherUserName = otherUserDoc.data().name || otherUserDoc.data().email;
+                                    otherUserPic = otherUserDoc.data().profilePictureUrl || otherUserPic;
+                                }
+                            } catch (error) {
+                                console.warn("Não foi possível obter informações do outro usuário:", otherUserId, error);
+                            }
+                        }
+
+                        const listItem = document.createElement('li');
+                        listItem.classList.add('chat-list-item');
+                        listItem.dataset.chatId = chatId;
+                        listItem.dataset.otherUserId = otherUserId; // Armazenar para uso posterior
+                        listItem.innerHTML = `
+                            <img src="${otherUserPic}" alt="${otherUserName} Avatar">
+                            <div class="chat-list-item-info">
+                                <strong>${otherUserName}</strong>
+                                <span>${chat.lastMessageText || 'Nenhuma mensagem.'}</span>
+                            </div>
+                        `;
+                        recentChatsList.appendChild(listItem);
+
+                        // Adiciona evento de clique para selecionar o chat
+                        listItem.addEventListener('click', () => {
+                            // Remover 'active' de todos os itens e adicionar ao clicado
+                            document.querySelectorAll('.chat-list-item').forEach(item => item.classList.remove('active'));
+                            listItem.classList.add('active');
+
+                            currentChatId = chatId;
+                            // Atualizar cabeçalho do chat
+                            chatHeader.innerHTML = `
+                                <img src="${otherUserPic}" alt="${otherUserName} Avatar">
+                                <h3>${otherUserName}</h3>
+                            `;
+                            loadMessages(chatId);
+                        });
+                    }
+                }, error => {
+                    console.error("Erro ao carregar conversas recentes:", error);
+                });
+        }
+
+        // --- Event Listeners do Chat ---
+        sendButton.addEventListener('click', () => {
+            sendMessage(currentChatId, messageInput.value);
+        });
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { // Envia com Enter, nova linha com Shift + Enter
+                e.preventDefault();
+                sendMessage(currentChatId, messageInput.value);
+            }
+        });
+
+        // Auto-redimensionamento do textarea
+        messageInput.addEventListener('input', () => {
+            messageInput.style.height = 'auto'; // Reset para calcular a nova altura
+            messageInput.style.height = messageInput.scrollHeight + 'px';
+        });
+
+        // --- Gerenciamento de Estado de Autenticação (adaptado do seu código original) ---
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                console.log("Usuário logado:", user.uid);
+
+                // Atualizar UI de login/logout
+                loginGoogleButton.style.display = 'none';
+                loginGitHubButton.style.display = 'none';
+                logoutButton.style.display = 'inline-block';
+                // userInfo, userProfilePic, googleAppsButton, etc. podem ser atualizados aqui
+
+                await createUserProfileDocument(user); // Garante que o perfil do usuário exista no Firestore
+
+                // Lógica de chat só funciona para usuários logados
+                loadRecentChats(); // Carrega a lista de conversas
+                loadMessages(null); // Limpa a tela de mensagens até um chat ser selecionado
+
+                // Para testar: Como iniciar uma nova conversa com alguém?
+                // Você precisaria de uma forma de selecionar outro usuário para conversar.
+                // Por exemplo, um botão "Iniciar nova conversa" que pediria o UID/email do outro usuário.
+                // Por agora, vamos assumir que as conversas aparecerão na lista de recentes.
+                // Ou você pode adicionar um botão temporário para iniciar uma conversa com um UID fixo:
+                // Exemplo: getOrCreateChat("OUTRO_UID_AQUI_PARA_TESTE").then(chatId => console.log('Chat ID para teste:', chatId));
+
+            } else {
+                currentUser = null;
+                console.log("Usuário deslogado.");
+
+                // Atualizar UI de login/logout
+                loginGoogleButton.style.display = 'inline-block';
+                loginGitHubButton.style.display = 'inline-block';
+                logoutButton.style.display = 'none';
+                adminPanelButton.style.display = 'none';
+                // Limpar UI do chat
+                recentChatsList.innerHTML = '';
+                messagesDisplay.innerHTML = '<p style="text-align: center; color: #666;">Por favor, faça login para iniciar o chat.</p>';
+                chatHeader.innerHTML = '<h3>Selecione uma Conversa</h3>';
+                messageInput.value = '';
+                messageInput.disabled = true;
+                sendButton.disabled = true;
+                if (unsubscribeMessages) {
+                    unsubscribeMessages();
+                }
+            }
+            // Chama o upgrade do MDL DOM após as manipulações
+            if (componentHandler) {
+                componentHandler.upgradeDom();
+            }
+        });
+
+        // Inicializa o MDL após o DOM ser carregado
+        document.addEventListener('DOMContentLoaded', () => {
+            if (componentHandler) {
+                componentHandler.upgradeDom();
+            }
+        });
+    </script>
+</body>
+</html>
