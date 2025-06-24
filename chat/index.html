@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -110,7 +109,6 @@
             text-align: left;
         }
 
-
         #message-input-area {
             padding: 15px;
             border-top: 1px solid #e0e0e0;
@@ -157,17 +155,31 @@
             color: #333;
             font-size: 18px;
         }
+
+        /* NOVO: Estilos para o Diálogo de Adicionar Contato */
+        .add-contact-dialog {
+            width: 400px;
+        }
+        .add-contact-dialog .mdl-dialog__content {
+            padding: 20px;
+        }
+        .add-contact-dialog .mdl-dialog__actions {
+            padding: 10px 20px;
+        }
     </style>
 </head>
 <body>
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
         <main class="mdl-layout__content">
             <div id="left-panel">
-                <div style="padding: 15px; border-bottom: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                <div style="padding: 15px; border-bottom: 1px solid #e0e0e0; background-color: #f5f5f5; display: flex; justify-content: space-between; align-items: center;">
                     <h4 style="margin: 0; color: #555;">Conversas Recentes</h4>
+                    <button id="add-contact-button" class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">person_add</i>
+                    </button>
                 </div>
                 <ul id="recent-chats-list">
-                    </ul>
+                </ul>
             </div>
 
             <div id="chat-main-area">
@@ -176,7 +188,7 @@
                 </div>
 
                 <div id="messages-display">
-                    </div>
+                </div>
 
                 <div id="message-input-area">
                     <textarea id="message-input" placeholder="Digite sua mensagem..." rows="1"></textarea>
@@ -210,6 +222,26 @@
                 </button>
             </div>
         </footer>
+
+        <dialog class="mdl-dialog add-contact-dialog" id="add-contact-dialog">
+            <h4 class="mdl-dialog__title">Adicionar Novo Contato</h4>
+            <div class="mdl-dialog__content">
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%;">
+                    <input class="mdl-textfield__input" type="text" id="contact-uid-input">
+                    <label class="mdl-textfield__label" for="contact-uid-input">UID Google do Contato</label>
+                </div>
+                <p id="contact-search-status" style="color: grey; font-size: 14px; margin-top: 10px;"></p>
+                <div id="found-contact-info" style="display: none; margin-top: 15px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
+                    <img id="found-contact-pic" src="" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; vertical-align: middle;">
+                    <strong id="found-contact-name"></strong>
+                </div>
+            </div>
+            <div class="mdl-dialog__actions">
+                <button type="button" class="mdl-button" id="start-chat-button" disabled>Iniciar Chat</button>
+                <button type="button" class="mdl-button close-dialog">Cancelar</button>
+            </div>
+        </dialog>
+
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
@@ -257,12 +289,23 @@
         const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
 
+        // NOVO: Elementos do Diálogo de Adicionar Contato
+        const addContactButton = document.getElementById('add-contact-button');
+        const addContactDialog = document.getElementById('add-contact-dialog');
+        const contactUidInput = document.getElementById('contact-uid-input');
+        const contactSearchStatus = document.getElementById('contact-search-status');
+        const foundContactInfo = document.getElementById('found-contact-info');
+        const foundContactPic = document.getElementById('found-contact-pic');
+        const foundContactName = document.getElementById('found-contact-name');
+        const startChatButton = document.getElementById('start-chat-button');
+        const closeDialogButtons = addContactDialog.querySelectorAll('.close-dialog');
+
         let currentUser = null; // O usuário atualmente logado
         let currentChatId = null; // O ID da conversa atualmente selecionada
         let unsubscribeMessages = null; // Variável para a função de desinscrição do listener de mensagens
+        let foundContactUid = null; // UID do contato encontrado no diálogo
 
         // --- Funções de Autenticação (adaptadas do seu código original) ---
-        // Você já tem essa lógica no seu código principal. Vamos garantir que ela seja chamada.
         const handleLogout = () => {
             auth.signOut().then(() => {
                 console.log("Usuário deslogado.");
@@ -331,8 +374,6 @@
         }
 
         // 2. Função para criar ou obter uma conversa
-        // Esta função tentará encontrar uma conversa existente entre os dois UIDs.
-        // Se não encontrar, criará uma nova.
         async function getOrCreateChat(otherUserId) {
             if (!currentUser) {
                 console.error("Nenhum usuário logado para criar/obter chat.");
@@ -341,13 +382,14 @@
 
             const currentUserId = currentUser.uid;
 
-            // Consultar conversas onde ambos os usuários estão presentes
-            // Uma consulta para (currentUserId E otherUserId)
-            // É mais eficiente se você tiver um campo array `participants` no documento do chat.
+            // Impedir que o usuário adicione a si mesmo
+            if (currentUserId === otherUserId) {
+                alert("Você não pode iniciar um chat consigo mesmo.");
+                return null;
+            }
+
             const chatRef = firestore.collection('wwebmodmail');
 
-            // Abordagem 1: Usando array-contains-any (se `participants` for um array de UIDs)
-            // Seria ideal ter um campo `participants: [uid1, uid2]`
             const query1 = await chatRef
                 .where('participants', 'array-contains', currentUserId)
                 .get();
@@ -366,14 +408,24 @@
                 console.log("Chat existente encontrado:", existingChatId);
                 return existingChatId;
             } else {
-                // Se não encontrou, cria um novo chat
                 console.log("Criando novo chat com", otherUserId);
                 try {
+                    // Buscar nomes e fotos dos participantes para o título inicial do chat
+                    const currentUserDoc = await firestore.collection('users').doc(currentUserId).get();
+                    const otherUserDoc = await firestore.collection('users').doc(otherUserId).get();
+
+                    const currentUserName = currentUserDoc.exists ? (currentUserDoc.data().name || currentUserDoc.data().email) : 'Você';
+                    const otherUserName = otherUserDoc.exists ? (otherUserDoc.data().name || otherUserDoc.data().email) : 'Usuário Desconhecido';
+
                     const newChat = await chatRef.add({
                         participants: [currentUserId, otherUserId],
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                         lastMessageTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                        // Você pode adicionar mais campos aqui, como nomes dos participantes, etc.
+                        lastMessageText: '', // Inicialmente sem mensagem
+                        participantNames: {
+                            [currentUserId]: currentUserName,
+                            [otherUserId]: otherUserName
+                        }
                     });
                     console.log("Novo chat criado com ID:", newChat.id);
                     return newChat.id;
@@ -538,6 +590,85 @@
             messageInput.style.height = messageInput.scrollHeight + 'px';
         });
 
+        // NOVO: Lógica do Diálogo "Adicionar Contato"
+        addContactButton.addEventListener('click', () => {
+            if (!currentUser) {
+                alert("Por favor, faça login para adicionar contatos.");
+                return;
+            }
+            // Limpa o diálogo antes de abrir
+            contactUidInput.value = '';
+            contactSearchStatus.textContent = '';
+            foundContactInfo.style.display = 'none';
+            foundContactPic.src = '';
+            foundContactName.textContent = '';
+            startChatButton.disabled = true;
+            addContactDialog.showModal();
+        });
+
+        closeDialogButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                addContactDialog.close();
+            });
+        });
+
+        contactUidInput.addEventListener('input', async () => {
+            const uid = contactUidInput.value.trim();
+            foundContactUid = null; // Reseta o UID encontrado
+            startChatButton.disabled = true; // Desabilita o botão Iniciar Chat
+            foundContactInfo.style.display = 'none'; // Esconde as informações do contato
+
+            if (uid.length > 5) { // Para evitar muitas buscas com UIDs curtos
+                contactSearchStatus.textContent = 'Buscando usuário...';
+                try {
+                    const userDoc = await firestore.collection('users').doc(uid).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        if (userData.uid === currentUser.uid) {
+                             contactSearchStatus.textContent = 'Este é você!';
+                             foundContactInfo.style.display = 'none';
+                             startChatButton.disabled = true;
+                        } else {
+                            contactSearchStatus.textContent = 'Usuário encontrado!';
+                            foundContactInfo.style.display = 'flex';
+                            foundContactPic.src = userData.profilePictureUrl || 'https://via.placeholder.com/50';
+                            foundContactName.textContent = userData.name || userData.email;
+                            foundContactUid = uid; // Armazena o UID do contato encontrado
+                            startChatButton.disabled = false; // Habilita o botão
+                        }
+                    } else {
+                        contactSearchStatus.textContent = 'Usuário não encontrado.';
+                    }
+                } catch (error) {
+                    console.error("Erro ao buscar usuário:", error);
+                    contactSearchStatus.textContent = 'Erro ao buscar usuário.';
+                }
+            } else {
+                contactSearchStatus.textContent = 'Digite o UID completo.';
+            }
+        });
+
+        startChatButton.addEventListener('click', async () => {
+            if (foundContactUid && currentUser) {
+                const newChatId = await getOrCreateChat(foundContactUid);
+                if (newChatId) {
+                    addContactDialog.close();
+                    // Opcional: Atualizar a lista de chats e selecionar o novo chat
+                    loadRecentChats();
+                    // Tenta encontrar o item na lista recém-carregada e clica nele
+                    setTimeout(() => { // Pequeno delay para garantir que a lista foi redesenhada
+                        const newItem = document.querySelector(`[data-chat-id="${newChatId}"]`);
+                        if (newItem) {
+                            newItem.click();
+                        }
+                    }, 500); // Ajuste o tempo se necessário
+                } else {
+                    alert("Não foi possível iniciar o chat.");
+                }
+            }
+        });
+
+
         // --- Gerenciamento de Estado de Autenticação (adaptado do seu código original) ---
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -555,13 +686,11 @@
                 // Lógica de chat só funciona para usuários logados
                 loadRecentChats(); // Carrega a lista de conversas
                 loadMessages(null); // Limpa a tela de mensagens até um chat ser selecionado
-
-                // Para testar: Como iniciar uma nova conversa com alguém?
-                // Você precisaria de uma forma de selecionar outro usuário para conversar.
-                // Por exemplo, um botão "Iniciar nova conversa" que pediria o UID/email do outro usuário.
-                // Por agora, vamos assumir que as conversas aparecerão na lista de recentes.
-                // Ou você pode adicionar um botão temporário para iniciar uma conversa com um UID fixo:
-                // Exemplo: getOrCreateChat("OUTRO_UID_AQUI_PARA_TESTE").then(chatId => console.log('Chat ID para teste:', chatId));
+                
+                // Habilita elementos do chat
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+                addContactButton.style.display = 'inline-block'; // NOVO: Mostra o botão adicionar contato
 
             } else {
                 currentUser = null;
@@ -579,6 +708,7 @@
                 messageInput.value = '';
                 messageInput.disabled = true;
                 sendButton.disabled = true;
+                addContactButton.style.display = 'none'; // NOVO: Esconde o botão adicionar contato
                 if (unsubscribeMessages) {
                     unsubscribeMessages();
                 }
@@ -593,6 +723,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (componentHandler) {
                 componentHandler.upgradeDom();
+            }
+            // NOVO: Adiciona suporte para o diálogo do MDL
+            if (! addContactDialog.showModal) {
+                dialogPolyfill.registerDialog(addContactDialog);
             }
         });
     </script>
