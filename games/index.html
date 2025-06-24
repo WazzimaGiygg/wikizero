@@ -66,10 +66,10 @@
             background-color: var(--mdl-color-accent);
             color: white;
         }
-        /* Estilos padrão para as variáveis CSS (serão sobrescritos pelo JS) */
+        /* Estilos padrão (podem ser personalizados, mas não serão alterados por Firebase) */
         :root {
-            --mdl-color-primary: #3f51b5;
-            --mdl-color-accent: #ff4081;
+            --mdl-color-primary: #3f51b5; /* Azul padrão */
+            --mdl-color-accent: #ff4081; /* Rosa padrão */
         }
     </style>
 </head>
@@ -79,7 +79,7 @@
             <div class="mdl-layout__header-row">
                 <span class="mdl-layout-title">Jogos WZZM</span>
                 <div class="mdl-layout-spacer"></div>
-                </div>
+            </div>
         </header>
         <main class="mdl-layout__content">
             <div class="mdl-grid" id="games-container">
@@ -92,64 +92,38 @@
     </div>
 
     <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
-        import { getFirestore, collection, getDocs, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
-        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
-
-        // --- Configuração do Firebase ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
-            authDomain: "wzzm-ce3fc.firebaseapp.com",
-            projectId: "wzzm-ce3fc",
-            storageBucket: "wzzm-ce3fc.appspot.com",
-            messagingSenderId: "249427877153",
-            appId: "1:249427877153:web:0e4297294794a5aadeb260",
-            measurementId: "G-PLKNZNFCQ8"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const firestore = getFirestore(app);
-        const auth = getAuth(app);
+    <script>
+        // --- Definição dos Jogos ---
+        const games = [
+            {
+                nome: "Nuke Analy",
+                descricao: "Um jogo de estratégia nuclear onde cada decisão conta. Gerencie recursos, pesquise tecnologias e domine o campo de batalha nuclear!",
+                path: "nukeanaly", // Este é o link interno para a pasta do jogo
+                imageUrl: "https://i.imgur.com/your-nukeanaly-cover.png", // Substitua pela URL real da imagem
+                status: "Ativo",
+                versao: "1.0.0"
+            },
+            {
+                nome: "Cyber Blade",
+                descricao: "Embarque em uma aventura futurista com combates de alta velocidade e uma história envolvente. Personalize seu blade e lute pela liberdade!",
+                path: "cyberblade",
+                imageUrl: "https://i.imgur.com/your-cyberblade-cover.png", // Substitua
+                status: "Beta",
+                versao: "0.8.5"
+            },
+            {
+                nome: "Fantasy Realm",
+                descricao: "Explore um mundo de fantasia épico, repleto de magia, criaturas míticas e segredos antigos. Crie seu herói e forje sua lenda.",
+                path: "fantasyrealm",
+                imageUrl: "https://i.imgur.com/your-fantasyrealm-cover.png", // Substitua
+                status: "Em Desenvolvimento",
+                versao: "0.1.2"
+            }
+            // Adicione mais jogos aqui seguindo o mesmo formato
+        ];
 
         const gamesContainer = document.getElementById('games-container');
         const loadingMessage = document.getElementById('loading-message');
-
-        let currentUser = null;
-        let userGameSettings = {}; // Para armazenar as configurações do jogo do usuário
-
-        // Função para aplicar as cores personalizadas do usuário
-        function applyCustomColors(primary, accent) {
-            document.documentElement.style.setProperty('--mdl-color-primary', primary);
-            // Você pode querer calcular um tom mais escuro para --mdl-color-primary-dark se necessário
-            // Ou simplesmente usar a mesma cor para simplicidade se o MDL se adaptar bem
-            document.documentElement.style.setProperty('--mdl-color-primary-dark', primary);
-            document.documentElement.style.setProperty('--mdl-color-accent', accent);
-            if (componentHandler) {
-                componentHandler.upgradeDom();
-            }
-        }
-
-        // Função para carregar as configurações de jogo do usuário
-        async function loadUserGameSettings(userId) {
-            const userSettingsRef = doc(firestore, 'users', userId, 'configuracoes', 'jogo');
-            try {
-                const docSnap = await getDoc(userSettingsRef);
-                if (docSnap.exists()) {
-                    userGameSettings = docSnap.data();
-                    applyCustomColors(userGameSettings.primaryColor || '#3f51b5', userGameSettings.accentColor || '#ff4081');
-                    console.log("Configurações de jogo do usuário carregadas:", userGameSettings);
-                } else {
-                    console.log("Nenhuma configuração de jogo encontrada para o usuário, usando padrões.");
-                    userGameSettings = { onlineMode: true, primaryColor: '#3f51b5', accentColor: '#ff4081' };
-                    applyCustomColors('#3f51b5', '#ff4081'); // Aplica cores padrão
-                }
-            } catch (error) {
-                console.error("Erro ao carregar configurações de jogo do usuário:", error);
-                userGameSettings = { onlineMode: true, primaryColor: '#3f51b5', accentColor: '#ff4081' }; // Fallback para padrão
-                applyCustomColors('#3f51b5', '#ff4081');
-            }
-        }
 
         // Função para renderizar um card de jogo
         function renderGameCard(game) {
@@ -181,75 +155,38 @@
 
             // Adiciona listeners aos botões
             gameCard.querySelector('.play-button').addEventListener('click', () => {
-                // Abre o jogo em uma nova aba para evitar problemas com iframe e caminhos relativos
-                // Se o jogo for interno e você quiser que ele abra no iframe principal da wiki,
-                // você precisaria de uma comunicação entre esta página e a página pai.
-                // Para simplificar, abrimos em nova aba.
                 window.open(`../${game.path}/index.html`, '_blank');
             });
 
             gameCard.querySelector('.config-button').addEventListener('click', () => {
-                // Abre a página de configurações em uma nova aba
-                // Assumindo que a página de configurações está no mesmo diretório base do jogo
                 window.open(`../${game.path}/configuracoes.html`, '_blank');
             });
 
             return gameCard;
         }
 
-        // Função principal para carregar os jogos do Firebase
-        async function loadGames() {
+        // Função principal para carregar os jogos do array
+        function loadGames() {
             loadingMessage.style.display = 'block';
             gamesContainer.innerHTML = ''; // Limpa o container antes de adicionar novos cards
 
-            try {
-                // Consulta a coleção 'aplicativo' para jogos
-                const querySnapshot = await getDocs(collection(firestore, 'aplicativo'));
-                const games = [];
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    // Assumimos que 'tipo' 'Jogo' identifica os jogos
-                    // E que 'path' é o caminho para o diretório do jogo (ex: 'nukeanaly')
-                    if (data.tipo === 'Jogo' && data.path) {
-                        games.push({ id: doc.id, ...data });
-                    }
+            if (games.length > 0) {
+                games.forEach(game => {
+                    gamesContainer.appendChild(renderGameCard(game));
                 });
-
-                if (games.length > 0) {
-                    games.forEach(game => {
-                        gamesContainer.appendChild(renderGameCard(game));
-                    });
-                } else {
-                    gamesContainer.innerHTML = '<p class="mdl-cell mdl-cell--12-col mdl-typography--text-center">Nenhum jogo encontrado no momento.</p>';
-                }
-            } catch (error) {
-                console.error("Erro ao carregar jogos:", error);
-                gamesContainer.innerHTML = '<p class="mdl-cell mdl-cell--12-col mdl-typography--text-center" style="color: red;">Erro ao carregar jogos. Tente novamente mais tarde.</p>';
-            } finally {
-                loadingMessage.style.display = 'none';
-                if (componentHandler) {
-                    componentHandler.upgradeDom();
-                }
-            }
-        }
-
-        // Listener para o estado de autenticação para carregar configurações
-        onAuthStateChanged(auth, async (user) => {
-            currentUser = user;
-            if (currentUser) {
-                await loadUserGameSettings(currentUser.uid); // Carrega as configurações do usuário logado
             } else {
-                console.log("Usuário não logado. Usando cores padrão.");
-                applyCustomColors('#3f51b5', '#ff4081'); // Garante cores padrão se não houver login
+                gamesContainer.innerHTML = '<p class="mdl-cell mdl-cell--12-col mdl-typography--text-center">Nenhum jogo encontrado no momento.</p>';
             }
-            loadGames(); // Carrega os jogos após o estado de autenticação ser determinado
-        });
 
-        document.addEventListener('DOMContentLoaded', () => {
+            loadingMessage.style.display = 'none';
+            // Garante que os componentes MDL são atualizados após o DOM carregar
             if (componentHandler) {
                 componentHandler.upgradeDom();
             }
-        });
+        }
+
+        // Carrega os jogos quando a página é completamente carregada
+        document.addEventListener('DOMContentLoaded', loadGames);
     </script>
 </body>
 </html>
