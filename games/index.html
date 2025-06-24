@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiki Zone Zero Mod</title>
+    <link rel="icon" href="favicom.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <style id="custom-app-css">
+        /* Este será o local onde o CSS dos aplicativos do usuário será injetado */
+    </style>
+    <style id="dynamic-color-css">
+        /* Este será o local onde o CSS de cores personalizadas será injetado */
+    </style>
+    <style>
+        /* Seus estilos CSS existentes aqui */
+        .page-content {
+            padding: 20px;
+        }
+        #contentFrame {
+            width: 100%;
+            height: calc(100vh - 200px);
+            border: none;
+        }
+
+        /* Estilos adicionais para os links do menu lateral quando desabilitados */
+        .mdl-navigation__link.disabled,
+        #google-apps-popup a.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+            color: #777 !important;
+            pointer-events: none;
+        }
+
+        /* Estilos para a imagem de perfil e ícone do Google Apps */
+        #user-profile-pic {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 8px;
+            object-fit: cover;
+        }
+        #google-apps-button {
+            min-width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Estilos para o pop-up dos serviços Google */
+        #google-apps-popup a.mdl-button {
+            margin-bottom: 4px;
+            justify-content: flex-start;
+        }
+        /* Definição de variáveis CSS para cores padrão */
+        :root {
+            --mdl-color-primary: #3f51b5;
+            --mdl-color-primary-dark: #303f9f;
+            --mdl-color-accent: #ff4081;
+        }
+        /* Aplica as variáveis CSS aos componentes MDL */
+        .mdl-layout__header, .mdl-card__title {
+            background-color: var(--mdl-color-primary);
+        }
+        .mdl-button--colored, .mdl-button--raised.mdl-button--colored {
+            background-color: var(--mdl-color-primary);
+            color: white;
+        }
+        .mdl-button--accent, .mdl-button--raised.mdl-button--accent {
+            background-color: var(--mdl-color-accent);
+            color: white;
+        }
+        /* Adicione mais regras conforme necessário para outros elementos */
+    </style>
+</head>
+<body>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
+
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">Wiki Zone Zero Mod</span>
+                <div class="mdl-layout-spacer"></div>
+                <div style="position: relative; display: flex; align-items: center;">
+                    <button class="mdl-button mdl-js-button mdl-button--icon" id="google-apps-button" style="display: none; margin-right: 8px;">
+                        <i class="material-icons">apps</i>
+                    </button>
+                    <div id="google-apps-popup" style="
+                        display: none;
+                        position: absolute;
+                        top: 48px;
+                        right: 0;
+                        background-color: white;
+                        border: 1px solid #ccc;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        z-index: 100;
+                        padding: 10px;
+                        min-width: 180px;
+                        border-radius: 4px;
+                    ">
+                        <a href="https://mail.google.com/" target="_blank" class="mdl-button mdl-js-button mdl-button--flat">Gmail</a>
+                        <a href="https://drive.google.com/" target="_blank" class="mdl-button mdl-js-button mdl-button--flat">Drive</a>
+                        <a href="https://calendar.google.com/" target="_blank" class="mdl-button mdl-js-button mdl-button--flat">Agenda</a>
+                        <a href="https://photos.google.com/" target="_blank" class="mdl-button mdl-js-button mdl-button--flat">Fotos</a>
+                        <a href="https://www.youtube.com/" target="_blank" class="mdl-button mdl-js-button mdl-button--flat">YouTube</a>
+                        <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
+                        <a href="https://myaccount.google.com/" target="_blank" class="mdl-button mdl-js-button mdl-button--flat">Minha Conta Google</a>
+                    </div>
+                    <div id="user-info-container" style="display: flex; align-items: center;">
+                        <img id="user-profile-pic" src="" alt="Foto de Perfil" style="display: none;">
+                        <div id="user-info" class="mdl-typography--body-1-force-preferred-font-color-contrast"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="mdl-layout__drawer">
+            <span class="mdl-layout-title">Menu</span>
+            <nav class="mdl-navigation" id="main-navigation">
+                <a class="mdl-navigation__link" href="./recepcao.html">Página Inicial</a>
+                <a class="mdl-navigation__link" href="./admintools/editordeartigos.html">Adicionar Artigo</a>
+                <a class="mdl-navigation__link" href="./register-material.html">Registrar Matéria</a>
+                <a class="mdl-navigation__link" href="conhecawazzimagiygg.html">Conheça WazzimaGiygg</a>
+                <a class="mdl-navigation__link" href="./admintools/cadastrarprofessor.html">Cadastrar Professor</a>
+                <a class="mdl-navigation__link" href="./detalhes_cliente/">Procurar informações sobre Cliente</a>
+                <a class="mdl-navigation__link" href="./admintools/editordenoticias.html">Adicionar Noticia</a>
+                <a class="mdl-navigation__link" href="./administrarcustos/">Administrar Custos</a>
+                <a class="mdl-navigation__link" href="./admintools/configuracoes.html" data-requires-auth="true">Configurações</a> <a class="mdl-navigation__link" href="./admintools/estatisticas.html">Estatísticas</a>
+                <a class="mdl-navigation__link" href="./admintools/pageadmin.html">Página Administradora</a>
+
+                <a class="mdl-navigation__link" href="http://www.wzzm.org/POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf">Políticas da WZZM</a>
+                <a class="mdl-navigation__link" href="#" data-page-src="cadastro-aplicativo.html" data-requires-auth="true">
+                    <i class="material-icons">developer_mode</i> Cadastrar Aplicativo
+                </a>
+                <a class="mdl-navigation__link" href="#" data-page-src="meus-aplicativos.html" data-requires-auth="true">
+                    <i class="material-icons">apps</i> Meus Aplicativos
+                </a>
+            </nav>
+        </div>
+
+        <main class="mdl-layout__content">
+            <div class="page-content">
+                <div class="separator" style="clear: both; text-align: center;">
+                    <a href="https://static.wikitide.net/wikimetrospwiki/thumb/8/88/Wiki_Zone_Zero_Mod_Banner.png/1920px-Wiki_Zone_Zero_Mod_Banner.png" style="display: block; padding: 1em 0;">
+                        <img alt="" border="0" width="320" data-original-height="873" data-original-width="2833" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi1fx0b6zFkwQ-U45g3millPHUg03_Gmc-Q9xtmTY98HWYrqjJBmgQjr-HeNZdMCrFj3R7dQHOcyEfkmPVcEShF5-1gKJLMvkI-N60JKuq7XFigE67uVlp4DaOswxBHJ6BFlZaG4MCEiimtNbLDv4Q6Z-MNk7Xuy9OmjBj-k0UD_IvnnDUXe-ZmynmypNnV/s320/Wiki_Zone_Zero_Mod_Banner.webp"/>
+                    </a>
+                </div>
+                <iframe id="contentFrame" src="recepcao.html"></iframe>
+                <div id="access-denied-message" style="text-align: center; padding: 50px; font-size: 20px; color: #666; display: none;">
+                    Você precisa estar logado para acessar esta página.
+                </div>
+                <div id="banned-message" style="text-align: center; padding: 50px; font-size: 20px; color: red; display: none;">
+                    Sua conta foi banida. Você não pode usar os recursos do site.
+                </div>
+            </div>
+        </main>
+
+        <footer class="mdl-mini-footer">
+            <div class="mdl-mini-footer__left-section">
+                <div class="mdl-logo">WZZM © 2025</div>
+                <ul class="mdl-mini-footer__link-list">
+                    <li><a href="./Privacidade/">Privacidade</a></li>
+                    <li><a href="https://wikizero.wzzm.org/">Doações</a></li>
+                </ul>
+            </div>
+            <div class="mdl-mini-footer__right-section">
+                <button id="login-google" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="display: none;">
+                    <i class="material-icons">account_circle</i> Login com Google
+                </button>
+                <button id="login-github" class="mdl-button mdl-js-button mdl-button--raised" style="display: none;">
+                    <i class="material-icons">code</i> Login com GitHub
+                </button>
+                <button id="logout-button" class="mdl-button mdl-js-button mdl-button--accent" style="display: none;">
+                    <i class="material-icons">exit_to_app</i> Sair
+                </button>
+                <button id="admin-panel-button" class="mdl-button mdl-js-button mdl-button--primary" style="display: none;">
+                    <i class="material-icons">admin_panel_settings</i> Admin
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script>
+        // --- Configuração do Firebase ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
+            authDomain: "wzzm-ce3fc.firebaseapp.com",
+            projectId: "wzzm-ce3fc",
+            storageBucket: "wzzm-ce3fc.appspot.com",
+            messagingSenderId: "249427877153",
+            appId: "1:249427877153:web:0e4297294794a5aadeb260",
+            measurementId: "G-PLKNZNFCQ8"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const firestore = firebase.firestore();
+        const analytics = firebase.analytics();
+
+        // Elementos da UI
+        const loginGoogleButton = document.getElementById('login-google');
+        const loginGitHubButton = document.getElementById('login-github');
+        const logoutButton = document.getElementById('logout-button');
+        const userInfo = document.getElementById('user-info');
+        const adminPanelButton = document.getElementById('admin-panel-button');
+        const contentFrame = document.getElementById('contentFrame');
+        const accessDeniedMessage = document.getElementById('access-denied-message');
+        const bannedMessage = document.getElementById('banned-message');
+        const navLinks = document.querySelectorAll('.mdl-navigation__link');
+        const googleAppsLinks = document.querySelectorAll('#google-apps-popup a');
+
+        const userProfilePic = document.getElementById('user-profile-pic');
+        const googleAppsButton = document.getElementById('google-apps-button');
+        const userInfoContainer = document.getElementById('user-info-container');
+        const googleAppsPopup = document.getElementById('google-apps-popup');
+
+        const customAppCssStyleTag = document.getElementById('custom-app-css');
+        const dynamicColorCssStyleTag = document.getElementById('dynamic-color-css'); // Novo elemento para cores
+
+        let isCurrentUserBanned = false;
+        let isOnlineMode = true; // Novo estado para o modo online/offline
+
+        // Função global para aplicar cores personalizadas dinamicamente
+        window.applyGlobalCustomColors = function(primary, accent) {
+            dynamicColorCssStyleTag.innerHTML = `
+                :root {
+                    --mdl-color-primary: ${primary};
+                    --mdl-color-primary-dark: ${primary}; /* Você pode calcular um tom mais escuro aqui */
+                    --mdl-color-accent: ${accent};
+                }
+                .mdl-button--colored, .mdl-button--raised.mdl-button--colored {
+                    background-color: var(--mdl-color-primary);
+                }
+                .mdl-button--accent, .mdl-button--raised.mdl-button--accent {
+                    background-color: var(--mdl-color-accent);
+                }
+                .mdl-card__title {
+                    background-color: var(--mdl-color-primary);
+                }
+                .mdl-layout__header {
+                    background-color: var(--mdl-color-primary);
+                }
+                /* Adicione mais seletores aqui para aplicar as cores em todo o app */
+            `;
+            // Força o MDL a recalcular os estilos para alguns componentes
+            if (componentHandler) {
+                componentHandler.upgradeDom();
+            }
+        };
+
+        // Função para carregar as configurações do jogo do Firebase
+        async function loadGameSettings(userId) {
+            if (!userId) return; // Não carrega configurações se não houver usuário logado
+
+            const userSettingsRef = firestore.collection('users').doc(userId).collection('configuracoes').doc('jogo');
+            try {
+                const docSnap = await userSettingsRef.get();
+                if (docSnap.exists()) {
+                    const settings = docSnap.data();
+                    isOnlineMode = settings.onlineMode !== undefined ? settings.onlineMode : true; // Padrão para online
+                    const primaryColor = settings.primaryColor || '#3f51b5';
+                    const accentColor = settings.accentColor || '#ff4081';
+                    window.applyGlobalCustomColors(primaryColor, accentColor);
+                    console.log("Configurações de jogo carregadas:", settings);
+                } else {
+                    console.log("Nenhuma configuração de jogo encontrada para o usuário, usando padrões.");
+                    isOnlineMode = true; // Padrão
+                    window.applyGlobalCustomColors('#3f51b5', '#ff4081'); // Cores padrão
+                }
+            } catch (error) {
+                console.error("Erro ao carregar configurações de jogo:", error);
+                isOnlineMode = true; // Em caso de erro, assume online para tentar salvar futuramente
+                window.applyGlobalCustomColors('#3f51b5', '#ff4081'); // Cores padrão
+            }
+        }
+
+        window.loadPage = function(page, requiresAuth = true) {
+            // Se o modo estiver offline, ou se o usuário estiver banido
+            if (!isOnlineMode) { // Se o modo offline estiver ativado nas configurações do usuário
+                requiresAuth = false; // Ignora a autenticação para acesso a páginas locais
+                if (page.includes('http') || page.includes('https')) { // Bloqueia páginas externas em modo offline
+                     contentFrame.src = "about:blank";
+                     contentFrame.style.display = 'none';
+                     accessDeniedMessage.style.display = 'block'; // Pode ser uma mensagem diferente para offline
+                     accessDeniedMessage.textContent = "Você está no modo offline. Não é possível acessar conteúdos externos.";
+                     bannedMessage.style.display = 'none';
+                     return;
+                }
+            } else if (isCurrentUserBanned && page !== 'recepcao.html' && !page.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) {
+                // Lógica de banimento existente
+                contentFrame.src = "about:blank";
+                contentFrame.style.display = 'none';
+                accessDeniedMessage.style.display = 'none';
+                bannedMessage.style.display = 'block';
+                return;
+            }
+
+            if (!requiresAuth || auth.currentUser) {
+                contentFrame.src = page;
+                contentFrame.style.display = 'block';
+                accessDeniedMessage.style.display = 'none';
+                bannedMessage.style.display = 'none';
+                accessDeniedMessage.textContent = "Você precisa estar logado para acessar esta página."; // Reseta mensagem
+            } else {
+                contentFrame.src = "about:blank";
+                contentFrame.style.display = 'none';
+                accessDeniedMessage.style.display = 'block';
+                bannedMessage.style.display = 'none';
+                alert("Você precisa estar logado para acessar esta página.");
+            }
+        }
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(event) {
+                const pageSrc = this.dataset.pageSrc || this.getAttribute('href');
+                const requiresAuth = this.dataset.requiresAuth === 'true';
+
+                event.preventDefault();
+
+                // Lógica para links desabilitados e banimento
+                if (isCurrentUserBanned && !pageSrc.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) {
+                    return;
+                }
+                if (this.classList.contains('disabled') && !pageSrc.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) {
+                    return;
+                }
+
+                // Se o modo for offline, e o link for para um recurso externo, bloqueia.
+                if (!isOnlineMode && (pageSrc.includes('http://') || pageSrc.includes('https://'))) {
+                    alert("Você está no modo offline. Não é possível acessar conteúdos externos.");
+                    return;
+                }
+
+                loadPage(pageSrc, requiresAuth);
+
+                if (document.querySelector('.mdl-layout__drawer.is-visible')) {
+                    document.querySelector('.mdl-layout__obfuscator').classList.remove('is-visible');
+                    document.querySelector('.mdl-layout__drawer').classList.remove('is-visible');
+                }
+            });
+        });
+
+        function setNavLinksEnabled(enabled) {
+            navLinks.forEach(link => {
+                if (link.href.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) {
+                    link.classList.remove('disabled');
+                } else {
+                    const requiresAuth = link.dataset.requiresAuth === 'true';
+                    // Se o modo estiver offline, desabilita links que não sejam a página inicial ou políticas
+                    if (!isOnlineMode && link.getAttribute('href') !== './recepcao.html') {
+                        link.classList.add('disabled');
+                    } else if (enabled && !isCurrentUserBanned) {
+                        link.classList.remove('disabled');
+                    } else if (!enabled && !requiresAuth) {
+                        if (isCurrentUserBanned) {
+                            link.classList.add('disabled');
+                        } else {
+                            link.classList.remove('disabled');
+                        }
+                    } else {
+                        link.classList.add('disabled');
+                    }
+                }
+            });
+
+            googleAppsLinks.forEach(link => {
+                if (enabled && !isCurrentUserBanned && isOnlineMode) { // Também considera o modo online
+                    link.classList.remove('disabled');
+                } else {
+                    link.classList.add('disabled');
+                }
+            });
+        }
+
+        async function createUserProfileDocument(user) {
+            if (!user) return;
+
+            const userRef = firestore.collection('users').doc(user.uid);
+            const docSnapshot = await userRef.get();
+
+            if (!docSnapshot.exists) {
+                const { displayName, email, photoURL } = user;
+                const createdAt = firebase.firestore.FieldValue.serverTimestamp();
+
+                try {
+                    await userRef.set({
+                        uid: user.uid,
+                        name: displayName,
+                        email: email,
+                        profilePictureUrl: photoURL,
+                        createdAt: createdAt,
+                        lastLoginAt: createdAt,
+                        isBan: false,
+                        isAdmin: false,
+                    });
+                    console.log("Novo perfil de usuário criado no Firestore!");
+                } catch (error) {
+                    console.error("Erro ao criar perfil de usuário no Firestore:", error);
+                }
+            } else {
+                try {
+                    await userRef.update({
+                        lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    console.log("Perfil de usuário atualizado no Firestore (lastLoginAt).");
+                } catch (error) {
+                    console.error("Erro ao atualizar perfil de usuário no Firestore:", error);
+                }
+            }
+        }
+
+        async function loadAndApplyUserAppsCSS(userId) {
+            try {
+                customAppCssStyleTag.innerHTML = '';
+
+                const userAppsSnapshot = await firestore.collection('users').doc(userId)
+                    .collection('listasecundariah')
+                    .where('tipo', '==', 'Aparência')
+                    .where('status', '==', 'ativo')
+                    .get();
+
+                let combinedCSS = '';
+                if (!userAppsSnapshot.empty) {
+                    for (const doc of userAppsSnapshot.docs) {
+                        const appId = doc.id;
+                        const appDoc = await firestore.collection('aplicativo').doc(appId).get();
+
+                        if (appDoc.exists && appDoc.data().codigoAplicativo) {
+                            const appCode = appDoc.data().codigoAplicativo;
+                            const cssMatch = appCode.match(/\|CSS\|:\s*\n\+\+([\s\S]*?)-\+/);
+                            if (cssMatch && cssMatch[1]) {
+                                combinedCSS += cssMatch[1].trim() + '\n';
+                            }
+                        }
+                    }
+                }
+
+                if (combinedCSS) {
+                    customAppCssStyleTag.innerHTML = combinedCSS;
+                    console.log("CSS de aplicativos do usuário aplicado.");
+                } else {
+                    console.log("Nenhum aplicativo de aparência ativo ou CSS encontrado para o usuário.");
+                }
+
+            } catch (error) {
+                console.error("Erro ao carregar/aplicar CSS de aplicativos do usuário:", error);
+            }
+        }
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                userInfo.textContent = `Olá, ${user.displayName || user.email}!`;
+                loginGoogleButton.style.display = 'none';
+                loginGitHubButton.style.display = 'none';
+
+                if (user.photoURL) {
+                    userProfilePic.src = user.photoURL;
+                    userProfilePic.style.display = 'inline-block';
+                } else {
+                    userProfilePic.style.display = 'none';
+                }
+                googleAppsButton.style.display = 'inline-block';
+                userInfoContainer.style.display = 'flex';
+
+                await createUserProfileDocument(user);
+                await loadGameSettings(user.uid); // Carrega as configurações do jogo (modo online/offline, cores)
+
+                let isUserBanned = false;
+                let isUserAdmin = false;
+
+                try {
+                    const userProfileRef = firestore.collection('users').doc(user.uid);
+                    const doc = await userProfileRef.get();
+
+                    if (doc.exists && doc.data()) {
+                        isUserBanned = doc.data().isBan || false;
+                        isUserAdmin = doc.data().isAdmin || false;
+                    }
+                } catch (error) {
+                    console.error("Erro ao verificar perfil de usuário ou status de banimento/admin:", error);
+                    isUserBanned = false;
+                    isUserAdmin = false;
+                }
+
+                isCurrentUserBanned = isUserBanned;
+
+                if (isUserBanned) {
+                    console.warn(`Usuário ${user.uid} está banido.`);
+                    setNavLinksEnabled(false);
+                    logoutButton.style.display = 'none';
+                    logoutButton.removeEventListener('click', handleLogout);
+                    adminPanelButton.style.display = 'none';
+                    loadPage('recepcao.html', false);
+                    bannedMessage.style.display = 'block';
+                    contentFrame.style.display = 'none';
+                    googleAppsButton.style.pointerEvents = 'none';
+                    googleAppsButton.style.opacity = '0.6';
+                    googleAppsPopup.style.display = 'none';
+                } else {
+                    setNavLinksEnabled(true);
+                    logoutButton.style.display = 'inline-block';
+                    logoutButton.removeEventListener('click', handleLogout);
+                    logoutButton.addEventListener('click', handleLogout);
+                    bannedMessage.style.display = 'none';
+                    contentFrame.style.display = 'block';
+                    accessDeniedMessage.style.display = 'none';
+                    googleAppsButton.style.pointerEvents = 'auto';
+                    googleAppsButton.style.opacity = '1';
+
+                    if (isUserAdmin) {
+                        adminPanelButton.style.display = 'inline-block';
+                    } else {
+                        adminPanelButton.style.display = 'none';
+                    }
+
+                    await loadAndApplyUserAppsCSS(user.uid);
+
+                    const clientId = user.uid;
+
+                    // Ajusta a lógica de carregamento da página inicial com base no modo online
+                    if (isOnlineMode) {
+                        try {
+                            const clientDoc = await firestore.collection('clients').doc(clientId).get();
+                            if (clientDoc.exists) {
+                                loadPage('informacoes_cliente/?uid=' + clientId, true);
+                            } else {
+                                loadPage('cadastro_cliente/?uid=' + clientId, true);
+                            }
+                        } catch (error) {
+                            console.error("Erro ao verificar cadastro do cliente no Firestore:", error);
+                            loadPage('cadastro_cliente/?uid=' + clientId, true);
+                        }
+                    } else {
+                        loadPage('recepcao.html', false); // No modo offline, sempre carrega a recepcao
+                    }
+                }
+
+            } else {
+                userInfo.textContent = '';
+                loginGoogleButton.style.display = 'inline-block';
+                loginGitHubButton.style.display = 'inline-block';
+                logoutButton.style.display = 'none';
+                adminPanelButton.style.display = 'none';
+                isCurrentUserBanned = false;
+                bannedMessage.style.display = 'none';
+                isOnlineMode = false; // Desloga = offline
+                setNavLinksEnabled(false);
+                loadPage('recepcao.html', false);
+                userProfilePic.style.display = 'none';
+                userProfilePic.src = '';
+                googleAppsButton.style.display = 'none';
+                userInfoContainer.style.display = 'none';
+                googleAppsPopup.style.display = 'none';
+                customAppCssStyleTag.innerHTML = '';
+                dynamicColorCssStyleTag.innerHTML = ''; // Limpa cores personalizadas
+                contentFrame.style.display = 'block';
+                accessDeniedMessage.style.display = 'none';
+            }
+            // Força o MDL a atualizar os componentes
+            if (componentHandler) {
+                componentHandler.upgradeDom();
+            }
+        });
+
+        const handleLogout = () => {
+            auth.signOut().then(() => {
+                console.log("Usuário deslogado.");
+            }).catch((error) => {
+                console.error("Erro ao fazer logout:", error);
+                alert(`Erro ao fazer logout: ${error.message}`);
+            });
+        };
+
+        loginGoogleButton.addEventListener('click', async () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                console.error("Erro ao fazer login com Google:", error);
+                alert(`Erro ao fazer login com Google: ${error.message}`);
+            }
+        });
+
+        loginGitHubButton.addEventListener('click', async () => {
+            const provider = new firebase.auth.GithubAuthProvider();
+            try {
+                await auth.signInWithPopup(provider);
+            } catch (error) {
+                console.error("Erro ao fazer login com GitHub:", error);
+                alert(`Erro ao fazer login com GitHub: ${error.message}`);
+            }
+        });
+
+        googleAppsButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            if (googleAppsPopup.style.display === 'block') {
+                googleAppsPopup.style.display = 'none';
+            } else {
+                googleAppsPopup.style.display = 'block';
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            if (googleAppsPopup.style.display === 'block' &&
+                !googleAppsButton.contains(event.target) &&
+                !googleAppsPopup.contains(event.target)) {
+                googleAppsPopup.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (componentHandler) {
+                componentHandler.upgradeDom();
+            }
+        });
+    </script>
+</body>
+</html>
