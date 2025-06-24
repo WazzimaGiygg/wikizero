@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WZZM Chat</title>
+    <title>Wiki Zone Zero Mod</title>
     <link rel="icon" href="favicom.png" type="image/x-icon">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <style id="custom-app-css">
+        /* Este será o local onde o CSS dos aplicativos do usuário será injetado */
+    </style>
     <style>
+        /* Seus estilos CSS existentes aqui */
         body {
             display: flex;
+            flex-direction: column; /* Necessário para footer fixo */
             min-height: 100vh;
             margin: 0;
             font-family: 'Roboto', sans-serif;
@@ -18,188 +23,297 @@
         .mdl-layout__content {
             flex-grow: 1;
             display: flex;
-            padding: 0; /* Remover padding padrão para flexbox */
+            flex-direction: column; /* Para iframe preencher o espaço */
+            padding: 0;
         }
-        #left-panel {
-            width: 300px; /* Largura fixa para o painel de conversas */
-            background-color: #ffffff;
-            border-right: 1px solid #e0e0e0;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        .page-content {
+            flex-grow: 1; /* Permite que o conteúdo preencha o espaço */
         }
-        #chat-main-area {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: #fbfbfb;
+
+        /* --- Novo CSS para o Pop-up de Notificações --- */
+        #notifications-popup {
+            display: none; /* Inicialmente oculto */
+            position: absolute;
+            top: 64px; /* Abaixo do header do MDL */
+            right: 16px; /* Ajuste a posição conforme necessário */
+            width: 300px;
+            max-height: 400px; /* Limita a altura */
+            overflow-y: auto; /* Adiciona scroll se houver muitas notificações */
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 1000; /* Garante que fique acima de outros elementos */
+            border-radius: 8px;
+            flex-direction: column; /* Para os itens se organizarem em coluna */
         }
-        #recent-chats-list {
+        #notifications-popup h5 {
+            margin: 0;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        #notifications-list {
             list-style: none;
             padding: 0;
             margin: 0;
-            flex-grow: 1;
-            overflow-y: auto; /* Rolagem para a lista de chats */
         }
-        .chat-list-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
+        .notification-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f9f9f9;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.2s;
         }
-        .chat-list-item:hover {
-            background-color: #f0f0f0;
+        .notification-item:last-child {
+            border-bottom: none;
         }
-        .chat-list-item.active {
-            background-color: #e0e0e0;
+        .notification-item:hover {
+            background-color: #f5f5f5;
         }
-        .chat-list-item img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-            object-fit: cover;
+        .notification-item.unread {
+            background-color: #e3f2fd; /* Azul claro para não lidas */
+            font-weight: 500;
         }
-        .chat-list-item-info strong {
-            display: block;
-            font-size: 16px;
-            color: #333;
-        }
-        .chat-list-item-info span {
+        .notification-item h6 {
+            margin: 0 0 5px 0;
             font-size: 14px;
-            color: #777;
-        }
-
-        #messages-display {
-            flex-grow: 1;
-            overflow-y: auto; /* Rolagem para as mensagens */
-            padding: 20px;
-            display: flex;
-            flex-direction: column; /* ALTERADO: para as mensagens aparecerem em ordem ascendente (mais antigas em cima, mais novas embaixo) */
-             /* Se você quiser as mensagens mais recentes embaixo, com scroll para ver as mais antigas: */
-             /* flex-direction: column-reverse; */ /* Remova a linha acima e use esta */
-        }
-        .message-bubble {
-            max-width: 70%;
-            padding: 10px 15px;
-            border-radius: 20px;
-            margin-bottom: 10px;
-            line-height: 1.4;
-            word-wrap: break-word; /* Garante que palavras longas quebrem */
-        }
-        .message-bubble.sent {
-            background-color: #3f51b5; /* Azul índigo do MDL */
-            color: white;
-            align-self: flex-end; /* Alinhar à direita */
-            border-bottom-right-radius: 5px; /* Detalhe visual */
-        }
-        .message-bubble.received {
-            background-color: #e0e0e0;
             color: #333;
-            align-self: flex-start; /* Alinhar à esquerda */
-            border-bottom-left-radius: 5px; /* Detalhe visual */
         }
-        .message-meta {
+        .notification-item p {
+            margin: 0;
+            font-size: 12px;
+            color: #777;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .notification-item span.timestamp {
+            display: block;
             font-size: 10px;
-            color: #999;
-            margin-top: 5px;
+            color: #aaa;
             text-align: right;
+            margin-top: 5px;
         }
-        .message-bubble.received .message-meta {
-            text-align: left;
+        #notifications-footer {
+            padding: 10px 15px;
+            border-top: 1px solid #f0f0f0;
+            text-align: center;
         }
+        #notifications-footer button {
+            width: 100%;
+            text-transform: none; /* Não transformar em maiúsculas */
+        }
+        #no-notifications {
+            padding: 20px;
+            text-align: center;
+            color: #888;
+            font-style: italic;
+        }
+        /* --- Fim do Novo CSS --- */
 
-        #message-input-area {
-            padding: 15px;
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            background-color: #ffffff;
+        /* Estilos para o mini-chat container (existente) */
+        #mini-chat-container {
+            display: none; /* Oculto por padrão */
+            position: fixed; /* Posição fixa na tela */
+            bottom: 20px; /* Distância do fundo */
+            right: 20px; /* Distância da direita */
+            width: 350px; /* Largura do mini-chat */
+            height: 450px; /* Altura do mini-chat */
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            z-index: 100; /* Acima da maioria dos elementos */
+            flex-direction: column; /* Para empilhar elementos internos */
         }
-        #message-input {
+        #mini-chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #3f51b5; /* Cor primária do MDL */
+            color: white;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        #mini-chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column-reverse; /* Mensagens mais recentes no final */
+        }
+        .mini-message-bubble {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 15px;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        .mini-message-bubble.sent {
+            background-color: #bbdefb; /* Azul claro */
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .mini-message-bubble.received {
+            background-color: #e0e0e0;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        #mini-chat-input-area {
+            display: flex;
+            padding: 10px 15px;
+            border-top: 1px solid #eee;
+        }
+        #mini-chat-input {
             flex-grow: 1;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px 15px;
-            font-size: 16px;
+            border-radius: 4px;
+            padding: 8px;
             margin-right: 10px;
-            outline: none;
-            resize: none; /* Desabilita redimensionamento manual */
-            min-height: 40px;
-            max-height: 100px; /* Limita a altura máxima para não ocupar muito espaço */
-            overflow-y: auto; /* Adiciona rolagem se o texto for longo */
         }
-        #send-button {
-            min-width: 60px;
-            height: 40px;
-            padding: 0 15px;
+        #mini-chat-send-button {
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
         }
-
-        /* Estilos para o cabeçalho da conversa */
-        #chat-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid #e0e0e0;
-            background-color: #ffffff;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        #chat-header img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 15px;
-            object-fit: cover;
-        }
-        #chat-header h3 {
-            margin: 0;
-            color: #333;
-            font-size: 18px;
-        }
-
-        /* Estilos para o Diálogo de Adicionar Contato */
-        .add-contact-dialog {
-            width: 400px;
-        }
-        .add-contact-dialog .mdl-dialog__content {
-            padding: 20px;
-        }
-        .add-contact-dialog .mdl-dialog__actions {
-            padding: 10px 20px;
-        }
+        /* Fim dos estilos do mini-chat */
     </style>
 </head>
 <body>
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-        <main class="mdl-layout__content">
-            <div id="left-panel">
-                <div style="padding: 15px; border-bottom: 1px solid #e0e0e0; background-color: #f5f5f5; display: flex; justify-content: space-between; align-items: center;">
-                    <h4 style="margin: 0; color: #555;">Conversas Recentes</h4>
-                    <button id="add-contact-button" class="mdl-button mdl-js-button mdl-button--icon">
-                        <i class="material-icons">person_add</i>
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">Wiki Zone Zero Mod</span>
+                <div class="mdl-layout-spacer"></div>
+                <nav class="mdl-navigation mdl-layout--large-screen-only">
+                    <a class="mdl-navigation__link" href="#" onclick="loadPage('home.html'); return false;">Home</a>
+                    <a class="mdl-navigation__link" href="#" onclick="loadPage('articles.html'); return false;">Artigos</a>
+                    <a class="mdl-navigation__link" href="#" onclick="loadPage('docoffice/index.html'); return false;">Docs</a>
+                    <a class="mdl-navigation__link" href="#" onclick="loadPage('forum.html'); return false;">Fórum</a>
+                    <a class="mdl-navigation__link" href="#" onclick="loadPage('minhapersona.html'); return false;">Minha Persona</a>
+                    <a class="mdl-navigation__link" href="#" onclick="loadPage('aplicativo/index.html'); return false;">Aplicativos</a>
+                    <a class="mdl-navigation__link" href="#" onclick="loadPage('ajuda.html'); return false;">Ajuda</a>
+                    <a class="mdl-navigation__link" href="#" onclick="loadPage('materia.html'); return false;">Matéria</a>
+                    <button id="notification-bell-button" class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">notifications</i>
+                        <span id="unread-notifications-count" class="mdl-badge mdl-badge--overlap" data-badge="0" style="display: none;"></span>
                     </button>
-                </div>
-                <ul id="recent-chats-list">
-                </ul>
+                    <button id="google-apps-button" class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">apps</i>
+                    </button>
+                    <button id="chat-notification-button" class="mdl-button mdl-js-button mdl-button--icon">
+                        <i class="material-icons">chat</i>
+                        <span id="unread-chat-count" class="mdl-badge mdl-badge--overlap" data-badge="0" style="display: none;"></span>
+                    </button>
+                </nav>
             </div>
-
-            <div id="chat-main-area">
-                <div id="chat-header">
-                    <h3>Selecione uma Conversa</h3>
-                </div>
-
-                <div id="messages-display">
-                </div>
-
-                <div id="message-input-area">
-                    <textarea id="message-input" placeholder="Digite sua mensagem..." rows="1"></textarea>
-                    <button id="send-button" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
-                        <i class="material-icons">send</i>
-                    </button>
-                </div>
+        </header>
+        <div class="mdl-layout__drawer">
+            <span class="mdl-layout-title">Wiki Zone Zero Mod</span>
+            <nav class="mdl-navigation">
+                <a class="mdl-navigation__link" href="#" onclick="loadPage('home.html'); return false;">Home</a>
+                <a class="mdl-navigation__link" href="#" onclick="loadPage('articles.html'); return false;">Artigos</a>
+                <a class="mdl-navigation__link" href="#" onclick="loadPage('docoffice/index.html'); return false;">Docs</a>
+                <a class="mdl-navigation__link" href="#" onclick="loadPage('forum.html'); return false;">Fórum</a>
+                <a class="mdl-navigation__link" href="#" onclick="loadPage('minhapersona.html'); return false;">Minha Persona</a>
+                <a class="mdl-navigation__link" href="#" onclick="loadPage('aplicativo/index.html'); return false;">Aplicativos</a>
+                <a class="mdl-navigation__link" href="#" onclick="loadPage('ajuda.html'); return false;">Ajuda</a>
+                <a class="mdl-navigation__link" href="#" onclick="loadPage('materia.html'); return false;">Matéria</a>
+            </nav>
+        </div>
+        <main class="mdl-layout__content">
+            <div class="page-content" style="width: 100%; height: 100%;">
+                <iframe id="main-iframe" src="home.html" frameborder="0" style="width: 100%; height: 100%;"></iframe>
             </div>
         </main>
+
+        <div id="notifications-popup" class="mdl-card mdl-shadow--2dp">
+            <h5>Notificações</h5>
+            <ul id="notifications-list">
+                </ul>
+            <div id="no-notifications" style="display: none;">Nenhuma notificação nova.</div>
+            <div id="notifications-footer">
+                <button id="view-all-chat-messages-button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+                    Ver todas as mensagens
+                </button>
+            </div>
+        </div>
+
+        <div id="google-apps-popup">
+            <a href="https://mail.google.com/mail/u/0/" target="_blank">
+                <div class="app-icon">
+                    <img src="https://ssl.gstatic.com/ui/v1/icons/mail/images/2x/mail_硅藻灰_24dp.png" alt="Gmail">
+                    <span>Gmail</span>
+                </div>
+            </a>
+            <a href="https://calendar.google.com/" target="_blank">
+                <div class="app-icon">
+                    <img src="https://ssl.gstatic.com/ui/v1/icons/calendar/images/2x/calendar_硅藻灰_24dp.png" alt="Calendar">
+                    <span>Calendar</span>
+                </div>
+            </a>
+            <a href="https://photos.google.com/" target="_blank">
+                <div class="app-icon">
+                    <img src="https://ssl.gstatic.com/ui/v1/icons/photos/images/2x/photos_硅藻灰_24dp.png" alt="Photos">
+                    <span>Fotos</span>
+                </div>
+            </a>
+            <a href="https://translate.google.com/" target="_blank">
+                <div class="app-icon">
+                    <img src="https://ssl.gstatic.com/ui/v1/icons/translate/images/2x/translate_硅藻灰_24dp.png" alt="Translate">
+                    <span>Tradutor</span>
+                </div>
+            </a>
+            <a href="https://www.google.com/drive/" target="_blank">
+                <div class="app-icon">
+                    <img src="https://ssl.gstatic.com/ui/v1/icons/drive/images/2x/drive_硅藻灰_24dp.png" alt="Drive">
+                    <span>Drive</span>
+                </div>
+            </a>
+            <a href="https://meet.google.com/" target="_blank">
+                <div class="app-icon">
+                    <img src="https://ssl.gstatic.com/ui/v1/icons/meet/images/2x/meet_硅藻灰_24dp.png" alt="Meet">
+                    <span>Meet</span>
+                </div>
+            </a>
+            <a href="https://www.youtube.com/" target="_blank">
+                <div class="app-icon">
+                    <img src="https://ssl.gstatic.com/ui/v1/icons/youtube/images/2x/youtube_硅藻灰_24dp.png" alt="YouTube">
+                    <span>YouTube</span>
+                </div>
+            </a>
+            <a href="https://maps.google.com/" target="_blank">
+                <div class="app-icon">
+                    <img src="https://ssl.gstatic.com/ui/v1/icons/maps/images/2x/maps_硅藻灰_24dp.png" alt="Maps">
+                    <span>Maps</span>
+                </div>
+            </a>
+            <a href="https://play.google.com/store" target="_blank">
+                <div class="app-icon">
+                    <img src="https://ssl.gstatic.com/ui/v1/icons/playstore/images/2x/playstore_硅藻灰_24dp.png" alt="Play Store">
+                    <span>Play Store</span>
+                </div>
+            </a>
+        </div>
+
+        <div id="mini-chat-container">
+            <div id="mini-chat-header">
+                <span>Mini Chat</span>
+                <button id="mini-chat-close-button" class="mdl-button mdl-js-button mdl-button--icon">
+                    <i class="material-icons">close</i>
+                </button>
+            </div>
+            <div id="mini-chat-messages">
+                </div>
+            <div id="mini-chat-input-area">
+                <input type="text" id="mini-chat-input" placeholder="Digite uma mensagem...">
+                <button id="mini-chat-send-button">Enviar</button>
+            </div>
+        </div>
 
         <footer class="mdl-mini-footer">
             <div class="mdl-mini-footer__left-section">
@@ -224,26 +338,6 @@
                 </button>
             </div>
         </footer>
-
-        <dialog class="mdl-dialog add-contact-dialog" id="add-contact-dialog">
-            <h4 class="mdl-dialog__title">Adicionar Novo Contato</h4>
-            <div class="mdl-dialog__content">
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%;">
-                    <input class="mdl-textfield__input" type="text" id="contact-uid-input">
-                    <label class="mdl-textfield__label" for="contact-uid-input">UID Google do Contato</label>
-                </div>
-                <p id="contact-search-status" style="color: grey; font-size: 14px; margin-top: 10px;"></p>
-                <div id="found-contact-info" style="display: none; margin-top: 15px; padding: 10px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
-                    <img id="found-contact-pic" src="" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; vertical-align: middle;">
-                    <strong id="found-contact-name"></strong>
-                </div>
-            </div>
-            <div class="mdl-dialog__actions">
-                <button type="button" class="mdl-button" id="start-chat-button" disabled>Iniciar Chat</button>
-                <button type="button" class="mdl-button close-dialog">Cancelar</button>
-            </div>
-        </dialog>
-
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
@@ -251,9 +345,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
     <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-
     <script>
-        // --- Configuração do Firebase ---
+        // Seu script existente...
+
+        // --- Configuração do Firebase (mantida) ---
         const firebaseConfig = {
             apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
             authDomain: "wzzm-ce3fc.firebaseapp.com",
@@ -263,461 +358,269 @@
             appId: "1:249427877153:web:0e4297294794a5aadeb260",
             measurementId: "G-PLKNZNFCQ8"
         };
-
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
-
         const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const firestore = firebase.firestore();
         const analytics = firebase.analytics();
 
-        // --- Elementos da UI ---
-        const loginGoogleButton = document.getElementById('login-google');
-        const loginGitHubButton = document.getElementById('login-github');
-        const logoutButton = document.getElementById('logout-button');
-        const adminPanelButton = document.getElementById('admin-panel-button');
+        // --- Elementos da UI (adicionar novos) ---
+        const notificationBellButton = document.getElementById('notification-bell-button');
+        const unreadNotificationsCount = document.getElementById('unread-notifications-count');
+        const notificationsPopup = document.getElementById('notifications-popup');
+        const notificationsList = document.getElementById('notifications-list');
+        const noNotificationsMessage = document.getElementById('no-notifications');
+        const viewAllChatMessagesButton = document.getElementById('view-all-chat-messages-button');
+        const mainIframe = document.getElementById('main-iframe'); // O seu iframe principal
 
-        // --- Elementos da UI do Chat ---
-        const recentChatsList = document.getElementById('recent-chats-list');
-        const chatHeader = document.getElementById('chat-header');
-        const messagesDisplay = document.getElementById('messages-display');
-        const messageInput = document.getElementById('message-input');
-        const sendButton = document.getElementById('send-button');
-
-        // Elementos do Diálogo de Adicionar Contato
-        const addContactButton = document.getElementById('add-contact-button');
-        const addContactDialog = document.getElementById('add-contact-dialog');
-        const contactUidInput = document.getElementById('contact-uid-input');
-        const contactSearchStatus = document.getElementById('contact-search-status');
-        const foundContactInfo = document.getElementById('found-contact-info');
-        const foundContactPic = document.getElementById('found-contact-pic');
-        const foundContactName = document.getElementById('found-contact-name');
-        const startChatButton = document.getElementById('start-chat-button');
-        const closeDialogButtons = addContactDialog.querySelectorAll('.close-dialog');
-
-        let currentUser = null; // O usuário atualmente logado
-        let currentChatId = null; // O ID da conversa atualmente selecionada
-        let unsubscribeMessages = null; // Variável para a função de desinscrição do listener de mensagens
-        let foundContactUid = null; // UID do contato encontrado no diálogo
-
-        // --- Funções de Autenticação ---
-        const handleLogout = () => {
-            auth.signOut().then(() => {
-                console.log("Usuário deslogado.");
-            }).catch((error) => {
-                console.error("Erro ao fazer logout:", error);
-                alert(`Erro ao fazer logout: ${error.message}`);
-            });
-        };
-
-        loginGoogleButton.addEventListener('click', async () => {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            try {
-                await auth.signInWithPopup(provider);
-            } catch (error) {
-                console.error("Erro ao fazer login com Google:", error);
-                alert(`Erro ao fazer login com Google: ${error.message}`);
-            }
-        });
-
-        loginGitHubButton.addEventListener('click', async () => {
-            const provider = new firebase.auth.GithubAuthProvider();
-            try {
-                await auth.signInWithPopup(provider);
-            } catch (error) {
-                console.error("Erro ao fazer login com GitHub:", error);
-                alert(`Erro ao fazer login com GitHub: ${error.message}`);
-            }
-        });
-
-        // --- Funções Firebase para o Chat ---
-
-        // 1. Criar um documento de perfil de usuário
-        async function createUserProfileDocument(user) {
-            if (!user) return;
-            const userRef = firestore.collection('users').doc(user.uid);
-            const docSnapshot = await userRef.get();
-
-            if (!docSnapshot.exists) {
-                const { displayName, email, photoURL } = user;
-                const createdAt = firebase.firestore.FieldValue.serverTimestamp();
-                try {
-                    await userRef.set({
-                        uid: user.uid,
-                        name: displayName,
-                        email: email,
-                        profilePictureUrl: photoURL,
-                        createdAt: createdAt,
-                        lastLoginAt: createdAt,
-                        isBan: false,
-                        isAdmin: false,
-                    });
-                    console.log("Novo perfil de usuário criado no Firestore!");
-                } catch (error) {
-                    console.error("Erro ao criar perfil de usuário no Firestore:", error);
-                }
-            } else {
-                try {
-                    await userRef.update({
-                        lastLoginAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    console.log("Perfil de usuário atualizado no Firestore (lastLoginAt).");
-                } catch (error) {
-                    console.error("Erro ao atualizar perfil de usuário no Firestore:", error);
-                }
-            }
-        }
-
-        // 2. Função para criar ou obter uma conversa
-        async function getOrCreateChat(otherUserId) {
-            if (!currentUser) {
-                console.error("Nenhum usuário logado para criar/obter chat.");
-                return null;
-            }
-
-            const currentUserId = currentUser.uid;
-
-            // Impedir que o usuário adicione a si mesmo
-            if (currentUserId === otherUserId) {
-                alert("Você não pode iniciar um chat consigo mesmo.");
-                return null;
-            }
-
-            const chatRef = firestore.collection('wwebmodmail');
-
-            const query1 = await chatRef
-                .where('participants', 'array-contains', currentUserId)
-                .get();
-
-            let existingChatId = null;
-
-            for (const doc of query1.docs) {
-                const participants = doc.data().participants;
-                if (participants && participants.includes(otherUserId)) {
-                    existingChatId = doc.id;
-                    break;
-                }
-            }
-
-            if (existingChatId) {
-                console.log("Chat existente encontrado:", existingChatId);
-                return existingChatId;
-            } else {
-                console.log("Criando novo chat com", otherUserId);
-                try {
-                    // Buscar nomes e fotos dos participantes para o título inicial do chat
-                    const currentUserDoc = await firestore.collection('users').doc(currentUserId).get();
-                    const otherUserDoc = await firestore.collection('users').doc(otherUserId).get();
-
-                    const currentUserName = currentUserDoc.exists ? (currentUserDoc.data().name || currentUserDoc.data().email) : 'Você';
-                    const otherUserName = otherUserDoc.exists ? (otherUserDoc.data().name || otherUserDoc.data().email) : 'Usuário Desconhecido';
-
-                    const newChat = await chatRef.add({
-                        participants: [currentUserId, otherUserId],
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastMessageTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastMessageText: '', // Inicialmente sem mensagem
-                        participantNames: {
-                            [currentUserId]: currentUserName,
-                            [otherUserId]: otherUserName
-                        }
-                    });
-                    console.log("Novo chat criado com ID:", newChat.id);
-                    return newChat.id;
-                } catch (error) {
-                    console.error("Erro ao criar novo chat:", error);
-                    return null;
-                }
-            }
-        }
-
-        // 3. Função para enviar mensagem
-        async function sendMessage(chatId, text) {
-            if (!currentUser || !chatId || !text.trim()) {
-                console.warn("Não é possível enviar mensagem: usuário não logado, chat não selecionado ou mensagem vazia.");
+        // --- Funções Auxiliares (mantidas ou ajustadas) ---
+        // ... (isAdmin, createUserProfileDocument, loadAndApplyUserAppsCSS, etc.) ...
+        // Certifique-se de que loadAndApplyUserAppsCSS está no seu index.html
+        async function loadAndApplyUserAppsCSS(userUid) {
+            if (!userUid) {
+                console.warn("loadAndApplyUserAppsCSS: UID do usuário não fornecido.");
                 return;
             }
 
-            const messagesRef = firestore.collection('wwebmodmail').doc(chatId).collection('messages');
+            const customAppCssStyleTag = document.getElementById('custom-app-css');
+            if (!customAppCssStyleTag) {
+                console.error("Tag <style id='custom-app-css'> não encontrada no cabeçalho.");
+                return;
+            }
+
             try {
-                await messagesRef.add({
-                    senderId: currentUser.uid,
-                    text: text.trim(),
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                });
-                // Opcional: Atualizar o lastMessageTimestamp no documento pai do chat
-                await firestore.collection('wwebmodmail').doc(chatId).update({
-                    lastMessageTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastMessageText: text.trim(), // Para exibir na lista de conversas
-                });
-                console.log("Mensagem enviada!");
-                messageInput.value = ''; // Limpa a caixa de texto
-                messageInput.style.height = 'auto'; // Reseta a altura do textarea
-                // Rola para o final das mensagens (parte inferior)
-                messagesDisplay.scrollTop = messagesDisplay.scrollHeight;
+                // 1. Obter a lista de aplicativos do usuário
+                const userAppsSnapshot = await firestore.collection('users').doc(userUid).collection('listasecundariah').get();
+                let allCustomCss = '';
 
-            } catch (error) {
-                console.error("Erro ao enviar mensagem:", error);
-                alert("Erro ao enviar mensagem.");
-            }
-        }
+                if (!userAppsSnapshot.empty) {
+                    for (const doc of userAppsSnapshot.docs) {
+                        const appData = doc.data();
+                        const appId = appData.appId; // Assumindo que você armazena o ID do aplicativo aqui
 
-        // 4. Carregar mensagens de um chat
-        function loadMessages(chatId) {
-            if (unsubscribeMessages) {
-                unsubscribeMessages(); // Desinscreve-se do listener anterior
-            }
-            messagesDisplay.innerHTML = ''; // Limpa as mensagens anteriores
-
-            if (!chatId) {
-                chatHeader.innerHTML = '<h3>Selecione uma Conversa</h3>';
-                return;
-            }
-
-            const messagesRef = firestore.collection('wwebmodmail').doc(chatId).collection('messages');
-
-            // USANDO orderBy('timestamp', 'asc') para mensagens mais antigas em cima, mais novas embaixo
-            // E flex-direction: column; no CSS para exibir corretamente.
-            unsubscribeMessages = messagesRef.orderBy('timestamp', 'asc').onSnapshot(snapshot => {
-                console.log("onSnapshot disparado! Nova atualização de mensagens."); // Log para depuração
-                messagesDisplay.innerHTML = ''; // Limpa para redesenhar
-                snapshot.forEach(doc => {
-                    const message = doc.data();
-                    console.log("Mensagem recebida (onSnapshot):", message.text); // Log para depuração
-
-                    const isSent = message.senderId === currentUser.uid;
-                    const messageBubble = document.createElement('div');
-                    messageBubble.classList.add('message-bubble');
-                    messageBubble.classList.add(isSent ? 'sent' : 'received');
-
-                    const timestampDate = message.timestamp ? message.timestamp.toDate() : new Date();
-                    const timeString = timestampDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                    messageBubble.innerHTML = `${message.text}
-                        <div class="message-meta">${isSent ? 'Você' : 'Contato'}, ${timeString}</div>`;
-                    messagesDisplay.appendChild(messageBubble);
-                });
-                // Rola para o final (última mensagem) após renderizar todas
-                messagesDisplay.scrollTop = messagesDisplay.scrollHeight;
-            }, error => {
-                console.error("Erro no listener de mensagens:", error);
-                messagesDisplay.innerHTML = `<p style="color: red;">Erro ao carregar mensagens: ${error.message}</p>`;
-            });
-        }
-
-        // 5. Carregar lista de conversas recentes
-        function loadRecentChats() {
-            if (!currentUser) {
-                recentChatsList.innerHTML = '';
-                return;
-            }
-
-            firestore.collection('wwebmodmail')
-                .where('participants', 'array-contains', currentUser.uid)
-                .orderBy('lastMessageTimestamp', 'desc')
-                .onSnapshot(async snapshot => {
-                    recentChatsList.innerHTML = ''; // Limpa a lista existente
-                    for (const doc of snapshot.docs) {
-                        const chat = doc.data();
-                        const chatId = doc.id;
-                        const otherUserId = chat.participants.find(uid => uid !== currentUser.uid);
-
-                        let otherUserName = "Usuário Desconhecido";
-                        let otherUserPic = "https://via.placeholder.com/40"; // Imagem padrão
-
-                        if (otherUserId) {
-                            try {
-                                const otherUserDoc = await firestore.collection('users').doc(otherUserId).get();
-                                if (otherUserDoc.exists) {
-                                    otherUserName = otherUserDoc.data().name || otherUserDoc.data().email;
-                                    otherUserPic = otherUserDoc.data().profilePictureUrl || otherUserPic;
-                                }
-                            } catch (error) {
-                                console.warn("Não foi possível obter informações do outro usuário:", otherUserId, error);
+                        if (appId) {
+                            // 2. Para cada appId, obter o código CSS da coleção 'aplicativo'
+                            const appDoc = await firestore.collection('aplicativo').doc(appId).get();
+                            if (appDoc.exists && appDoc.data().codigoAplicativo) {
+                                allCustomCss += appDoc.data().codigoAplicativo + '\n';
                             }
+                        }
+                    }
+                }
+
+                // 3. Injetar o CSS combinado
+                customAppCssStyleTag.textContent = allCustomCss;
+                console.log("CSS de aplicativos do usuário carregado e aplicado.");
+
+            } catch (error) {
+                console.error("Erro ao carregar/aplicar CSS de aplicativos do usuário:", error);
+                // Permissões insuficientes para 'users/{UID}/listasecundariah' ou 'aplicativo/{appId}'
+                alert("Erro ao carregar estilos personalizados: " + error.message);
+            }
+        }
+
+        // --- Função para carregar notificações (MODIFICADA) ---
+        let unsubscribeNotifications = null; // Para desinscrever listeners anteriores
+        function listenForNotifications(userUid) {
+            if (unsubscribeNotifications) {
+                unsubscribeNotifications(); // Desinscreve o listener anterior, se houver
+            }
+
+            if (!userUid) {
+                console.warn("Não é possível ouvir notificações: usuário não logado.");
+                unreadNotificationsCount.style.display = 'none';
+                notificationsList.innerHTML = '';
+                noNotificationsMessage.style.display = 'block';
+                return;
+            }
+
+            const notificationsRef = firestore.collection('users').doc(userUid).collection('notifications');
+
+            unsubscribeNotifications = notificationsRef.orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+                let unreadCount = 0;
+                notificationsList.innerHTML = ''; // Limpa a lista existente
+
+                if (snapshot.empty) {
+                    noNotificationsMessage.style.display = 'block';
+                } else {
+                    noNotificationsMessage.style.display = 'none';
+                    snapshot.forEach(doc => {
+                        const notification = doc.data();
+                        const notificationId = doc.id;
+                        if (!notification.read) {
+                            unreadCount++;
                         }
 
                         const listItem = document.createElement('li');
-                        listItem.classList.add('chat-list-item');
-                        listItem.dataset.chatId = chatId;
-                        listItem.dataset.otherUserId = otherUserId;
-                        listItem.innerHTML = `
-                            <img src="${otherUserPic}" alt="${otherUserName} Avatar">
-                            <div class="chat-list-item-info">
-                                <strong>${otherUserName}</strong>
-                                <span>${chat.lastMessageText || 'Nenhuma mensagem.'}</span>
-                            </div>
-                        `;
-                        recentChatsList.appendChild(listItem);
+                        listItem.classList.add('notification-item');
+                        if (!notification.read) {
+                            listItem.classList.add('unread');
+                        }
+                        listItem.dataset.notificationId = notificationId;
+                        listItem.dataset.notificationType = notification.type;
+                        listItem.dataset.chatId = notification.chatId || ''; // Adiciona o chatId para uso posterior
 
-                        listItem.addEventListener('click', () => {
-                            document.querySelectorAll('.chat-list-item').forEach(item => item.classList.remove('active'));
-                            listItem.classList.add('active');
-
-                            currentChatId = chatId;
-                            chatHeader.innerHTML = `
-                                <img src="${otherUserPic}" alt="${otherUserName} Avatar">
-                                <h3>${otherUserName}</h3>
-                            `;
-                            loadMessages(chatId);
+                        const timestamp = notification.timestamp ? notification.timestamp.toDate() : new Date();
+                        const timeString = timestamp.toLocaleDateString('pt-BR', {
+                            day: '2-digit', month: '2-digit', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
                         });
-                    }
-                }, error => {
-                    console.error("Erro ao carregar conversas recentes:", error);
-                });
+
+                        listItem.innerHTML = `
+                            <h6>${notification.title || 'Nova Notificação'}</h6>
+                            <p>${notification.message || ''}</p>
+                            <span class="timestamp">${timeString}</span>
+                        `;
+                        notificationsList.appendChild(listItem);
+
+                        listItem.addEventListener('click', async () => {
+                            // Marcar como lida no Firestore
+                            try {
+                                await notificationsRef.doc(notificationId).update({ read: true });
+                                console.log("Notificação marcada como lida:", notificationId);
+                            } catch (error) {
+                                console.error("Erro ao marcar notificação como lida:", error);
+                            }
+
+                            // Ação baseada no tipo de notificação
+                            if (notification.type === 'new_chat_message') {
+                                if (notification.chatId) {
+                                    // Carrega a página do chat no iframe principal e passa o chatId
+                                    loadPage(`chat/?chatId=${notification.chatId}`);
+                                } else {
+                                    alert(`Nova mensagem de chat: ${notification.message}`);
+                                }
+                            } else {
+                                // Para outros tipos de notificação, pode ter outra ação
+                                // Por exemplo, abrir um modal com mais detalhes ou redirecionar para outra página
+                                alert(`Você clicou em uma notificação:\nTipo: ${notification.type}\nTítulo: ${notification.title}\nMensagem: ${notification.message}`);
+                            }
+                            hideNotificationsPopup(); // Esconde o popup após clicar
+                        });
+                    });
+                }
+
+                // Atualiza o contador de notificações não lidas
+                if (unreadCount > 0) {
+                    unreadNotificationsCount.textContent = unreadCount;
+                    unreadNotificationsCount.style.display = 'block';
+                } else {
+                    unreadNotificationsCount.style.display = 'none';
+                }
+
+            }, error => {
+                console.error("Erro ao carregar notificações:", error);
+                unreadNotificationsCount.style.display = 'none';
+                notificationsList.innerHTML = '';
+                noNotificationsMessage.style.display = 'block';
+                noNotificationsMessage.textContent = 'Erro ao carregar notificações.';
+            });
         }
 
-        // --- Event Listeners do Chat ---
-        sendButton.addEventListener('click', () => {
-            sendMessage(currentChatId, messageInput.value);
-        });
 
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) { // Envia com Enter, nova linha com Shift + Enter
-                e.preventDefault();
-                sendMessage(currentChatId, messageInput.value);
-            }
-        });
-
-        // Auto-redimensionamento do textarea
-        messageInput.addEventListener('input', () => {
-            messageInput.style.height = 'auto'; // Reset para calcular a nova altura
-            messageInput.style.height = messageInput.scrollHeight + 'px';
-        });
-
-        // Lógica do Diálogo "Adicionar Contato"
-        addContactButton.addEventListener('click', () => {
-            if (!currentUser) {
-                alert("Por favor, faça login para adicionar contatos.");
-                return;
-            }
-            // Limpa o diálogo antes de abrir
-            contactUidInput.value = '';
-            contactSearchStatus.textContent = '';
-            foundContactInfo.style.display = 'none';
-            foundContactPic.src = '';
-            foundContactName.textContent = '';
-            startChatButton.disabled = true;
-            addContactDialog.showModal();
-        });
-
-        closeDialogButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                addContactDialog.close();
-            });
-        });
-
-        contactUidInput.addEventListener('input', async () => {
-            const uid = contactUidInput.value.trim();
-            foundContactUid = null; // Reseta o UID encontrado
-            startChatButton.disabled = true; // Desabilita o botão Iniciar Chat
-            foundContactInfo.style.display = 'none'; // Esconde as informações do contato
-
-            if (uid.length > 5) { // Para evitar muitas buscas com UIDs curtos
-                contactSearchStatus.textContent = 'Buscando usuário...';
-                try {
-                    const userDoc = await firestore.collection('users').doc(uid).get();
-                    if (userDoc.exists) {
-                        const userData = userDoc.data();
-                        if (userData.uid === currentUser.uid) {
-                             contactSearchStatus.textContent = 'Este é você!';
-                             foundContactInfo.style.display = 'none';
-                             startChatButton.disabled = true;
-                        } else {
-                            contactSearchStatus.textContent = 'Usuário encontrado!';
-                            foundContactInfo.style.display = 'flex';
-                            foundContactPic.src = userData.profilePictureUrl || 'https://via.placeholder.com/50';
-                            foundContactName.textContent = userData.name || userData.email;
-                            foundContactUid = uid; // Armazena o UID do contato encontrado
-                            startChatButton.disabled = false; // Habilita o botão
-                        }
-                    } else {
-                        contactSearchStatus.textContent = 'Usuário não encontrado.';
-                    }
-                } catch (error) {
-                    console.error("Erro ao buscar usuário:", error);
-                    contactSearchStatus.textContent = 'Erro ao buscar usuário.';
-                }
+        // --- Funções para gerenciar o pop-up de Notificações ---
+        function toggleNotificationsPopup() {
+            if (notificationsPopup.style.display === 'flex') {
+                hideNotificationsPopup();
             } else {
-                contactSearchStatus.textContent = 'Digite o UID completo.';
+                showNotificationsPopup();
+            }
+        }
+
+        function showNotificationsPopup() {
+            notificationsPopup.style.display = 'flex';
+        }
+
+        function hideNotificationsPopup() {
+            notificationsPopup.style.display = 'none';
+        }
+
+        // --- Event Listeners (adicionar novos) ---
+
+        // Listener para o botão do sino de notificações
+        notificationBellButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Evita que o clique se propague e feche o popup imediatamente
+            toggleNotificationsPopup();
+        });
+
+        // Listener para o botão "Ver todas as mensagens" no pop-up de notificações
+        viewAllChatMessagesButton.addEventListener('click', () => {
+            loadPage('chat/'); // Carrega a página de chat principal no iframe
+            hideNotificationsPopup(); // Fecha o pop-up de notificações
+        });
+
+        // Listener global para fechar o pop-up de notificações se clicar fora
+        document.addEventListener('click', (event) => {
+            if (notificationsPopup.style.display === 'flex' &&
+                !notificationBellButton.contains(event.target) &&
+                !notificationsPopup.contains(event.target)) {
+                hideNotificationsPopup();
+            }
+            // ... (manter a lógica existente para fechar o googleAppsPopup e miniChatContainer)
+             if (googleAppsPopup.style.display === 'flex' &&
+                !googleAppsButton.contains(event.target) &&
+                !googleAppsPopup.contains(event.target)) {
+                googleAppsPopup.style.display = 'none';
+            }
+            // Fecha o mini-chat se clicar fora dele
+            if (miniChatContainer.style.display === 'flex' &&
+                !chatNotificationButton.contains(event.target) &&
+                !miniChatContainer.contains(event.target)) {
+                miniChatContainer.style.display = 'none';
             }
         });
 
-        startChatButton.addEventListener('click', async () => {
-            if (foundContactUid && currentUser) {
-                const newChatId = await getOrCreateChat(foundContactUid);
-                if (newChatId) {
-                    addContactDialog.close();
-                    loadRecentChats(); // Recarrega a lista para mostrar o novo chat
-                    // Pequeno delay para garantir que a lista foi redesenhada antes de tentar clicar
-                    setTimeout(() => {
-                        const newItem = document.querySelector(`[data-chat-id="${newChatId}"]`);
-                        if (newItem) {
-                            newItem.click(); // Simula o clique para abrir o chat recém-criado/encontrado
-                        }
-                    }, 300); // Ajuste o tempo se necessário
-                } else {
-                    alert("Não foi possível iniciar o chat.");
-                }
-            }
-        });
-
-
-        // --- Gerenciamento de Estado de Autenticação ---
+        // --- Funções de Autenticação (manter existentes) ---
         auth.onAuthStateChanged(async (user) => {
             if (user) {
+                // ... (seu código existente para usuário logado) ...
                 currentUser = user;
-                console.log("Usuário logado:", user.uid);
-
                 loginGoogleButton.style.display = 'none';
                 loginGitHubButton.style.display = 'none';
                 logoutButton.style.display = 'inline-block';
-                // adminPanelButton.style.display será tratado por regras de admin, se houver.
 
                 await createUserProfileDocument(user);
+                await loadAndApplyUserAppsCSS(user.uid); // Garante que o CSS dos apps é carregado
 
-                loadRecentChats();
-                loadMessages(null); // Limpa a tela de mensagens até um chat ser selecionado
-                
-                messageInput.disabled = false;
-                sendButton.disabled = false;
-                addContactButton.style.display = 'inline-block'; // Mostra o botão adicionar contato
+                listenForNotifications(user.uid); // Começa a ouvir notificações
+                // ... (outras inicializações) ...
 
             } else {
+                // ... (seu código existente para usuário deslogado) ...
                 currentUser = null;
-                console.log("Usuário deslogado.");
-
                 loginGoogleButton.style.display = 'inline-block';
                 loginGitHubButton.style.display = 'inline-block';
                 logoutButton.style.display = 'none';
                 adminPanelButton.style.display = 'none';
 
-                recentChatsList.innerHTML = '';
-                messagesDisplay.innerHTML = '<p style="text-align: center; color: #666;">Por favor, faça login para iniciar o chat.</p>';
-                chatHeader.innerHTML = '<h3>Selecione uma Conversa</h3>';
-                messageInput.value = '';
-                messageInput.disabled = true;
-                sendButton.disabled = true;
-                addContactButton.style.display = 'none'; // Esconde o botão adicionar contato
-
-                if (unsubscribeMessages) {
-                    unsubscribeMessages();
+                if (unsubscribeNotifications) { // Desinscreve-se das notificações ao deslogar
+                    unsubscribeNotifications();
                 }
+                unreadNotificationsCount.style.display = 'none';
+                notificationsList.innerHTML = '';
+                noNotificationsMessage.style.display = 'block';
+                noNotificationsMessage.textContent = 'Faça login para ver as notificações.';
             }
             if (componentHandler) {
                 componentHandler.upgradeDom();
             }
         });
 
+        // --- Função loadPage (confirmar ou adicionar) ---
+        // Esta função é crucial para carregar o chat no iframe
+        function loadPage(url) {
+            mainIframe.src = url;
+        }
+
+        // --- Inicialização MDL (manter) ---
         document.addEventListener('DOMContentLoaded', () => {
             if (componentHandler) {
                 componentHandler.upgradeDom();
             }
-            if (! addContactDialog.showModal) {
-                dialogPolyfill.registerDialog(addContactDialog);
-            }
+            // Removi a parte do dialogPolyfill, pois o addContactDialog foi movido para chat.html
+            // e assumindo que o index.html não tem diálogos showModal()
         });
     </script>
 </body>
