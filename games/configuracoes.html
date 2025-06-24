@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Wiki Zone Zero Mod</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .mdl-card {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+        }
+        .mdl-card__title {
+            color: #fff;
+            background-color: #3f51b5; /* Cor primária do MDL */
+            padding: 16px;
+        }
+        .mdl-card__title-text {
+            color: #fff;
+        }
+        .mdl-card__supporting-text {
+            padding-bottom: 0;
+        }
+        .mdl-card__actions {
+            padding-top: 0;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .mdl-switch {
+            width: auto;
+        }
+        .mdl-radio {
+            margin-bottom: 10px;
+        }
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .color-picker-container label {
+            margin-right: 10px;
+            min-width: 120px; /* Para alinhar os labels */
+        }
+        .color-picker-container input[type="color"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 50px;
+            height: 50px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .color-picker-container input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        .color-picker-container input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+        .color-picker-container input[type="color"]::-moz-color-swatch-wrapper {
+            padding: 0;
+        }
+        .color-picker-container input[type="color"]::-moz-color-swatch {
+            border: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title">
+            <h2 class="mdl-card__title-text">Configurações do Jogo</h2>
+        </div>
+        <div class="mdl-card__supporting-text">
+            <div class="mdl-grid">
+                <div class="mdl-cell mdl-cell--12-col">
+                    <h4>Conectividade</h4>
+                    <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="online-mode">
+                        <input type="checkbox" id="online-mode" class="mdl-switch__input" checked>
+                        <span class="mdl-switch__label">Modo Online (Salvar dados no Firebase)</span>
+                    </label>
+                    <p style="font-size: 0.9em; color: #757575;">
+                        Se desativado, o jogo funcionará offline e os dados não serão sincronizados.
+                    </p>
+                </div>
+
+                <div class="mdl-cell mdl-cell--12-col">
+                    <h4>Cores Personalizadas</h4>
+                    <p style="font-size: 0.9em; color: #757575;">
+                        Defina cores para elementos da interface (exemplo).
+                    </p>
+                    <div class="color-picker-container">
+                        <label for="primary-color-picker">Cor Primária:</label>
+                        <input type="color" id="primary-color-picker" value="#3f51b5">
+                    </div>
+                    <div class="color-picker-container">
+                        <label for="accent-color-picker">Cor de Destaque:</label>
+                        <input type="color" id="accent-color-picker" value="#ff4081">
+                    </div>
+                </div>
+
+                <div class="mdl-cell mdl-cell--12-col">
+                    <h4>Gerenciamento do Jogo</h4>
+                    <button id="restart-game-button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                        Reiniciar Jogo (Modo Offline)
+                    </button>
+                    <p style="font-size: 0.9em; color: #757575;">
+                        Atenção: Isso apagará seu progresso no jogo se você estiver no modo offline!
+                    </p>
+                </div>
+
+                <div class="mdl-cell mdl-cell--12-col">
+                    <h4>Pontuações Recordes</h4>
+                    <p style="font-size: 0.9em; color: #757575;">
+                        Visualizar e gerenciar suas pontuações mais altas (funcionalidade a ser implementada).
+                    </p>
+                    <button id="view-highscores-button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" disabled>
+                        Ver Pontuações (Em Breve)
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="mdl-card__actions">
+            <button id="save-settings-button" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
+                Salvar Configurações
+            </button>
+        </div>
+    </div>
+
+    <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script type="module">
+        // Importar Firebase para uso nesta página de configurações
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
+
+        // --- Configuração do Firebase (Repetido, mas necessário para este script standalone) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
+            authDomain: "wzzm-ce3fc.firebaseapp.com",
+            projectId: "wzzm-ce3fc",
+            storageBucket: "wzzm-ce3fc.appspot.com",
+            messagingSenderId: "249427877153",
+            appId: "1:249427877153:web:0e4297294794a5aadeb260",
+            measurementId: "G-PLKNZNFCQ8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const firestore = getFirestore(app);
+
+        // Elementos da UI
+        const onlineModeSwitch = document.getElementById('online-mode');
+        const primaryColorPicker = document.getElementById('primary-color-picker');
+        const accentColorPicker = document.getElementById('accent-color-picker');
+        const restartGameButton = document.getElementById('restart-game-button');
+        const saveSettingsButton = document.getElementById('save-settings-button');
+
+        let currentUser = null; // Variável para armazenar o usuário logado
+
+        // Função para carregar as configurações do usuário
+        async function loadUserSettings(userId) {
+            const userSettingsRef = doc(firestore, 'users', userId, 'configuracoes', 'jogo');
+            try {
+                const docSnap = await getDoc(userSettingsRef);
+                if (docSnap.exists()) {
+                    const settings = docSnap.data();
+                    onlineModeSwitch.checked = settings.onlineMode !== undefined ? settings.onlineMode : true;
+                    primaryColorPicker.value = settings.primaryColor || '#3f51b5';
+                    accentColorPicker.value = settings.accentColor || '#ff4081';
+                    console.log("Configurações do usuário carregadas:", settings);
+                } else {
+                    console.log("Nenhuma configuração encontrada para o usuário, usando padrões.");
+                    // Salvar configurações padrão se não existirem
+                    await saveUserSettings(userId, {
+                        onlineMode: true,
+                        primaryColor: '#3f51b5',
+                        accentColor: '#ff4081'
+                    });
+                }
+            } catch (error) {
+                console.error("Erro ao carregar configurações do usuário:", error);
+            }
+        }
+
+        // Função para salvar as configurações do usuário
+        async function saveUserSettings(userId, settings) {
+            const userSettingsRef = doc(firestore, 'users', userId, 'configuracoes', 'jogo');
+            try {
+                await setDoc(userSettingsRef, settings, { merge: true });
+                console.log("Configurações do usuário salvas com sucesso!");
+                alert("Configurações salvas com sucesso!"); // Pode ser substituído por um snackbar MDL
+            } catch (error) {
+                console.error("Erro ao salvar configurações do usuário:", error);
+                alert("Erro ao salvar configurações: " + error.message);
+            }
+        }
+
+        // Função para aplicar o CSS dinâmico (a ser chamada na página principal)
+        function applyCustomColors(primary, accent) {
+            const style = document.createElement('style');
+            style.id = 'custom-colors-style';
+            style.innerHTML = `
+                :root {
+                    --mdl-color-primary: ${primary};
+                    --mdl-color-primary-dark: ${primary}; /* Você pode calcular um tom mais escuro */
+                    --mdl-color-accent: ${accent};
+                }
+                .mdl-button--colored {
+                    background-color: var(--mdl-color-primary);
+                    color: white;
+                }
+                .mdl-button--accent {
+                    background-color: var(--mdl-color-accent);
+                    color: white;
+                }
+                .mdl-card__title {
+                    background-color: var(--mdl-color-primary);
+                }
+                .mdl-layout__header {
+                    background-color: var(--mdl-color-primary);
+                }
+                /* Adicione mais seletores CSS aqui para aplicar as cores */
+            `;
+            // Remover estilos anteriores para evitar duplicação
+            const existingStyle = document.getElementById('custom-colors-style');
+            if (existingStyle) {
+                existingStyle.remove();
+            }
+            document.head.appendChild(style);
+        }
+
+        // Listener para o estado de autenticação
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            if (user) {
+                await loadUserSettings(user.uid);
+                saveSettingsButton.disabled = false;
+                // Aplica as cores assim que as configurações são carregadas
+                applyCustomColors(primaryColorPicker.value, accentColorPicker.value);
+            } else {
+                onlineModeSwitch.checked = false; // Força offline se não estiver logado
+                onlineModeSwitch.disabled = true; // Desabilita o switch
+                saveSettingsButton.disabled = true;
+                alert("Você precisa estar logado para salvar as configurações online.");
+                // Retorna às cores padrão se deslogado
+                applyCustomColors('#3f51b5', '#ff4081');
+            }
+            // Garante que o MDL atualiza os estados dos switches e outros componentes
+            if (componentHandler) {
+                componentHandler.upgradeDom();
+            }
+        });
+
+        // Event listener para o botão de salvar configurações
+        saveSettingsButton.addEventListener('click', async () => {
+            if (currentUser) {
+                const settings = {
+                    onlineMode: onlineModeSwitch.checked,
+                    primaryColor: primaryColorPicker.value,
+                    accentColor: accentColorPicker.value
+                };
+                await saveUserSettings(currentUser.uid, settings);
+                // Aplica as cores imediatamente após salvar
+                applyCustomColors(settings.primaryColor, settings.accentColor);
+            } else {
+                alert("Você precisa estar logado para salvar as configurações online.");
+            }
+        });
+
+        // Event listener para reiniciar o jogo (apenas se offline)
+        restartGameButton.addEventListener('click', () => {
+            if (!onlineModeSwitch.checked) {
+                if (confirm("Tem certeza que deseja reiniciar o jogo? Todo o progresso offline será perdido.")) {
+                    // Lógica para reiniciar o jogo offline:
+                    // Isso dependerá de como seu "jogo" armazena dados offline (e.g., localStorage)
+                    // Exemplo: localStorage.clear();
+                    console.log("Jogo reiniciado (offline).");
+                    alert("Jogo reiniciado com sucesso!");
+                    // Recarregar a página ou o iframe do jogo para refletir o reset
+                    if (window.parent && window.parent.contentFrame) {
+                        window.parent.contentFrame.src = 'recepcao.html'; // Ou a página inicial do jogo
+                    } else {
+                        window.location.reload();
+                    }
+                }
+            } else {
+                alert("Para reiniciar o jogo, você deve estar no modo offline. Desative 'Modo Online' e tente novamente.");
+            }
+        });
+
+        // Event listeners para os seletores de cor para aplicar as cores em tempo real na página de configurações
+        primaryColorPicker.addEventListener('input', () => {
+            applyCustomColors(primaryColorPicker.value, accentColorPicker.value);
+        });
+
+        accentColorPicker.addEventListener('input', () => {
+            applyCustomColors(primaryColorPicker.value, accentColorPicker.value);
+        });
+
+        // Se a página de configurações for carregada dentro de um iframe,
+        // é importante que a função `applyCustomColors` possa ser chamada da página pai (index.html)
+        // para aplicar as cores globalmente.
+        if (window.parent && window.parent.applyGlobalCustomColors) {
+            // Quando a página de configurações carrega, ela tenta aplicar as cores no pai também
+            window.addEventListener('load', () => {
+                window.parent.applyGlobalCustomColors(primaryColorPicker.value, accentColorPicker.value);
+            });
+        }
+    </script>
+</body>
+</html>
