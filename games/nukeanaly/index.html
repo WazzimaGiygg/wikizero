@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogos - Wiki Zone Zero Mod</title>
+    <link rel="icon" href="../favicom.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .mdl-grid {
+            justify-content: center;
+        }
+        .game-card {
+            width: 330px;
+            margin: 15px;
+            height: 380px; /* Altura fixa para alinhar os cards */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Espaçamento entre os elementos do card */
+        }
+        .game-card .mdl-card__title {
+            color: #fff;
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+        }
+        .game-card .mdl-card__title-text {
+            padding: 16px;
+            background: rgba(0,0,0,0.4); /* Fundo semi-transparente para o título */
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .game-card .mdl-card__supporting-text {
+            flex-grow: 1; /* Permite que o texto de suporte ocupe o espaço restante */
+            padding-bottom: 0;
+            overflow: hidden; /* Garante que o texto não transborde */
+        }
+        .game-card .mdl-card__actions {
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 0;
+            padding-bottom: 16px; /* Espaçamento inferior para o botão */
+        }
+        .game-card .mdl-button {
+            margin-right: 8px; /* Espaçamento à direita dos botões */
+        }
+        .game-card .game-status {
+            font-size: 0.8em;
+            color: #757575;
+            margin-top: 5px;
+        }
+        .mdl-card__actions .mdl-button--colored {
+             background-color: var(--mdl-color-primary);
+             color: white;
+        }
+        .mdl-card__actions .mdl-button--accent {
+            background-color: var(--mdl-color-accent);
+            color: white;
+        }
+        /* Estilos padrão para as variáveis CSS (serão sobrescritos pelo JS) */
+        :root {
+            --mdl-color-primary: #3f51b5;
+            --mdl-color-accent: #ff4081;
+        }
+    </style>
+</head>
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">Jogos WZZM</span>
+                <div class="mdl-layout-spacer"></div>
+                </div>
+        </header>
+        <main class="mdl-layout__content">
+            <div class="mdl-grid" id="games-container">
+                <div class="mdl-cell mdl-cell--12-col mdl-typography--text-center" id="loading-message">
+                    <div class="mdl-spinner mdl-js-spinner is-active"></div>
+                    <p>Carregando jogos...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+        import { getFirestore, collection, getDocs, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js';
+
+        // --- Configuração do Firebase ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
+            authDomain: "wzzm-ce3fc.firebaseapp.com",
+            projectId: "wzzm-ce3fc",
+            storageBucket: "wzzm-ce3fc.appspot.com",
+            messagingSenderId: "249427877153",
+            appId: "1:249427877153:web:0e4297294794a5aadeb260",
+            measurementId: "G-PLKNZNFCQ8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const firestore = getFirestore(app);
+        const auth = getAuth(app);
+
+        const gamesContainer = document.getElementById('games-container');
+        const loadingMessage = document.getElementById('loading-message');
+
+        let currentUser = null;
+        let userGameSettings = {}; // Para armazenar as configurações do jogo do usuário
+
+        // Função para aplicar as cores personalizadas do usuário
+        function applyCustomColors(primary, accent) {
+            document.documentElement.style.setProperty('--mdl-color-primary', primary);
+            // Você pode querer calcular um tom mais escuro para --mdl-color-primary-dark se necessário
+            // Ou simplesmente usar a mesma cor para simplicidade se o MDL se adaptar bem
+            document.documentElement.style.setProperty('--mdl-color-primary-dark', primary);
+            document.documentElement.style.setProperty('--mdl-color-accent', accent);
+            if (componentHandler) {
+                componentHandler.upgradeDom();
+            }
+        }
+
+        // Função para carregar as configurações de jogo do usuário
+        async function loadUserGameSettings(userId) {
+            const userSettingsRef = doc(firestore, 'users', userId, 'configuracoes', 'jogo');
+            try {
+                const docSnap = await getDoc(userSettingsRef);
+                if (docSnap.exists()) {
+                    userGameSettings = docSnap.data();
+                    applyCustomColors(userGameSettings.primaryColor || '#3f51b5', userGameSettings.accentColor || '#ff4081');
+                    console.log("Configurações de jogo do usuário carregadas:", userGameSettings);
+                } else {
+                    console.log("Nenhuma configuração de jogo encontrada para o usuário, usando padrões.");
+                    userGameSettings = { onlineMode: true, primaryColor: '#3f51b5', accentColor: '#ff4081' };
+                    applyCustomColors('#3f51b5', '#ff4081'); // Aplica cores padrão
+                }
+            } catch (error) {
+                console.error("Erro ao carregar configurações de jogo do usuário:", error);
+                userGameSettings = { onlineMode: true, primaryColor: '#3f51b5', accentColor: '#ff4081' }; // Fallback para padrão
+                applyCustomColors('#3f51b5', '#ff4081');
+            }
+        }
+
+        // Função para renderizar um card de jogo
+        function renderGameCard(game) {
+            const gameCard = document.createElement('div');
+            gameCard.className = 'game-card mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet mdl-cell--12-col-phone';
+
+            const imageUrl = game.imageUrl || 'https://via.placeholder.com/330x180?text=Capa+do+Jogo';
+
+            gameCard.innerHTML = `
+                <div class="mdl-card__title" style="background-image: url('${imageUrl}');">
+                    <h2 class="mdl-card__title-text">${game.nome || 'Nome do Jogo'}</h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    ${game.descricao || 'Descrição do jogo indisponível.'}
+                    <div class="game-status">
+                        Status: <strong>${game.status || 'Desconhecido'}</strong><br>
+                        Versão: <strong>${game.versao || 'N/A'}</strong>
+                    </div>
+                </div>
+                <div class="mdl-card__actions mdl-card--border">
+                    <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect play-button" data-game-path="${game.path}">
+                        Jogar
+                    </button>
+                    <button class="mdl-button mdl-button--accent mdl-js-button mdl-js-ripple-effect config-button" data-game-path="${game.path}">
+                        Configurações
+                    </button>
+                </div>
+            `;
+
+            // Adiciona listeners aos botões
+            gameCard.querySelector('.play-button').addEventListener('click', () => {
+                // Abre o jogo em uma nova aba para evitar problemas com iframe e caminhos relativos
+                // Se o jogo for interno e você quiser que ele abra no iframe principal da wiki,
+                // você precisaria de uma comunicação entre esta página e a página pai.
+                // Para simplificar, abrimos em nova aba.
+                window.open(`../${game.path}/index.html`, '_blank');
+            });
+
+            gameCard.querySelector('.config-button').addEventListener('click', () => {
+                // Abre a página de configurações em uma nova aba
+                // Assumindo que a página de configurações está no mesmo diretório base do jogo
+                window.open(`../${game.path}/configuracoes.html`, '_blank');
+            });
+
+            return gameCard;
+        }
+
+        // Função principal para carregar os jogos do Firebase
+        async function loadGames() {
+            loadingMessage.style.display = 'block';
+            gamesContainer.innerHTML = ''; // Limpa o container antes de adicionar novos cards
+
+            try {
+                // Consulta a coleção 'aplicativo' para jogos
+                const querySnapshot = await getDocs(collection(firestore, 'aplicativo'));
+                const games = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    // Assumimos que 'tipo' 'Jogo' identifica os jogos
+                    // E que 'path' é o caminho para o diretório do jogo (ex: 'nukeanaly')
+                    if (data.tipo === 'Jogo' && data.path) {
+                        games.push({ id: doc.id, ...data });
+                    }
+                });
+
+                if (games.length > 0) {
+                    games.forEach(game => {
+                        gamesContainer.appendChild(renderGameCard(game));
+                    });
+                } else {
+                    gamesContainer.innerHTML = '<p class="mdl-cell mdl-cell--12-col mdl-typography--text-center">Nenhum jogo encontrado no momento.</p>';
+                }
+            } catch (error) {
+                console.error("Erro ao carregar jogos:", error);
+                gamesContainer.innerHTML = '<p class="mdl-cell mdl-cell--12-col mdl-typography--text-center" style="color: red;">Erro ao carregar jogos. Tente novamente mais tarde.</p>';
+            } finally {
+                loadingMessage.style.display = 'none';
+                if (componentHandler) {
+                    componentHandler.upgradeDom();
+                }
+            }
+        }
+
+        // Listener para o estado de autenticação para carregar configurações
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            if (currentUser) {
+                await loadUserGameSettings(currentUser.uid); // Carrega as configurações do usuário logado
+            } else {
+                console.log("Usuário não logado. Usando cores padrão.");
+                applyCustomColors('#3f51b5', '#ff4081'); // Garante cores padrão se não houver login
+            }
+            loadGames(); // Carrega os jogos após o estado de autenticação ser determinado
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (componentHandler) {
+                componentHandler.upgradeDom();
+            }
+        });
+    </script>
+</body>
+</html>
