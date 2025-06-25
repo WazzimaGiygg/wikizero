@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Fantasy Realm</title>
+  <title>Fantasy Realm Ajustado</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
   <style>
     body { margin: 0; background: #000; }
@@ -18,7 +18,7 @@ const config = {
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 1000 },
+      gravity: { y: 1200 },
       debug: false
     }
   },
@@ -39,6 +39,7 @@ function preload() {
   this.load.image('platform', 'platform.jpg');
   this.load.image('enemyGround', 'enemiesgo.jpg');
   this.load.image('enemyFly', 'wikimigos.jpg');
+  this.load.image('player', 'wazzimagiygg.jpg');
 }
 
 function create() {
@@ -48,22 +49,15 @@ function create() {
   platforms = this.physics.add.staticGroup();
   enemies = this.physics.add.group();
 
-  // Textos do HUD
-  timerText = this.add.text(10, 10, 'Tempo: 0s', {
-    font: '20px Arial', fill: '#ffffff'
-  }).setScrollFactor(0).setVisible(false);
+  // HUD textos
+  timerText = this.add.text(10, 10, 'Tempo: 0s', { font: '20px Arial', fill: '#fff' }).setScrollFactor(0).setVisible(false);
+  scoreText = this.add.text(10, 40, 'Pontuação: 0', { font: '20px Arial', fill: '#fff' }).setScrollFactor(0).setVisible(false);
 
-  scoreText = this.add.text(10, 40, 'Pontuação: 0', {
-    font: '20px Arial', fill: '#ffffff'
-  }).setScrollFactor(0).setVisible(false);
+  gameOverText = this.add.text(400, 200, 'GAME OVER', { font: '40px Arial', fill: '#f00' })
+    .setOrigin(0.5).setScrollFactor(0).setVisible(false);
 
-  gameOverText = this.add.text(400, 200, 'GAME OVER', {
-    font: '40px Arial', fill: '#ff0000'
-  }).setOrigin(0.5).setScrollFactor(0).setVisible(false);
-
-  // Botão iniciar
   startButton = this.add.text(400, 240, '▶ INICIAR JOGO', {
-    font: '30px Arial', fill: '#00ff00', backgroundColor: '#000'
+    font: '30px Arial', fill: '#0f0', backgroundColor: '#000'
   }).setOrigin(0.5).setScrollFactor(0).setInteractive();
 
   startButton.on('pointerdown', () => {
@@ -71,9 +65,8 @@ function create() {
     startGame.call(this);
   });
 
-  // Botão reiniciar
   restartButton = this.add.text(400, 280, '🔁 REINICIAR', {
-    font: '24px Arial', fill: '#ffffff', backgroundColor: '#333'
+    font: '24px Arial', fill: '#fff', backgroundColor: '#333'
   }).setOrigin(0.5).setScrollFactor(0).setInteractive().setVisible(false);
 
   restartButton.on('pointerdown', () => {
@@ -91,12 +84,11 @@ function startGame() {
 
   generateTerrain(this);
 
-  player = this.physics.add.sprite(100, 200, null)
-    .setOrigin(0)
+  player = this.physics.add.sprite(100, 368, 'player') // Y fixo pra plataforma (400 - 32)
+    .setOrigin(0, 0)
     .setDisplaySize(32, 32)
     .setBounce(0.1)
-    .setCollideWorldBounds(false)
-    .setTint(0xffffff);
+    .setCollideWorldBounds(false);
 
   this.physics.add.collider(player, platforms);
   this.physics.add.collider(enemies, platforms);
@@ -110,30 +102,24 @@ function startGame() {
 
 function generateTerrain(scene) {
   let x = 0;
-  let y = 400;
+  const y = 400; // fixo
   const segments = 100;
-  const maxJump = 120;
+  const platformWidthRange = [60, 100];
+  const maxGap = 80; // menor distância para pulo confortável
 
   for (let i = 0; i < segments; i++) {
-    const w = Phaser.Math.Between(60, 100);
-    const isGap = Math.random() < 0.15;
+    const platformWidth = Phaser.Math.Between(platformWidthRange[0], platformWidthRange[1]);
+    const isGap = Math.random() < 0.1;
 
     if (!isGap) {
-      scene.add.image(x, y, 'platform').setOrigin(0).setDisplaySize(w, 20);
-      platforms.create(x, y, null)
-        .setOrigin(0)
-        .setDisplaySize(w, 20)
-        .setVisible(false)
-        .refreshBody();
+      scene.add.image(x, y, 'platform').setOrigin(0).setDisplaySize(platformWidth, 20);
+      platforms.create(x, y, null).setOrigin(0).setDisplaySize(platformWidth, 20).setVisible(false).refreshBody();
 
-      if (Math.random() < 0.1) spawnEnemy(scene, x + w/2, y - 20, 'ground');
-      if (Math.random() < 0.05) spawnEnemy(scene, x + w/2, y - 100, 'fly');
-
-      y += Phaser.Math.Between(-30, 30);
-      y = Phaser.Math.Clamp(y, 250, 420);
+      if (Math.random() < 0.12) spawnEnemy(scene, x + platformWidth / 2, y - 20, 'ground');
+      if (Math.random() < 0.07) spawnEnemy(scene, x + platformWidth / 2, y - 100, 'fly');
     }
 
-    x += Phaser.Math.Between(80, maxJump);
+    x += platformWidth + Phaser.Math.Between(40, maxGap);
   }
 }
 
@@ -151,7 +137,7 @@ function spawnEnemy(scene, x, y, type) {
       .setBounce(1)
       .setCollideWorldBounds(false)
       .setVelocityX(Phaser.Math.Between(-100, 100))
-      .setVelocityY(Phaser.Math.Between(-30, 30));
+      .setVelocityY(Phaser.Math.Between(-20, 20));
     enemy.body.allowGravity = false;
   }
 }
@@ -160,19 +146,14 @@ function update() {
   if (!gameStarted || gameIsOver) return;
 
   const speed = 160;
-  const jump = -420;
+  const jumpPower = -520; // mais alto que antes
 
   player.body.setVelocityX(0);
 
-  if (cursors.left.isDown) {
-    player.setVelocityX(-speed);
-  } else if (cursors.right.isDown) {
-    player.setVelocityX(speed);
-  }
+  if (cursors.left.isDown) player.setVelocityX(-speed);
+  else if (cursors.right.isDown) player.setVelocityX(speed);
 
-  if (cursors.up.isDown && player.body.blocked.down) {
-    player.setVelocityY(jump);
-  }
+  if (cursors.up.isDown && player.body.blocked.down) player.setVelocityY(jumpPower);
 
   this.cameras.main.scrollX = player.x - 200;
   background.tilePositionX = this.cameras.main.scrollX * 0.5;
@@ -180,13 +161,10 @@ function update() {
   const elapsed = Math.floor((this.time.now - startTime) / 1000);
   timerText.setText('Tempo: ' + elapsed + 's');
 
-  // Pontuação por distância
   score = Math.max(score, Math.floor(player.x / 10));
   scoreText.setText('Pontuação: ' + score);
 
-  if (player.y > 500) {
-    gameOver(this);
-  }
+  if (player.y > 500) gameOver(this);
 }
 
 function gameOver(scene) {
