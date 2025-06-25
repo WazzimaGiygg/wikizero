@@ -177,6 +177,29 @@ function initializeGame(mapIndex) {
         }
     }
 
+// --- Nova Lógica para ajustar dotsCount com base em pontos isolados ---
+    const isolatedPoints = detectIsolatedPoints(currentMapData);
+    if (isolatedPoints.length > 0) {
+        console.warn(`Nível ${mapIndex + 1} possui ${isolatedPoints.length} pontos isolados. Reduzindo dotsCount.`);
+        dotsCount -= isolatedPoints.length; // Reduz a contagem total de dots pelos isolados
+
+        // Opcional: Se quiser remover visualmente os pontos isolados
+        isolatedPoints.forEach(isolated => {
+            if (isolated.type === 'dot') {
+                const dotElement = gameElements.dots.find(d => d.x === isolated.x && d.y === isolated.y)?.element;
+                if (dotElement) {
+                    dotElement.style.display = 'none'; // Esconde o dot isolado
+                }
+            } else if (isolated.type === 'power-pellet') {
+                const pelletElement = gameElements.powerPellets.find(p => p.x === isolated.x && p.y === isolated.y)?.element;
+                if (pelletElement) {
+                    pelletElement.style.display = 'none'; // Esconde o power-pellet isolado
+                }
+            }
+        });
+    }
+    // --- Fim da Nova Lógica ---
+    
     const player = document.createElement('div');
     player.classList.add('player');
     gameContainer.appendChild(player);
