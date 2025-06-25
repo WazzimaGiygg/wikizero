@@ -10,10 +10,6 @@
   </style>
 </head>
 <body>
-<body>
-    <canvas id="gameCanvas"></canvas>
-    <script src="level1.js"></script> <script src="game.js"></script>
-</body>
   
 <script>
 const config = {
@@ -87,23 +83,16 @@ function startGame() {
   startTime = this.time.now;
   score = 0;
 
-  generateTerrain(this);
-
-  player = this.physics.add.sprite(100, 368, 'player') // Y fixo pra plataforma (400 - 32)
-    .setOrigin(0, 0)
-    .setDisplaySize(32, 32)
-    .setBounce(0.1)
-    .setCollideWorldBounds(false);
-
-  this.physics.add.collider(player, platforms);
-  this.physics.add.collider(enemies, platforms);
-  this.physics.add.overlap(player, enemies, () => {
-    if (!gameIsOver) gameOver(this);
-  });
+  if (currentLevel === 1) {
+    setupLevel1(this);
+  } else if (currentLevel === 2) {
+    setupLevel2(this);
+  }
 
   timerText.setVisible(true);
   scoreText.setVisible(true);
 }
+
 
 function generateTerrain(scene) {
   let x = 0;
@@ -217,6 +206,70 @@ function gameOver(scene) {
   gameOverText.setVisible(true);
   restartButton.setVisible(true);
 }
+
+  function setupLevel1(scene) {
+  platforms = scene.physics.add.staticGroup();
+  enemies = scene.physics.add.group();
+
+  // Solo base (chão contínuo)
+  for (let x = 0; x < 2000; x += 64) {
+    platforms.create(x, 400, null).setOrigin(0).setDisplaySize(64, 20).refreshBody();
+    scene.add.image(x, 400, 'platform').setOrigin(0).setDisplaySize(64, 20);
+  }
+
+  // Blocos suspensos
+  const blocks = [
+    { x: 300, y: 320 }, { x: 364, y: 320 }, { x: 428, y: 320 },
+    { x: 800, y: 280 }, { x: 864, y: 280 }
+  ];
+  blocks.forEach(({ x, y }) => {
+    platforms.create(x, y, null).setOrigin(0).setDisplaySize(64, 20).refreshBody();
+    scene.add.image(x, y, 'platform').setOrigin(0).setDisplaySize(64, 20);
+  });
+
+  // Inimigos
+  spawnEnemy(scene, 500, 368, 'ground');
+  spawnEnemy(scene, 700, 368, 'ground');
+
+  // Bandeira (fim da fase)
+  scene.add.rectangle(1950, 368, 10, 64, 0xffffff).setOrigin(0);
+  const endZone = scene.physics.add.staticImage(1950, 368, null)
+    .setDisplaySize(10, 64).setVisible(false);
+  scene.physics.add.overlap(player, endZone, () => {
+    currentLevel = 2;
+    scene.scene.restart();
+  });
+
+  // Jogador posicionado no início
+  player = scene.physics.add.sprite(100, 368, 'player')
+    .setOrigin(0).setDisplaySize(32, 32).setBounce(0.1).setCollideWorldBounds(false);
+
+  scene.physics.add.collider(player, platforms);
+  scene.physics.add.collider(enemies, platforms);
+  scene.physics.add.overlap(player, enemies, () => {
+    if (!gameIsOver) gameOver(scene);
+  });
+}
+
+function setupLevel2(scene) {
+  player = scene.physics.add.sprite(100, 200, 'player')
+    .setOrigin(0).setDisplaySize(32, 32).setBounce(0.1).setCollideWorldBounds(false);
+
+  scene.add.text(400, 200, 'FASE 2 EM CONSTRUÇÃO...', {
+    font: '30px Arial', fill: '#ffff00'
+  }).setOrigin(0.5).setScrollFactor(0);
+
+  scene.add.text(400, 260, 'Pressione R para voltar à Fase 1', {
+    font: '20px Arial', fill: '#fff'
+  }).setOrigin(0.5).setScrollFactor(0);
+
+  // Retorno à Fase 1
+  scene.input.keyboard.on('keydown-R', () => {
+    currentLevel = 1;
+    scene.scene.restart();
+  });
+}
+
 </script>
 </body>
 </html>
