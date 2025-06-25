@@ -35,6 +35,8 @@ let gameStarted = false;
 let startTime = 0;
 let score = 0;
 
+let currentLevel = 1;
+
 function preload() {
   this.load.image('forest', 'forest.jpg');
   this.load.image('platform', 'platform.jpg');
@@ -76,23 +78,6 @@ function create() {
 
   cursors = this.input.keyboard.createCursorKeys();
 }
-
-function startGame() {
-  gameStarted = true;
-  gameIsOver = false;
-  startTime = this.time.now;
-  score = 0;
-
-  if (currentLevel === 1) {
-    setupLevel1(this);
-  } else if (currentLevel === 2) {
-    setupLevel2(this);
-  }
-
-  timerText.setVisible(true);
-  scoreText.setVisible(true);
-}
-
 
 function generateTerrain(scene) {
   let x = 0;
