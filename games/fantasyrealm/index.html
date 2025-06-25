@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Fantasy Realm Ajustado</title>
+  <title>Fantasy Realm</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
   <style>
     body { margin: 0; background: #000; }
@@ -10,7 +10,6 @@
   </style>
 </head>
 <body>
-  
 <script>
 const config = {
   type: Phaser.AUTO,
@@ -34,7 +33,6 @@ let gameIsOver = false;
 let gameStarted = false;
 let startTime = 0;
 let score = 0;
-
 let currentLevel = 1;
 
 function preload() {
@@ -52,13 +50,12 @@ function create() {
   platforms = this.physics.add.staticGroup();
   enemies = this.physics.add.group();
 
-  // HUD textos
+  // HUD
   timerText = this.add.text(10, 10, 'Tempo: 0s', { font: '20px Arial', fill: '#fff' }).setScrollFactor(0).setVisible(false);
   scoreText = this.add.text(10, 40, 'Pontuação: 0', { font: '20px Arial', fill: '#fff' }).setScrollFactor(0).setVisible(false);
+  gameOverText = this.add.text(400, 200, 'GAME OVER', { font: '40px Arial', fill: '#f00' }).setOrigin(0.5).setScrollFactor(0).setVisible(false);
 
-  gameOverText = this.add.text(400, 200, 'GAME OVER', { font: '40px Arial', fill: '#f00' })
-    .setOrigin(0.5).setScrollFactor(0).setVisible(false);
-
+  // Botões
   startButton = this.add.text(400, 240, '▶ INICIAR JOGO', {
     font: '30px Arial', fill: '#0f0', backgroundColor: '#000'
   }).setOrigin(0.5).setScrollFactor(0).setInteractive();
@@ -79,124 +76,27 @@ function create() {
   cursors = this.input.keyboard.createCursorKeys();
 }
 
-function generateTerrain(scene) {
-  let x = 0;
-  const y = 400; // plataforma fixa vertical
-  const segments = 100;
-  const platformWidthRange = [60, 100];
-  const maxGap = 80; // distância máxima para pulo
-
-  // Guardar a posição da primeira plataforma para posicionar o jogador depois
-  let firstPlatformX = null;
-  let firstPlatformWidth = null;
-
-  for (let i = 0; i < segments; i++) {
-    const platformWidth = Phaser.Math.Between(platformWidthRange[0], platformWidthRange[1]);
-    const isGap = Math.random() < 0.1;
-
-    if (!isGap) {
-      scene.add.image(x, y, 'platform').setOrigin(0).setDisplaySize(platformWidth, 20);
-      platforms.create(x, y, null).setOrigin(0).setDisplaySize(platformWidth, 20).setVisible(false).refreshBody();
-
-      if (i === 0) {
-        firstPlatformX = x;
-        firstPlatformWidth = platformWidth;
-      }
-
-      if (Math.random() < 0.12) spawnEnemy(scene, x + platformWidth / 2, y - 20, 'ground');
-      if (Math.random() < 0.07) spawnEnemy(scene, x + platformWidth / 2, y - 100, 'fly');
-    }
-
-    x += platformWidth + Phaser.Math.Between(40, maxGap);
-  }
-
-  return { firstPlatformX, firstPlatformWidth };
-}
-
 function startGame() {
   gameStarted = true;
   gameIsOver = false;
   startTime = this.time.now;
   score = 0;
 
-  // Gerar mapa e pegar posição da primeira plataforma
-  const firstPlatform = generateTerrain(this);
-
-  // Posicionar jogador exatamente em cima da primeira plataforma
-  player = this.physics.add.sprite(
-    firstPlatform.firstPlatformX + firstPlatform.firstPlatformWidth / 2,
-    368, // y fixo (400 - 32)
-    'player'
-  ).setOrigin(0.5, 0).setDisplaySize(32, 32).setBounce(0.1).setCollideWorldBounds(false);
-
-  this.physics.add.collider(player, platforms);
-  this.physics.add.collider(enemies, platforms);
-  this.physics.add.overlap(player, enemies, () => {
-    if (!gameIsOver) gameOver(this);
-  });
+  if (currentLevel === 1) {
+    setupLevel1(this);
+  } else if (currentLevel === 2) {
+    setupLevel2(this);
+  }
 
   timerText.setVisible(true);
   scoreText.setVisible(true);
 }
 
-
-function spawnEnemy(scene, x, y, type) {
-  if (type === 'ground') {
-    const enemy = enemies.create(x, y, 'enemyGround')
-      .setDisplaySize(32, 32)
-      .setBounce(1)
-      .setCollideWorldBounds(false)
-      .setVelocityX(Phaser.Math.Between(-50, 50));
-    enemy.body.allowGravity = true;
-  } else {
-    const enemy = enemies.create(x, y, 'enemyFly')
-      .setDisplaySize(32, 32)
-      .setBounce(1)
-      .setCollideWorldBounds(false)
-      .setVelocityX(Phaser.Math.Between(-100, 100))
-      .setVelocityY(Phaser.Math.Between(-20, 20));
-    enemy.body.allowGravity = false;
-  }
-}
-
-function update() {
-  if (!gameStarted || gameIsOver) return;
-
-  const speed = 160;
-  const jumpPower = -1040; // mais alto que antes
-
-  player.body.setVelocityX(0);
-
-  if (cursors.left.isDown) player.setVelocityX(-speed);
-  else if (cursors.right.isDown) player.setVelocityX(speed);
-
-  if (cursors.up.isDown && player.body.blocked.down) player.setVelocityY(jumpPower);
-
-  this.cameras.main.scrollX = player.x - 200;
-  background.tilePositionX = this.cameras.main.scrollX * 0.5;
-
-  const elapsed = Math.floor((this.time.now - startTime) / 1000);
-  timerText.setText('Tempo: ' + elapsed + 's');
-
-  score = Math.max(score, Math.floor(player.x / 10));
-  scoreText.setText('Pontuação: ' + score);
-
-  if (player.y > 500) gameOver(this);
-}
-
-function gameOver(scene) {
-  gameIsOver = true;
-  player.setTint(0xff0000);
-  player.body.enable = false;
-  gameOverText.setVisible(true);
-  restartButton.setVisible(true);
-}
-
-  function setupLevel1(scene) {
+function setupLevel1(scene) {
   platforms = scene.physics.add.staticGroup();
   enemies = scene.physics.add.group();
 
-  // Solo base (chão contínuo)
+  // Solo contínuo
   for (let x = 0; x < 2000; x += 64) {
     platforms.create(x, 400, null).setOrigin(0).setDisplaySize(64, 20).refreshBody();
     scene.add.image(x, 400, 'platform').setOrigin(0).setDisplaySize(64, 20);
@@ -225,7 +125,7 @@ function gameOver(scene) {
     scene.scene.restart();
   });
 
-  // Jogador posicionado no início
+  // Jogador
   player = scene.physics.add.sprite(100, 368, 'player')
     .setOrigin(0).setDisplaySize(32, 32).setBounce(0.1).setCollideWorldBounds(false);
 
@@ -248,13 +148,65 @@ function setupLevel2(scene) {
     font: '20px Arial', fill: '#fff'
   }).setOrigin(0.5).setScrollFactor(0);
 
-  // Retorno à Fase 1
   scene.input.keyboard.on('keydown-R', () => {
     currentLevel = 1;
     scene.scene.restart();
   });
+
+  scene.physics.add.collider(player, platforms);
 }
 
+function spawnEnemy(scene, x, y, type) {
+  if (type === 'ground') {
+    const enemy = enemies.create(x, y, 'enemyGround')
+      .setDisplaySize(32, 32)
+      .setBounce(1)
+      .setCollideWorldBounds(false)
+      .setVelocityX(Phaser.Math.Between(-50, 50));
+    enemy.body.allowGravity = true;
+  } else {
+    const enemy = enemies.create(x, y, 'enemyFly')
+      .setDisplaySize(32, 32)
+      .setBounce(1)
+      .setCollideWorldBounds(false)
+      .setVelocityX(Phaser.Math.Between(-100, 100))
+      .setVelocityY(Phaser.Math.Between(-20, 20));
+    enemy.body.allowGravity = false;
+  }
+}
+
+function update() {
+  if (!gameStarted || gameIsOver) return;
+
+  const speed = 160;
+  const jumpPower = -1040; // salto maior
+
+  player.body.setVelocityX(0);
+
+  if (cursors.left.isDown) player.setVelocityX(-speed);
+  else if (cursors.right.isDown) player.setVelocityX(speed);
+
+  if (cursors.up.isDown && player.body.blocked.down) player.setVelocityY(jumpPower);
+
+  this.cameras.main.scrollX = player.x - 200;
+  background.tilePositionX = this.cameras.main.scrollX * 0.5;
+
+  const elapsed = Math.floor((this.time.now - startTime) / 1000);
+  timerText.setText('Tempo: ' + elapsed + 's');
+
+  score = Math.max(score, Math.floor(player.x / 10));
+  scoreText.setText('Pontuação: ' + score);
+
+  if (player.y > 500) gameOver(this);
+}
+
+function gameOver(scene) {
+  gameIsOver = true;
+  player.setTint(0xff0000);
+  player.body.enable = false;
+  gameOverText.setVisible(true);
+  restartButton.setVisible(true);
+}
 </script>
 </body>
 </html>
