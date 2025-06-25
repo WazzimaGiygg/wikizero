@@ -102,10 +102,14 @@ function startGame() {
 
 function generateTerrain(scene) {
   let x = 0;
-  const y = 400; // fixo
+  const y = 400; // plataforma fixa vertical
   const segments = 100;
   const platformWidthRange = [60, 100];
-  const maxGap = 80; // menor distância para pulo confortável
+  const maxGap = 80; // distância máxima para pulo
+
+  // Guardar a posição da primeira plataforma para posicionar o jogador depois
+  let firstPlatformX = null;
+  let firstPlatformWidth = null;
 
   for (let i = 0; i < segments; i++) {
     const platformWidth = Phaser.Math.Between(platformWidthRange[0], platformWidthRange[1]);
@@ -115,13 +119,47 @@ function generateTerrain(scene) {
       scene.add.image(x, y, 'platform').setOrigin(0).setDisplaySize(platformWidth, 20);
       platforms.create(x, y, null).setOrigin(0).setDisplaySize(platformWidth, 20).setVisible(false).refreshBody();
 
+      if (i === 0) {
+        firstPlatformX = x;
+        firstPlatformWidth = platformWidth;
+      }
+
       if (Math.random() < 0.12) spawnEnemy(scene, x + platformWidth / 2, y - 20, 'ground');
       if (Math.random() < 0.07) spawnEnemy(scene, x + platformWidth / 2, y - 100, 'fly');
     }
 
     x += platformWidth + Phaser.Math.Between(40, maxGap);
   }
+
+  return { firstPlatformX, firstPlatformWidth };
 }
+
+function startGame() {
+  gameStarted = true;
+  gameIsOver = false;
+  startTime = this.time.now;
+  score = 0;
+
+  // Gerar mapa e pegar posição da primeira plataforma
+  const firstPlatform = generateTerrain(this);
+
+  // Posicionar jogador exatamente em cima da primeira plataforma
+  player = this.physics.add.sprite(
+    firstPlatform.firstPlatformX + firstPlatform.firstPlatformWidth / 2,
+    368, // y fixo (400 - 32)
+    'player'
+  ).setOrigin(0.5, 0).setDisplaySize(32, 32).setBounce(0.1).setCollideWorldBounds(false);
+
+  this.physics.add.collider(player, platforms);
+  this.physics.add.collider(enemies, platforms);
+  this.physics.add.overlap(player, enemies, () => {
+    if (!gameIsOver) gameOver(this);
+  });
+
+  timerText.setVisible(true);
+  scoreText.setVisible(true);
+}
+
 
 function spawnEnemy(scene, x, y, type) {
   if (type === 'ground') {
