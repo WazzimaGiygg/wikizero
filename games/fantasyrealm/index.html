@@ -47,6 +47,10 @@ function create() {
   background = this.add.tileSprite(0, 0, config.width, config.height, 'forest')
     .setOrigin(0).setScrollFactor(0);
 
+  if (player && platforms) {
+  this.physics.add.collider(player, platforms);
+  }
+
   platforms = this.physics.add.staticGroup();
   enemies = this.physics.add.group();
 
@@ -137,8 +141,10 @@ function setupLevel1(scene) {
 }
 
 function setupLevel2(scene) {
-  platforms = scene.physics.add.staticGroup();
-  enemies = scene.physics.add.group();
+platforms = scene.physics.add.staticGroup();
+enemies = scene.physics.add.group();
+  scene.physics.add.collider(player, platforms);
+scene.physics.add.collider(enemies, platforms);
 
   player = scene.physics.add.sprite(100, 200, 'player')
     .setOrigin(0).setDisplaySize(32, 32).setBounce(0.1).setCollideWorldBounds(false);
