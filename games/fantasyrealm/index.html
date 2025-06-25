@@ -137,6 +137,9 @@ function setupLevel1(scene) {
 }
 
 function setupLevel2(scene) {
+  platforms = scene.physics.add.staticGroup();
+  enemies = scene.physics.add.group();
+
   player = scene.physics.add.sprite(100, 200, 'player')
     .setOrigin(0).setDisplaySize(32, 32).setBounce(0.1).setCollideWorldBounds(false);
 
