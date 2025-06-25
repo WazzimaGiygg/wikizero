@@ -1023,6 +1023,45 @@
                 dialogPolyfill.registerDialog(registerMaterialDialog);
             }
         });
+
+        const defaultContacts = [
+    {
+        uid: "6aPqWVh8JVYL5NqEb78iDGPD7dH3",
+        nome: "Moderador",
+        imagem: "https://via.placeholder.com/40"
+    },
+    {
+        uid: "sZxfMuOBPbXdR8nttVPXIN8QOOl1",
+        nome: "Administrador",
+        imagem: "https://via.placeholder.com/40"
+    }
+];
+
+        defaultContacts.forEach(contact => {
+    const listItem = document.createElement('li');
+    listItem.classList.add('chat-list-item');
+    listItem.dataset.chatId = null;
+    listItem.dataset.otherUserId = contact.uid;
+    listItem.innerHTML = `
+        <img src="${contact.imagem}" alt="${contact.nome} Avatar">
+        <div class="chat-list-item-info">
+            <strong>${contact.nome}</strong>
+            <span>Clique para iniciar conversa</span>
+        </div>
+    `;
+    listItem.addEventListener('click', async () => {
+        const newChatId = await getOrCreateChat(contact.uid);
+        if (newChatId) {
+            currentChatId = newChatId;
+            chatHeader.innerHTML = `
+                <img src="${contact.imagem}" alt="${contact.nome} Avatar">
+                <h3>${contact.nome}</h3>
+            `;
+            loadMessages(newChatId);
+        }
+    });
+    recentChatsList.appendChild(listItem);
+});
     </script>
 </body>
 </html>
