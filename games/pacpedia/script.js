@@ -253,6 +253,72 @@ function updateLivesDisplay() {
     livesDisplay.innerHTML = 'Vidas: ' + '❤️ '.repeat(lives);
 }
 
+function activateInvulnerability() {
+    isInvulnerable = true;
+    gameElements.player.style.backgroundColor = '#00f';
+    gameElements.ghosts.forEach(ghost => {
+        if (!ghost.isEaten) {
+            ghost.element.classList.add('scared');
+            ghost.speedMultiplier = 0.5;
+        }
+    });
+    if (invulnerabilityTimeout) {
+        clearTimeout(invulnerabilityTimeout);
+    }
+
+    invulnerabilityTimeout = setTimeout(() => {
+        deactivateInvulnerability();
+    }, 7000);
+}
+
+function deactivateInvulnerability() {
+    isInvulnerable = false;
+    gameElements.player.style.backgroundColor = '#ff0';
+    gameElements.ghosts.forEach(ghost => {
+        ghost.element.classList.remove('scared');
+        ghost.speedMultiplier = 1;
+    });
+    gameElements.ghostElements.forEach(g => g.style.animation = '');
+}
+
+// --- Modifique a função activateInvulnerability ---
+function activateInvulnerability() {
+    // Esta função é para power pellets, não deve afetar a invulnerabilidade de desenvolvedor
+    if (isDeveloperInvulnerable) return; // Se já está invulnerável por dev, não faça nada
+
+    isInvulnerable = true;
+    gameElements.player.style.backgroundColor = '#00f'; // Player turns blue
+    gameElements.ghosts.forEach(ghost => {
+        if (!ghost.isEaten) {
+            ghost.element.classList.add('scared');
+            ghost.speedMultiplier = 0.5;
+        }
+    });
+    if (invulnerabilityTimeout) {
+        clearTimeout(invulnerabilityTimeout);
+    }
+
+    invulnerabilityTimeout = setTimeout(() => {
+        deactivateInvulnerability();
+    }, 7000);
+}
+// --- Fim da modificação activateInvulnerability ---
+
+// --- Modifique a função deactivateInvulnerability ---
+function deactivateInvulnerability() {
+    // Esta função é para power pellets, não deve desativar a invulnerabilidade de desenvolvedor
+    if (isDeveloperInvulnerable) return; // Se está invulnerável por dev, não desative
+
+    isInvulnerable = false;
+    gameElements.player.style.backgroundColor = '#ff0'; // Player returns to yellow
+    gameElements.ghosts.forEach(ghost => {
+        ghost.element.classList.remove('scared');
+        ghost.speedMultiplier = 1;
+    });
+    gameElements.ghostElements.forEach(g => g.style.animation = '');
+}
+// --- Fim da modificação deactivateInvulnerability ---
+
 // --- NOVA FUNÇÃO: Alterna a invulnerabilidade do desenvolvedor ---
 function toggleDeveloperInvulnerability() {
     isDeveloperInvulnerable = !isDeveloperInvulnerable; // Inverte o estado
