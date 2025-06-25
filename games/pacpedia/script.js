@@ -20,6 +20,9 @@ let playerDirection = '';
 let playerSpeed = 100;
 let ghostSpeed = 300;
 let currentLevel = 0;
+let isFrenzyModeActive = false;
+let frenzyTimeout = null; // Para controlar o tempo do modo frenesi
+let isDeveloperInvulnerable = false; // Novo estado para invulnerabilidade do desenvolvedor
 
 let ghostInterval;
 let playerMoveInterval;
@@ -27,6 +30,7 @@ let invulnerabilityTimeout;
 
 let isInvulnerable = false;
 
+const developerButton = document.getElementById('developer-button');
 const MAP_ROWS = 15;
 const MAP_COLS = 15;
 
@@ -277,24 +281,139 @@ function deactivateInvulnerability() {
     gameElements.ghostElements.forEach(g => g.style.animation = '');
 }
 
+// --- Modifique a função activateInvulnerability ---
+function activateInvulnerability() {
+    // Esta função é para power pellets, não deve afetar a invulnerabilidade de desenvolvedor
+    if (isDeveloperInvulnerable) return; // Se já está invulnerável por dev, não faça nada
+
+    isInvulnerable = true;
+    gameElements.player.style.backgroundColor = '#00f'; // Player turns blue
+    gameElements.ghosts.forEach(ghost => {
+        if (!ghost.isEaten) {
+            ghost.element.classList.add('scared');
+            ghost.speedMultiplier = 0.5;
+        }
+    });
+    if (invulnerabilityTimeout) {
+        clearTimeout(invulnerabilityTimeout);
+    }
+
+    invulnerabilityTimeout = setTimeout(() => {
+        deactivateInvulnerability();
+    }, 7000);
+}
+// --- Fim da modificação activateInvulnerability ---
+
+// --- Modifique a função deactivateInvulnerability ---
+function deactivateInvulnerability() {
+    // Esta função é para power pellets, não deve desativar a invulnerabilidade de desenvolvedor
+    if (isDeveloperInvulnerable) return; // Se está invulnerável por dev, não desative
+
+    isInvulnerable = false;
+    gameElements.player.style.backgroundColor = '#ff0'; // Player returns to yellow
+    gameElements.ghosts.forEach(ghost => {
+        ghost.element.classList.remove('scared');
+        ghost.speedMultiplier = 1;
+    });
+    gameElements.ghostElements.forEach(g => g.style.animation = '');
+}
+// --- Fim da modificação deactivateInvulnerability ---
+
+// --- NOVA FUNÇÃO: Alterna a invulnerabilidade do desenvolvedor ---
+function toggleDeveloperInvulnerability() {
+    isDeveloperInvulnerable = !isDeveloperInvulnerable; // Inverte o estado
+
+    if (isDeveloperInvulnerable) {
+        // Ativação da invulnerabilidade do desenvolvedor
+        isInvulnerable = true; // Define o estado geral de invulnerabilidade
+        gameElements.player.style.outline = '4px dashed red'; // Borda visual para invencibilidade
+        gameElements.player.style.backgroundColor = 'purple'; // Cor diferente para desenvolvedor
+        developerButton.textContent = 'Desenvolvedor: Invencível (Ativado)';
+        messageDisplay.textContent = 'Modo Desenvolvedor: Invencibilidade ATIVADA!';
+
+        // Garanta que os fantasmas não fiquem assustados por esta invulnerabilidade
+        gameElements.ghosts.forEach(ghost => {
+            ghost.element.classList.remove('scared');
+            ghost.speedMultiplier = 1;
+        });
+
+        // Limpa qualquer invulnerabilidade temporária de power pellet que possa estar ativa
+        if (invulnerabilityTimeout) {
+            clearTimeout(invulnerabilityTimeout);
+            invulnerabilityTimeout = null;
+        }
+
+    } else {
+        // Desativação da invulnerabilidade do desenvolvedor
+        isInvulnerable = false; // Desativa o estado geral de invulnerabilidade
+        gameElements.player.style.outline = 'none'; // Remove a borda
+        gameElements.player.style.backgroundColor = '#ff0'; // Retorna à cor normal do player
+        developerButton.textContent = 'Desenvolvedor: Invencível';
+        messageDisplay.textContent = 'Modo Desenvolvedor: Invencibilidade DESATIVADA!';
+    }
+}
+// --- FIM NOVA FUNÇÃO: Alterna a invulnerabilidade do desenvolvedor ---
+
 function checkCollisions() {
+    // Verifica colisões com dots
     gameElements.dots.forEach((dot, index) => {
         if (dot.element.style.display !== 'none' && dot.x === playerX && dot.y === playerY) {
             dot.element.style.display = 'none';
             score++;
+            // Se o modo frenesi estiver ativo, adicione o bônus
+            if (isFrenzyModeActive) {
+                score = Math.round(score * 1.01); // 1% de bônus, arredondado
+                messageDisplay.textContent = `Frenesi! Ponto +1% bônus! Pontos: ${score}`;
+            }
             dotsCount--;
             scoreDisplay.textContent = `Pontos: ${score}`;
+
+            // Se o modo frenesi estiver ativo e todos os dots forem coletados, limpa o timeout
+            if (isFrenzyModeActive && dotsCount === 0) {
+                clearTimeout(frenzyTimeout);
+                frenzyTimeout = null;
+                isFrenzyModeActive = false;
+            }
+
+            // Ativa o modo frenesi se houver exatamente 5 dots restantes e não estiver ativo
+            if (dotsCount === 5 && !isFrenzyModeActive) {
+                isFrenzyModeActive = true;
+                messageDisplay.textContent = 'MODO FRENESI ATIVADO! Colete os últimos 5 pontos em 5 segundos!';
+                frenzyTimeout = setTimeout(() => {
+                    if (dotsCount > 0) { // Se ainda houver dots, o tempo acabou
+                        messageDisplay.textContent = 'Tempo do frenesi esgotado! Mudando de nível...';
+                        // Forçar a mudança de nível
+                        clearInterval(playerMoveInterval);
+                        clearInterval(ghostInterval);
+                        deactivateInvulnerability(); // Desativa invulnerabilidade normal
+                        isFrenzyModeActive = false; // Desativa o modo frenesi
+                        frenzyTimeout = null; // Limpa o timeout
+                        setTimeout(() => {
+                            // Gerar o próximo mapa antes de prosseguir
+                            const nextLevelMap = generateRandomMap(MAP_ROWS, MAP_COLS);
+                            maps.push(nextLevelMap);
+                            currentLevel++;
+                            startGame(); // Carrega o próximo nível
+                        }, 2000);
+                    }
+                }, 5000); // 5 segundos para o frenesi
+            }
         }
     });
+
+    // Verifica colisões com power pellets (permanece inalterado)
     gameElements.powerPellets.forEach((pellet, index) => {
         if (pellet.element.style.display !== 'none' && pellet.x === playerX && pellet.y === playerY) {
             pellet.element.style.display = 'none';
             activateInvulnerability();
         }
     });
+
+    // Verifica colisões com fantasmas
     gameElements.ghosts.forEach(ghost => {
         if (ghost.x === playerX && ghost.y === playerY && !ghost.isEaten) {
-            if (isInvulnerable) {
+            if (isInvulnerable) { // Verifica a invulnerabilidade geral (dev ou power pellet)
+                // Jogador come o fantasma
                 ghost.isEaten = true;
                 ghost.element.style.display = 'none';
                 score += 10;
@@ -305,11 +424,18 @@ function checkCollisions() {
                     ghost.y = ghost.initialY;
                     ghost.element.style.display = 'block';
                     ghost.isEaten = false;
-                    ghost.element.classList.remove('scared');
-                    ghost.speedMultiplier = 1;
+                    // Se a invulnerabilidade de power pellet estiver ativa, o fantasma volta assustado
+                    if (isInvulnerable && !isDeveloperInvulnerable) { // Apenas se não for dev mode
+                         ghost.element.classList.add('scared');
+                         ghost.speedMultiplier = 0.5;
+                    } else {
+                         ghost.element.classList.remove('scared');
+                         ghost.speedMultiplier = 1;
+                    }
                     updateGhostPositions();
                 }, 3000);
             } else {
+                // Jogador atingido pelo fantasma, perde uma vida
                 lives--;
                 updateLivesDisplay();
                 if (lives <= 0) {
@@ -343,15 +469,24 @@ function checkCollisions() {
                         ghost.speedMultiplier = 1;
                     });
                     updateGhostPositions();
-                    deactivateInvulnerability();
+                    deactivateInvulnerability(); // Desativa invulnerabilidade normal (power pellet)
 
                     resumeButton.style.display = 'block';
                     startButton.style.display = 'none';
+                    // Garante que o modo frenesi seja desativado ao perder uma vida
+                    if (isFrenzyModeActive) {
+                        clearTimeout(frenzyTimeout);
+                        frenzyTimeout = null;
+                        isFrenzyModeActive = false;
+                    }
                 }
             }
         }
     });
+
+    // Verifica condição de vitória (todos os dots coletados)
     if (dotsCount === 0) {
+        // Gerar o próximo mapa antes de prosseguir
         const nextLevelMap = generateRandomMap(MAP_ROWS, MAP_COLS);
         maps.push(nextLevelMap);
 
@@ -360,238 +495,72 @@ function checkCollisions() {
             clearInterval(playerMoveInterval);
             clearInterval(ghostInterval);
             deactivateInvulnerability();
+            // Garante que o modo frenesi seja desativado ao vencer o nível
+            if (isFrenzyModeActive) {
+                clearTimeout(frenzyTimeout);
+                frenzyTimeout = null;
+                isFrenzyModeActive = false;
+            }
             setTimeout(() => {
                 currentLevel++;
-                startGame();
-            }, 2000);
+                startGame(); // Carrega o próximo nível
+            }, 2000); // 2 segundos de pausa
         } else {
             endGame('Parabéns! Você completou todos os níveis e coletou todos os pontos!');
         }
     }
 }
+// --- FIM da modificação checkCollisions ---
 
-function movePlayer() {
-    let newPlayerX = playerX;
-    let newPlayerY = playerY;
 
-    switch (playerDirection) {
-        case 'up': newPlayerY--; break;
-        case 'down': newPlayerY++; break;
-        case 'left': newPlayerX--; break;
-        case 'right': newPlayerX++; break;
-        case 'stop': return;
-    }
-
-    const currentMapData = maps[currentLevel];
-    if (newPlayerY >= 0 && newPlayerY < currentMapData.length &&
-        newPlayerX >= 0 && newPlayerX < currentMapData[0].length &&
-        currentMapData[newPlayerY][newPlayerX] !== 1) {
-        playerX = newPlayerX;
-        playerY = newPlayerY;
-        updatePlayerPosition();
-        checkCollisions();
-    } else {
-        playerDirection = 'stop';
-    }
-}
-
-function moveGhosts() {
-    gameElements.ghosts.forEach(ghost => {
-        if (ghost.isEaten) return;
-
-        const currentGhostSpeed = ghostSpeed * (ghost.speedMultiplier || 1);
-        if (Date.now() - (ghost.lastMoveTime || 0) < currentGhostSpeed) {
-            return;
-        }
-        ghost.lastMoveTime = Date.now();
-
-        let possibleMoves = [];
-        const currentMapData = maps[currentLevel];
-
-        if (ghost.y > 0 && currentMapData[ghost.y - 1][ghost.x] !== 1) possibleMoves.push({ x: ghost.x, y: ghost.y - 1 });
-        if (ghost.y < currentMapData.length - 1 && currentMapData[ghost.y + 1][ghost.x] !== 1) possibleMoves.push({ x: ghost.x, y: ghost.y + 1 });
-        if (ghost.x > 0 && currentMapData[ghost.y][ghost.x - 1] !== 1) possibleMoves.push({ x: ghost.x - 1, y: ghost.y });
-        if (ghost.x < currentMapData[0].length - 1 && currentMapData[ghost.y][ghost.x + 1] !== 1) possibleMoves.push({ x: ghost.x + 1, y: ghost.y });
-
-        if (possibleMoves.length > 0) {
-            let chosenMove = null;
-            if (isInvulnerable) {
-                let furthestDistance = -1;
-                for (const move of possibleMoves) {
-                    const dist = Math.abs(playerX - move.x) + Math.abs(playerY - move.y);
-                    if (dist > furthestDistance) {
-                        furthestDistance = dist;
-                        chosenMove = move;
-                    }
-                }
-            } else {
-                let closestDistance = Infinity;
-                for (const move of possibleMoves) {
-                    const dist = Math.abs(playerX - move.x) + Math.abs(playerY - move.y);
-                    if (dist < closestDistance) {
-                        closestDistance = dist;
-                        chosenMove = move;
-                    }
-                }
-            }
-
-            if (chosenMove) {
-                ghost.x = chosenMove.x;
-                ghost.y = chosenMove.y;
-            } else {
-                 chosenMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-                 ghost.x = chosenMove.x;
-                 ghost.y = chosenMove.y;
-            }
-        }
-    });
-    updateGhostPositions();
-    checkCollisions();
-}
-
+// --- Modifique a função startGame ---
 function startGame() {
-    if (gameRunning && currentLevel === 0 && lives === 3) {
-    } else if (gameRunning && currentLevel > 0) {
-    } else {
-        score = 0;
-        lives = 3;
-        currentLevel = 0;
-        maps = [generateRandomMap(MAP_ROWS, MAP_COLS)];
-        messageDisplay.textContent = 'Use as setas do teclado para mover.';
-        startButton.style.display = 'none';
-        nameInputContainer.style.display = 'none';
-        resumeButton.style.display = 'none';
-        playerDirection = '';
+    // Resetar variáveis de jogo
+    score = 0;
+    lives = 3;
+    currentLevel = 0; // Sempre começa do nível 0 ao iniciar um novo jogo
+    maps = [generateRandomMap(MAP_ROWS, MAP_COLS)]; // Gerar o primeiro mapa
+
+    messageDisplay.textContent = 'Use as setas do teclado para mover.';
+    startButton.style.display = 'none';
+    nameInputContainer.style.display = 'none';
+    resumeButton.style.display = 'none'; // Esconde botão de retomar
+    playerDirection = ''; // Reseta direção do jogador
+
+    gameRunning = true;
+    messageDisplay.textContent = `Nível ${currentLevel + 1}...`;
+
+    initializeGame(currentLevel); // Inicializa com o mapa gerado
+
+    // Limpar quaisquer intervalos existentes antes de iniciar novos
+    clearInterval(playerMoveInterval);
+    clearInterval(ghostInterval);
+    clearTimeout(invulnerabilityTimeout); // Limpa timeout de invulnerabilidade
+    // Garante que o modo frenesi seja desativado no início de um novo jogo
+    if (frenzyTimeout) {
+        clearTimeout(frenzyTimeout);
+        frenzyTimeout = null;
+    }
+    isFrenzyModeActive = false;
+    // Não desativar a invulnerabilidade de desenvolvedor aqui se ela estiver ativa
+    if (!isDeveloperInvulnerable) {
         deactivateInvulnerability();
     }
 
-    gameRunning = true;
-    startButton.style.display = 'none';
-    messageDisplay.textContent = `Nível ${currentLevel + 1}...`;
-
-    initializeGame(currentLevel);
-    clearInterval(playerMoveInterval);
-    clearInterval(ghostInterval);
-    clearTimeout(invulnerabilityTimeout);
 
     playerMoveInterval = setInterval(movePlayer, playerSpeed);
     ghostInterval = setInterval(moveGhosts, ghostSpeed);
 }
+// --- FIM da modificação startGame ---
 
-function endGame(message) {
-    gameRunning = false;
-    clearInterval(playerMoveInterval);
-    clearInterval(ghostInterval);
-    clearTimeout(invulnerabilityTimeout);
-    deactivateInvulnerability();
+// (Mantenha as funções movePlayer, moveGhosts, endGame, keyboard controls, high score logic)
 
-    messageDisplay.textContent = message;
-    startButton.textContent = 'Jogar Novamente';
-    startButton.style.display = 'block';
-    playerDirection = 'stop';
-    resumeButton.style.display = 'none';
+// --- Adicione o Event Listener para o botão Desenvolvedor ---
+developerButton.addEventListener('click', toggleDeveloperInvulnerability);
+// --- Fim do Event Listener do botão Desenvolvedor ---
 
-    checkHighScore(score);
-}
-
-document.addEventListener('keydown', (event) => {
-    if (!gameRunning) return;
-
-    switch (event.key) {
-        case 'ArrowUp':
-        case 'w':
-        case 'W':
-            playerDirection = 'up';
-            break;
-        case 'ArrowDown':
-        case 's':
-        case 'S':
-            playerDirection = 'down';
-            break;
-        case 'ArrowLeft':
-        case 'a':
-        case 'A':
-            playerDirection = 'left';
-            break;
-        case 'ArrowRight':
-        case 'd':
-        case 'D':
-            playerDirection = 'right';
-            break;
-        case ' ':
-            playerDirection = 'stop';
-            break;
-    }
-    movePlayer();
-});
-
-const HIGH_SCORES_KEY = 'pacmanHighScores';
-function loadHighScores() {
-    const scores = JSON.parse(localStorage.getItem(HIGH_SCORES_KEY) || '[]');
-    return scores.sort((a, b) => b.score - a.score);
-}
-
-function saveHighScores(scores) {
-    localStorage.setItem(HIGH_SCORES_KEY, JSON.stringify(scores));
-    displayHighScores();
-}
-
-function displayHighScores() {
-    const scores = loadHighScores();
-    highScoresList.innerHTML = '';
-    if (scores.length === 0) {
-        highScoresList.innerHTML = '<li>Nenhum recorde ainda.</li>';
-        return;
-    }
-    scores.slice(0, 10).forEach((entry, index) => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span class="player-name">${index + 1}. ${entry.name || 'Anônimo'}</span> <span class="player-score">${entry.score}</span>`;
-        highScoresList.appendChild(li);
-    });
-}
-
-function checkHighScore(finalScore) {
-    const scores = loadHighScores();
-    const minScore = scores.length < 10 ? 0 : scores[scores.length - 1].score;
-    if (finalScore > minScore) {
-        messageDisplay.textContent = `Novo Recorde! Sua pontuação: ${finalScore}`;
-        nameInputContainer.style.display = 'flex';
-        playerNameInput.value = '';
-        playerNameInput.focus();
-        startButton.style.display = 'none';
-        resumeButton.style.display = 'none';
-    } else {
-        messageDisplay.textContent += ` Sua pontuação final foi: ${finalScore}.`;
-    }
-}
-
-nameInputButton.addEventListener('click', () => {
-    let playerName = playerNameInput.value.trim();
-    if (playerName === '') {
-        playerName = 'Anônimo';
-    }
-    const newScoreEntry = { name: playerName, score: score };
-    const scores = loadHighScores();
-    scores.push(newScoreEntry);
-    saveHighScores(scores);
-
-    nameInputContainer.style.display = 'none';
-    startButton.style.display = 'block';
-    messageDisplay.textContent = `Recorde salvo! ${playerName}: ${score} pontos.`;
-});
-
-resumeButton.addEventListener('click', () => {
-    gameElements.player.style.display = 'block';
-    playerDirection = '';
-    messageDisplay.textContent = 'Use as setas do teclado para mover.';
-    playerMoveInterval = setInterval(movePlayer, playerSpeed);
-    ghostInterval = setInterval(moveGhosts, ghostSpeed);
-    deactivateInvulnerability();
-    resumeButton.style.display = 'none';
-    gameRunning = true;
-});
-
-
+// --- Inicialização (mantenha como está) ---
 initializeGame(currentLevel);
 displayHighScores();
 startButton.addEventListener('click', startGame);
+// --- Fim da Inicialização ---
