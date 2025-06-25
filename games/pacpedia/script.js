@@ -22,7 +22,7 @@ let ghostSpeed = 300;
 let currentLevel = 0;
 let isFrenzyModeActive = false;
 let frenzyTimeout = null; // Para controlar o tempo do modo frenesi
-let isDeveloperInvulnerable = false; // Novo estado para invulnerabilidade do desenvolvedor
+// Removido: let isDeveloperInvulnerable = false; // Novo estado para invulnerabilidade do desenvolvedor
 
 let ghostInterval;
 let playerMoveInterval;
@@ -30,7 +30,7 @@ let invulnerabilityTimeout;
 
 let isInvulnerable = false;
 
-const developerButton = document.getElementById('developer-button');
+// Removido: const developerButton = document.getElementById('developer-button');
 const MAP_ROWS = 15;
 const MAP_COLS = 15;
 
@@ -343,9 +343,7 @@ function updateLivesDisplay() {
 
 // --- Modifique a função activateInvulnerability ---
 function activateInvulnerability() {
-    // Esta função é para power pellets, não deve afetar a invulnerabilidade de desenvolvedor
-    if (isDeveloperInvulnerable) return; // Se já está invulnerável por dev, não faça nada
-
+    // Esta função é para power pellets.
     isInvulnerable = true;
     gameElements.player.style.backgroundColor = '#00f'; // Player turns blue
     gameElements.ghosts.forEach(ghost => {
@@ -366,9 +364,7 @@ function activateInvulnerability() {
 
 // --- Modifique a função deactivateInvulnerability ---
 function deactivateInvulnerability() {
-    // Esta função é para power pellets, não deve desativar a invulnerabilidade de desenvolvedor
-    if (isDeveloperInvulnerable) return; // Se está invulnerável por dev, não desative
-
+    // Esta função é para power pellets.
     isInvulnerable = false;
     gameElements.player.style.backgroundColor = '#ff0'; // Player returns to yellow
     gameElements.ghosts.forEach(ghost => {
@@ -379,40 +375,8 @@ function deactivateInvulnerability() {
 }
 // --- Fim da modificação deactivateInvulnerability ---
 
-// --- NOVA FUNÇÃO: Alterna a invulnerabilidade do desenvolvedor ---
-function toggleDeveloperInvulnerability() {
-    isDeveloperInvulnerable = !isDeveloperInvulnerable; // Inverte o estado
-
-    if (isDeveloperInvulnerable) {
-        // Ativação da invulnerabilidade do desenvolvedor
-        isInvulnerable = true; // Define o estado geral de invulnerabilidade
-        gameElements.player.style.outline = '4px dashed red'; // Borda visual para invencibilidade
-        gameElements.player.style.backgroundColor = 'purple'; // Cor diferente para desenvolvedor
-        developerButton.textContent = 'Desenvolvedor: Invencível (Ativado)';
-        messageDisplay.textContent = 'Modo Desenvolvedor: Invencibilidade ATIVADA!';
-
-        // Garanta que os fantasmas não fiquem assustados por esta invulnerabilidade
-        gameElements.ghosts.forEach(ghost => {
-            ghost.element.classList.remove('scared');
-            ghost.speedMultiplier = 1;
-        });
-
-        // Limpa qualquer invulnerabilidade temporária de power pellet que possa estar ativa
-        if (invulnerabilityTimeout) {
-            clearTimeout(invulnerabilityTimeout);
-            invulnerabilityTimeout = null;
-        }
-
-    } else {
-        // Desativação da invulnerabilidade do desenvolvedor
-        isInvulnerable = false; // Desativa o estado geral de invulnerabilidade
-        gameElements.player.style.outline = 'none'; // Remove a borda
-        gameElements.player.style.backgroundColor = '#ff0'; // Retorna à cor normal do player
-        developerButton.textContent = 'Desenvolvedor: Invencível';
-        messageDisplay.textContent = 'Modo Desenvolvedor: Invencibilidade DESATIVADA!';
-    }
-}
-// --- FIM NOVA FUNÇÃO: Alterna a invulnerabilidade do desenvolvedor ---
+// Removida: Função toggleDeveloperInvulnerability
+// Removida: Event Listener para o botão Desenvolvedor
 
 function checkCollisions() {
     // Verifica colisões com dots
@@ -472,7 +436,7 @@ function checkCollisions() {
     // Verifica colisões com fantasmas
     gameElements.ghosts.forEach(ghost => {
         if (ghost.x === playerX && ghost.y === playerY && !ghost.isEaten) {
-            if (isInvulnerable) { // Verifica a invulnerabilidade geral (dev ou power pellet)
+            if (isInvulnerable) { // Verifica a invulnerabilidade geral (agora apenas power pellet)
                 // Jogador come o fantasma
                 ghost.isEaten = true;
                 ghost.element.style.display = 'none';
@@ -485,7 +449,7 @@ function checkCollisions() {
                     ghost.element.style.display = 'block';
                     ghost.isEaten = false;
                     // Se a invulnerabilidade de power pellet estiver ativa, o fantasma volta assustado
-                    if (isInvulnerable && !isDeveloperInvulnerable) { // Apenas se não for dev mode
+                    if (isInvulnerable) { // Agora apenas se for invulnerável por power-pellet
                            ghost.element.classList.add('scared');
                            ghost.speedMultiplier = 0.5;
                     } else {
@@ -614,7 +578,7 @@ function moveGhosts() {
 
         if (possibleMoves.length > 0) {
             let nextMove;
-            // If scared or developer invulnerable, move away from player (simple evasion)
+            // If scared, move away from player (simple evasion)
             if (ghost.element.classList.contains('scared')) {
                 let furthestDistance = -1;
                 let bestMove = null;
@@ -666,10 +630,7 @@ function endGame(message) {
     startButton.style.display = 'block';
     resumeButton.style.display = 'none';
 
-    // Desativar invulnerabilidade de desenvolvedor ao final do jogo
-    if (isDeveloperInvulnerable) {
-        toggleDeveloperInvulnerability(); // Call to reset visual and state
-    }
+    // Removido: Verificação e desativação da invulnerabilidade de desenvolvedor
     
     // Check for high score
     const highScores = loadHighScores();
@@ -750,10 +711,7 @@ function startGame() {
         frenzyTimeout = null;
     }
     isFrenzyModeActive = false;
-    // Não desativar a invulnerabilidade de desenvolvedor aqui se ela estiver ativa
-    if (!isDeveloperInvulnerable) {
-        deactivateInvulnerability();
-    }
+    deactivateInvulnerability(); // Sempre desativa invulnerabilidade de power pellet ao iniciar um novo jogo
 
 
     playerMoveInterval = setInterval(movePlayer, playerSpeed);
@@ -787,12 +745,10 @@ nameInputButton.addEventListener('click', () => {
 });
 
 
-// --- Adicione o Event Listener para o botão Desenvolvedor ---
-developerButton.addEventListener('click', toggleDeveloperInvulnerability);
-// --- Fim do Event Listener do botão Desenvolvedor ---
+// Removido: developerButton.addEventListener('click', toggleDeveloperInvulnerability);
 
-// --- Inicialização (mantenha como está) ---
-initializeGame(currentLevel); // Load initial map
-displayHighScores(); // Load and display high scores on page load
-startButton.addEventListener('click', startGame);
+// --- Inicialização ---
+initializeGame(currentLevel); // Carrega o mapa inicial e posiciona o player
+displayHighScores(); // Carrega e exibe os recordes
+startButton.addEventListener('click', startGame); // Adiciona listener para iniciar o jogo
 // --- Fim da Inicialização ---
