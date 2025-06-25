@@ -28,10 +28,11 @@ const config = {
 const game = new Phaser.Game(config);
 
 let player, cursors, platforms, enemies;
-let gameOverText, timerText;
-let background;
+let background, scoreText, timerText, startButton, restartButton, gameOverText;
 let gameIsOver = false;
-let startTime;
+let gameStarted = false;
+let startTime = 0;
+let score = 0;
 
 function preload() {
   this.load.image('forest', 'forest.jpg');
@@ -41,13 +42,52 @@ function preload() {
 }
 
 function create() {
-  // Fundo fixo com parallax
   background = this.add.tileSprite(0, 0, config.width, config.height, 'forest')
-    .setOrigin(0)
-    .setScrollFactor(0);
+    .setOrigin(0).setScrollFactor(0);
 
   platforms = this.physics.add.staticGroup();
   enemies = this.physics.add.group();
+
+  // Textos do HUD
+  timerText = this.add.text(10, 10, 'Tempo: 0s', {
+    font: '20px Arial', fill: '#ffffff'
+  }).setScrollFactor(0).setVisible(false);
+
+  scoreText = this.add.text(10, 40, 'Pontuação: 0', {
+    font: '20px Arial', fill: '#ffffff'
+  }).setScrollFactor(0).setVisible(false);
+
+  gameOverText = this.add.text(400, 200, 'GAME OVER', {
+    font: '40px Arial', fill: '#ff0000'
+  }).setOrigin(0.5).setScrollFactor(0).setVisible(false);
+
+  // Botão iniciar
+  startButton = this.add.text(400, 240, '▶ INICIAR JOGO', {
+    font: '30px Arial', fill: '#00ff00', backgroundColor: '#000'
+  }).setOrigin(0.5).setScrollFactor(0).setInteractive();
+
+  startButton.on('pointerdown', () => {
+    startButton.setVisible(false);
+    startGame.call(this);
+  });
+
+  // Botão reiniciar
+  restartButton = this.add.text(400, 280, '🔁 REINICIAR', {
+    font: '24px Arial', fill: '#ffffff', backgroundColor: '#333'
+  }).setOrigin(0.5).setScrollFactor(0).setInteractive().setVisible(false);
+
+  restartButton.on('pointerdown', () => {
+    this.scene.restart();
+  });
+
+  cursors = this.input.keyboard.createCursorKeys();
+}
+
+function startGame() {
+  gameStarted = true;
+  gameIsOver = false;
+  startTime = this.time.now;
+  score = 0;
 
   generateTerrain(this);
 
@@ -60,56 +100,40 @@ function create() {
 
   this.physics.add.collider(player, platforms);
   this.physics.add.collider(enemies, platforms);
-
-  cursors = this.input.keyboard.createCursorKeys();
-
-  gameOverText = this.add.text(400, 200, 'GAME OVER', {
-    font: '40px Arial', fill: '#ff0000'
-  }).setOrigin(0.5).setScrollFactor(0).setVisible(false);
-
-  timerText = this.add.text(10, 10, 'Tempo: 0s', {
-    font: '20px Arial', fill: '#ffffff'
-  }).setScrollFactor(0);
-
-  startTime = this.time.now;
-
   this.physics.add.overlap(player, enemies, () => {
     if (!gameIsOver) gameOver(this);
   });
+
+  timerText.setVisible(true);
+  scoreText.setVisible(true);
 }
 
 function generateTerrain(scene) {
   let x = 0;
   let y = 400;
-  let segments = 100;
-  const maxJumpDistance = 120;
+  const segments = 100;
+  const maxJump = 120;
 
   for (let i = 0; i < segments; i++) {
-    const platformWidth = Phaser.Math.Between(60, 100);
+    const w = Phaser.Math.Between(60, 100);
     const isGap = Math.random() < 0.15;
 
     if (!isGap) {
-      const platform = scene.add.image(x, y, 'platform')
+      scene.add.image(x, y, 'platform').setOrigin(0).setDisplaySize(w, 20);
+      platforms.create(x, y, null)
         .setOrigin(0)
-        .setDisplaySize(platformWidth, 20);
-      const tile = platforms.create(x, y, null)
-        .setOrigin(0)
-        .setDisplaySize(platformWidth, 20)
-        .setVisible(false) // hitbox oculta
+        .setDisplaySize(w, 20)
+        .setVisible(false)
         .refreshBody();
 
-      // Inimigos
-      if (Math.random() < 0.12) spawnEnemy(scene, x + platformWidth / 2, y - 20, 'ground');
-      if (Math.random() < 0.07) spawnEnemy(scene, x + platformWidth / 2, y - 100, 'fly');
+      if (Math.random() < 0.1) spawnEnemy(scene, x + w/2, y - 20, 'ground');
+      if (Math.random() < 0.05) spawnEnemy(scene, x + w/2, y - 100, 'fly');
 
-      // Elevação vertical suave
-      const verticalVariation = Phaser.Math.Between(-30, 30);
-      y += verticalVariation;
+      y += Phaser.Math.Between(-30, 30);
       y = Phaser.Math.Clamp(y, 250, 420);
     }
 
-    // Distância máxima para pulo
-    x += Phaser.Math.Between(80, maxJumpDistance);
+    x += Phaser.Math.Between(80, maxJump);
   }
 }
 
@@ -127,13 +151,13 @@ function spawnEnemy(scene, x, y, type) {
       .setBounce(1)
       .setCollideWorldBounds(false)
       .setVelocityX(Phaser.Math.Between(-100, 100))
-      .setVelocityY(Phaser.Math.Between(-20, 20));
+      .setVelocityY(Phaser.Math.Between(-30, 30));
     enemy.body.allowGravity = false;
   }
 }
 
 function update() {
-  if (gameIsOver) return;
+  if (!gameStarted || gameIsOver) return;
 
   const speed = 160;
   const jump = -420;
@@ -156,7 +180,13 @@ function update() {
   const elapsed = Math.floor((this.time.now - startTime) / 1000);
   timerText.setText('Tempo: ' + elapsed + 's');
 
-  if (player.y > 500) gameOver(this);
+  // Pontuação por distância
+  score = Math.max(score, Math.floor(player.x / 10));
+  scoreText.setText('Pontuação: ' + score);
+
+  if (player.y > 500) {
+    gameOver(this);
+  }
 }
 
 function gameOver(scene) {
@@ -164,6 +194,7 @@ function gameOver(scene) {
   player.setTint(0xff0000);
   player.body.enable = false;
   gameOverText.setVisible(true);
+  restartButton.setVisible(true);
 }
 </script>
 </body>
