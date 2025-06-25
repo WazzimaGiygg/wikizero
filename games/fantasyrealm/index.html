@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Plataforma Floresta</title>
+  <title>Fantasy Realm</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
   <style>
     body { margin: 0; background: #000; }
@@ -34,14 +34,17 @@ let gameIsOver = false;
 let startTime;
 
 function preload() {
-  this.load.image('forest', 'forest.jpg'); // Certifique-se que a imagem está na mesma pasta
+  this.load.image('forest', 'forest.jpg');
+  this.load.image('platform', 'platform.jpg');
+  this.load.image('enemyGround', 'enemiesgo.jpg');
+  this.load.image('enemyFly', 'wikimigos.jpg');
 }
 
 function create() {
-  // Fundo com parallax
+  // Fundo fixo com parallax
   background = this.add.tileSprite(0, 0, config.width, config.height, 'forest')
     .setOrigin(0)
-    .setScrollFactor(0); // fixa a imagem e permite repetir
+    .setScrollFactor(0);
 
   platforms = this.physics.add.staticGroup();
   enemies = this.physics.add.group();
@@ -53,7 +56,7 @@ function create() {
     .setDisplaySize(32, 32)
     .setBounce(0.1)
     .setCollideWorldBounds(false)
-    .setTint(0xffffff); // branco
+    .setTint(0xffffff);
 
   this.physics.add.collider(player, platforms);
   this.physics.add.collider(enemies, platforms);
@@ -79,44 +82,53 @@ function generateTerrain(scene) {
   let x = 0;
   let y = 400;
   let segments = 100;
+  const maxJumpDistance = 120;
 
   for (let i = 0; i < segments; i++) {
-    let width = Phaser.Math.Between(40, 80);
-    let height = Phaser.Math.Between(-30, 30);
-    let isGap = Math.random() < 0.2;
+    const platformWidth = Phaser.Math.Between(60, 100);
+    const isGap = Math.random() < 0.15;
 
     if (!isGap) {
-      let tile = platforms.create(x, y, null)
+      const platform = scene.add.image(x, y, 'platform')
         .setOrigin(0)
-        .setDisplaySize(width, 20)
-        .setTint(0x32CD32) // verde lima
+        .setDisplaySize(platformWidth, 20);
+      const tile = platforms.create(x, y, null)
+        .setOrigin(0)
+        .setDisplaySize(platformWidth, 20)
+        .setVisible(false) // hitbox oculta
         .refreshBody();
 
-      if (Math.random() < 0.1) spawnEnemy(scene, x + width / 2, y - 20, 'ground');
-      if (Math.random() < 0.05) spawnEnemy(scene, x + width / 2, y - 100, 'fly');
+      // Inimigos
+      if (Math.random() < 0.12) spawnEnemy(scene, x + platformWidth / 2, y - 20, 'ground');
+      if (Math.random() < 0.07) spawnEnemy(scene, x + platformWidth / 2, y - 100, 'fly');
 
-      y += height;
+      // Elevação vertical suave
+      const verticalVariation = Phaser.Math.Between(-30, 30);
+      y += verticalVariation;
       y = Phaser.Math.Clamp(y, 250, 420);
     }
 
-    x += Phaser.Math.Between(60, 100);
+    // Distância máxima para pulo
+    x += Phaser.Math.Between(80, maxJumpDistance);
   }
 }
 
 function spawnEnemy(scene, x, y, type) {
-  let enemy = enemies.create(x, y, null)
-    .setDisplaySize(28, 28)
-    .setTint(0xff00ff)
-    .setBounce(1)
-    .setCollideWorldBounds(false);
-
   if (type === 'ground') {
+    const enemy = enemies.create(x, y, 'enemyGround')
+      .setDisplaySize(32, 32)
+      .setBounce(1)
+      .setCollideWorldBounds(false)
+      .setVelocityX(Phaser.Math.Between(-50, 50));
     enemy.body.allowGravity = true;
-    enemy.setVelocityX(Phaser.Math.Between(-50, 50));
   } else {
+    const enemy = enemies.create(x, y, 'enemyFly')
+      .setDisplaySize(32, 32)
+      .setBounce(1)
+      .setCollideWorldBounds(false)
+      .setVelocityX(Phaser.Math.Between(-100, 100))
+      .setVelocityY(Phaser.Math.Between(-20, 20));
     enemy.body.allowGravity = false;
-    enemy.setVelocityX(Phaser.Math.Between(-100, 100));
-    enemy.setVelocityY(Phaser.Math.Between(-30, 30));
   }
 }
 
@@ -138,19 +150,13 @@ function update() {
     player.setVelocityY(jump);
   }
 
-  // Scroll da câmera
   this.cameras.main.scrollX = player.x - 200;
-
-  // Atualizar fundo com parallax (move mais devagar que o cenário)
   background.tilePositionX = this.cameras.main.scrollX * 0.5;
 
-  // Atualizar cronômetro
   const elapsed = Math.floor((this.time.now - startTime) / 1000);
   timerText.setText('Tempo: ' + elapsed + 's');
 
-  if (player.y > 500) {
-    gameOver(this);
-  }
+  if (player.y > 500) gameOver(this);
 }
 
 function gameOver(scene) {
