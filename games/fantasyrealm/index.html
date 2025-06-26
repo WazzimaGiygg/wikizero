@@ -3,14 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Jogo de Corrida Vertical</title>
+  <title>Corrida Vertical</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
+  <!-- HUD Menu -->
+  <div class="hud" id="hud">
+    <h1>Corrida Vertical</h1>
+    <label>Dificuldade:
+      <select id="difficulty">
+        <option value="easy">Fácil</option>
+        <option value="medium" selected>Médio</option>
+        <option value="hard">Difícil</option>
+      </select>
+    </label>
+    <button onclick="startGame()">Iniciar Jogo</button>
+    <button onclick="resetScores()">Zerar Recordes</button>
+    <div class="recordes" id="recordes"></div>
+  </div>
+
+  <!-- Área do jogo -->
   <div class="game-area" id="gameArea">
     <div class="player" id="player"></div>
     <div class="score" id="score">Pontuação: 0</div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>

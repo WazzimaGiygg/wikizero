@@ -8,8 +8,9 @@ body {
 .game-area {
   width: 400px;
   height: 600px;
-  margin: 0 auto;
-  background: #2c3e50;
+  margin: 50px auto;
+  background: url("img/ruad.jpg") repeat-y center;
+  background-size: cover;
   position: relative;
   overflow: hidden;
   border: 4px solid #fff;
@@ -18,21 +19,25 @@ body {
 .player {
   width: 50px;
   height: 100px;
-  background: red;
+  background: url("img/carroanti.jpg") no-repeat center;
+  background-size: cover;
   position: absolute;
   bottom: 10px;
   left: 175px;
   border-radius: 10px;
+  z-index: 2;
 }
 
 .enemy {
   width: 50px;
   height: 100px;
-  background: yellow;
   position: absolute;
   top: -120px;
   border-radius: 10px;
+  background-size: cover;
+  background-position: center;
 }
+
 
 .score {
   position: absolute;
@@ -40,4 +45,34 @@ body {
   left: 10px;
   color: white;
   font-size: 18px;
+  z-index: 3;
+}
+
+.hud {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(20, 20, 20, 0.95);
+  padding: 20px;
+  border: 2px solid white;
+  text-align: center;
+  color: white;
+  z-index: 100;
+  width: 300px;
+  border-radius: 10px;
+}
+
+.hud button, .hud select {
+  margin: 10px 0;
+  padding: 10px;
+  width: 80%;
+}
+
+.recordes {
+  margin-top: 10px;
+  font-size: 14px;
+  text-align: left;
+  max-height: 100px;
+  overflow-y: auto;
 }
