@@ -1,274 +1,164 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Pacpédia contra os moderadores Wiki</title>
-    <style>
-        body {
-            background-color: #222;
-            color: #eee;
-            font-family: 'Courier New', monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        :root {
-            --wall-color: #050;
-            --path-color: #1a1a1a;
-            --game-border-color: #0f0;
-        }
-
-        #game-info {
-            display: flex;
-            justify-content: space-between;
-            width: 90%;
-            max-width: 600px;
-            margin-top: 10px;
-            font-size: 1.2em;
-            color: #0f0;
-        }
-
-        #game-area {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-            margin-top: 20px;
-        }
-
-        #game-container {
-            border: 2px solid var(--game-border-color);
-            background-color: #333;
-            padding: 10px;
-            display: grid;
-            position: relative;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
-        }
-
-        .cell {
-            width: 30px;
-            height: 30px;
-            box-sizing: border-box;
-        }
-
-        .wall {
-            background-color: var(--wall-color);
-            border: 1px solid var(--game-border-color);
-        }
-
-        .path {
-            background-color: var(--path-color);
-        }
-
-        .player {
-            background-image: url('wazzimagiygg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            border: 2px solid #fff;
-            border-radius: 5px;
-            position: absolute;
-            width: 26px;
-            height: 26px;
-            transition: left 0.1s linear, top 0.1s linear;
-            z-index: 10;
-        }
-
-        .dot {
-            background-color: #fff;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            position: absolute;
-            z-index: 5;
-        }
-
-        .power-pellet {
-            background-color: #00f;
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            position: absolute;
-            z-index: 6;
-        }
-
-        .ghost {
-            background-image: url('chronus.jpg');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            border: 2px solid #fff;
-            border-radius: 50%;
-            position: absolute;
-            width: 26px;
-            height: 26px;
-            transition: left 0.2s linear, top 0.2s linear;
-            z-index: 8;
-        }
-
-        .ghost.scared {
-            filter: brightness(1.5) saturate(0.5);
-            animation: flashScared 0.8s infinite alternate;
-        }
-
-        @keyframes flashScared {
-            from { opacity: 1; }
-            to { opacity: 0.5; }
-        }
-
-        #score-display, #lives-display, #message-display {
-            font-size: 1.2em;
-            color: #0f0;
-            text-align: center;
-        }
-
-        #message-display {
-            margin-top: 10px;
-        }
-
-        button {
-            margin-top: 15px;
-            padding: 10px 20px;
-            font-size: 1em;
-            background-color: #0a0;
-            color: #eee;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #070;
-        }
-
-        #name-input-container {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        #player-name-input {
-            padding: 8px;
-            font-size: 1.2em;
-            width: 200px;
-            margin-bottom: 10px;
-            background-color: #444;
-            color: #eee;
-            border: 1px solid #0f0;
-            border-radius: 3px;
-        }
-
-        #high-scores-container {
-            background-color: #333;
-            border: 2px solid #0f0;
-            padding: 15px;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
-            border-radius: 8px;
-            width: 250px;
-        }
-
-        #high-scores-container h2 {
-            color: #0f0;
-            text-align: center;
-            margin-top: 0;
-        }
-
-        #high-scores-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #high-scores-list li {
-            padding: 5px 0;
-            border-bottom: 1px dashed #444;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        #main-menu {
-            margin-top: 30px;
-            background-color: #111;
-            border: 1px solid #0f0;
-            padding: 15px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
-        }
-
-        #main-menu summary {
-            cursor: pointer;
-            color: #0f0;
-        }
-
-        #main-menu textarea {
-            font-family: monospace;
-            background-color: #000;
-            color: #0f0;
-            border: 1px solid #0f0;
-            padding: 5px;
-            margin-top: 10px;
-            width: 100%;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Plataforma Floresta</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+  <style>
+    body { margin: 0; background: #000; }
+    canvas { display: block; margin: auto; }
+  </style>
 </head>
 <body>
-    <h1>Pacpédia contra os moderadores Wiki</h1>
+<script>
+const config = {
+  type: Phaser.AUTO,
+  width: 800,
+  height: 480,
+  physics: {
+    default: 'arcade',
+    arcade: {
+      gravity: { y: 1000 },
+      debug: false
+    }
+  },
+  scene: { preload, create, update }
+};
 
-    <div id="game-info">
-        <div id="score-display">Pontos: 0</div>
-        <div id="lives-display">Vidas: ❤️ ❤️ ❤️</div>
-    </div>
+const game = new Phaser.Game(config);
 
-    <div id="game-area">
-        <div id="game-container"></div>
+let player, cursors, platforms, enemies;
+let gameOverText, timerText;
+let background;
+let gameIsOver = false;
+let startTime;
 
-        <div id="high-scores-container">
-            <h2>Recordes</h2>
-            <ul id="high-scores-list"></ul>
-            <button onclick="resetHighScores()">Resetar Recordes</button>
-        </div>
-    </div>
+function preload() {
+  this.load.image('forest', 'forest.jpg'); // Certifique-se que a imagem está na mesma pasta
+}
 
-    <div id="message-display">Use as setas do teclado para mover. Clique em "Iniciar Jogo" para começar!</div>
+function create() {
+  // Fundo com parallax
+  background = this.add.tileSprite(0, 0, config.width, config.height, 'forest')
+    .setOrigin(0)
+    .setScrollFactor(0); // fixa a imagem e permite repetir
 
-    <div id="message-display">Use as setas do teclado para mover. Clique em "Iniciar Jogo" para começar!</div>
+  platforms = this.physics.add.staticGroup();
+  enemies = this.physics.add.group();
 
-    <!-- Nome para recorde -->
-    <div id="name-input-container">
-        <p>Parabéns! Você fez um novo recorde!</p>
-        <input type="text" id="player-name-input" placeholder="Seu nome">
-        <button id="name-input-button">Salvar Recorde</button>
-    </div>
+  generateTerrain(this);
 
-    <!-- Menu Inicial -->
-    <div id="main-menu">
-        <button onclick="startGame()">Iniciar Jogo</button>
-        <details>
-            <summary>Configurações ></summary>
-            <label>Dificuldade:
-                <select id="difficulty-select">
-                    <option value="easy">Fácil</option>
-                    <option value="medium" selected>Média</option>
-                    <option value="hard">Difícil</option>
-                </select>
-            </label>
-            <br><br>
-            <button onclick="resetHighScores()">Apagar Recordes</button>
-            <br><br>
-            <label>Adicione o jogo ao seu site:</label>
-            <textarea readonly><iframe src="https://seudominio.com/pacpedia.html" width="600" height="500"></iframe></textarea>
-        </details>
-    </div>
+  player = this.physics.add.sprite(100, 200, null)
+    .setOrigin(0)
+    .setDisplaySize(32, 32)
+    .setBounce(0.1)
+    .setCollideWorldBounds(false)
+    .setTint(0xffffff); // branco
 
-    <button id="developer-button">Desenvolvedor: Invencível</button>
+  this.physics.add.collider(player, platforms);
+  this.physics.add.collider(enemies, platforms);
 
-    <!-- Script do jogo -->
-    <script src="script.js"></script>
+  cursors = this.input.keyboard.createCursorKeys();
+
+  gameOverText = this.add.text(400, 200, 'GAME OVER', {
+    font: '40px Arial', fill: '#ff0000'
+  }).setOrigin(0.5).setScrollFactor(0).setVisible(false);
+
+  timerText = this.add.text(10, 10, 'Tempo: 0s', {
+    font: '20px Arial', fill: '#ffffff'
+  }).setScrollFactor(0);
+
+  startTime = this.time.now;
+
+  this.physics.add.overlap(player, enemies, () => {
+    if (!gameIsOver) gameOver(this);
+  });
+}
+
+function generateTerrain(scene) {
+  let x = 0;
+  let y = 400;
+  let segments = 100;
+
+  for (let i = 0; i < segments; i++) {
+    let width = Phaser.Math.Between(40, 80);
+    let height = Phaser.Math.Between(-30, 30);
+    let isGap = Math.random() < 0.2;
+
+    if (!isGap) {
+      let tile = platforms.create(x, y, null)
+        .setOrigin(0)
+        .setDisplaySize(width, 20)
+        .setTint(0x32CD32) // verde lima
+        .refreshBody();
+
+      if (Math.random() < 0.1) spawnEnemy(scene, x + width / 2, y - 20, 'ground');
+      if (Math.random() < 0.05) spawnEnemy(scene, x + width / 2, y - 100, 'fly');
+
+      y += height;
+      y = Phaser.Math.Clamp(y, 250, 420);
+    }
+
+    x += Phaser.Math.Between(60, 100);
+  }
+}
+
+function spawnEnemy(scene, x, y, type) {
+  let enemy = enemies.create(x, y, null)
+    .setDisplaySize(28, 28)
+    .setTint(0xff00ff)
+    .setBounce(1)
+    .setCollideWorldBounds(false);
+
+  if (type === 'ground') {
+    enemy.body.allowGravity = true;
+    enemy.setVelocityX(Phaser.Math.Between(-50, 50));
+  } else {
+    enemy.body.allowGravity = false;
+    enemy.setVelocityX(Phaser.Math.Between(-100, 100));
+    enemy.setVelocityY(Phaser.Math.Between(-30, 30));
+  }
+}
+
+function update() {
+  if (gameIsOver) return;
+
+  const speed = 160;
+  const jump = -420;
+
+  player.body.setVelocityX(0);
+
+  if (cursors.left.isDown) {
+    player.setVelocityX(-speed);
+  } else if (cursors.right.isDown) {
+    player.setVelocityX(speed);
+  }
+
+  if (cursors.up.isDown && player.body.blocked.down) {
+    player.setVelocityY(jump);
+  }
+
+  // Scroll da câmera
+  this.cameras.main.scrollX = player.x - 200;
+
+  // Atualizar fundo com parallax (move mais devagar que o cenário)
+  background.tilePositionX = this.cameras.main.scrollX * 0.5;
+
+  // Atualizar cronômetro
+  const elapsed = Math.floor((this.time.now - startTime) / 1000);
+  timerText.setText('Tempo: ' + elapsed + 's');
+
+  if (player.y > 500) {
+    gameOver(this);
+  }
+}
+
+function gameOver(scene) {
+  gameIsOver = true;
+  player.setTint(0xff0000);
+  player.body.enable = false;
+  gameOverText.setVisible(true);
+}
+</script>
 </body>
 </html>
