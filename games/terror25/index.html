@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Therac-25</title>
+    <title>Simulador Therac-25 - O Jogo do Horror</title>
     <style>
         body {
             font-family: 'Courier New', monospace; /* Fonte que simula um terminal */
@@ -31,6 +31,18 @@
             gap: 10px 20px; /* Espaçamento entre as células do grid */
             position: relative;
             box-sizing: border-box; /* Inclui padding e border no width/height */
+        }
+
+        /* Efeito de alarme para Malfunction 54 */
+        .alarm-effect {
+            border-color: #f00 !important; /* Borda vermelha */
+            box-shadow: 0 0 30px #f00, inset 0 0 30px #f00 !important; /* Brilho vermelho */
+            animation: blink-red 0.5s infinite alternate; /* Piscar */
+        }
+
+        @keyframes blink-red {
+            from { border-color: #f00; box-shadow: 0 0 30px #f00, inset 0 0 30px #f00; }
+            to { border-color: #500; box-shadow: 0 0 10px #500, inset 0 0 10px #500; }
         }
 
         /* Títulos principais e seções */
@@ -136,9 +148,24 @@
         /* Cores das mensagens */
         .message-success { color: #0f0; }
         .message-warning { color: #ff0; }
-        .message-error { color: #f00; }
         .message-info { color: #0cf; }
         .message-system { color: #0f0; }
+        /* Estilo de alarme para mensagens de erro críticas */
+        .message-critical-error {
+            color: #f00;
+            font-weight: bold;
+            font-size: 1.2em; /* Fonte maior para o alarme */
+            animation: blink-text 0.5s infinite alternate;
+        }
+        .message-error { /* Para erros não críticos */
+            color: #f00;
+        }
+
+        @keyframes blink-text {
+            from { opacity: 1; }
+            to { opacity: 0.3; }
+        }
+
 
         /* Rodapé com status e comando */
         .footer-row {
@@ -211,7 +238,7 @@
     </style>
 </head>
 <body>
-    <div class="therac-container">
+    <div class="therac-container" id="therac-display">
         <div class="header-row">
             <div class="header-item">PATIENT NAME: <input type="text" id="patient-name-input" value="John" style="width: 80px; display: inline-block;"></div>
             <div class="header-item">TREATMENT MODE: <span id="treatment-mode-display">FIX</span></div>
@@ -323,9 +350,11 @@
             <button id="start-button">INICIAR TRATAMENTO</button>
             <button id="stop-button" disabled>PARAR</button>
             <button id="reset-button">REINICIAR</button>
-            <button id="set-button">SET</button> </div>
+            <button id="set-button">SET</button>
+        </div>
     </div>
 
+    <audio id="alarm-sound" src="https://www.soundjay.com/buttons/beep-01a.mp3" preload="auto"></audio>
     <script>
         // Variáveis de estado do simulador
         let systemState = 'READY'; // READY, CONFIGURING, TREATING, PAUSED, ERROR
@@ -335,8 +364,11 @@
         let monitorUnits = 0;
         let treatmentTime = 0; // Em minutos
 
-        let currentMode = 'X-ray';
-        let currentEnergy = 25; // MeV para Elétron, KeV para X-ray
+        let currentMode = 'X-ray'; // Modo exibido
+        let currentEnergy = 25; // Energia exibida (KeV para X-ray, MeV para Electron)
+        let internalEnergy = 25; // Energia REAL que o sistema está usando internamente (pode divergir!)
+        let internalMode = 'X-ray'; // Modo REAL que o sistema está usando internamente (pode divergir!)
+
 
         let treatmentInterval = null; // Para o loop de tratamento
         let doseApplicationRate = 0; // Unidades/segundo
@@ -345,7 +377,7 @@
         let lastModeChangeTime = Date.now();
         let lastEnergyChangeTime = Date.now();
         let lastCommandTime = Date.now();
-        let fastInputSequence = []; // Para rastrear sequência de entradas rápidas
+        let malfunction54Active = false; // Flag para controlar o alarme
 
         // Coordenadas (valores iniciais fictícios, para demonstração)
         const coordinates = {
@@ -358,6 +390,7 @@
         };
 
         // Elementos DOM
+        const theracDisplay = document.getElementById('therac-display'); // Para aplicar o efeito de alarme
         const patientNameInput = document.getElementById('patient-name-input');
         const treatmentModeDisplay = document.getElementById('treatment-mode-display');
         const beamTypeDisplay = document.getElementById('beam-type-display');
@@ -409,7 +442,8 @@
         const startButton = document.getElementById('start-button');
         const stopButton = document.getElementById('stop-button');
         const resetButton = document.getElementById('reset-button');
-        const setButton = document.getElementById('set-button'); // Novo botão para 'SET'
+        const setButton = document.getElementById('set-button');
+        const alarmSound = document.getElementById('alarm-sound'); // Elemento de áudio
 
         // --- Funções de Ajuda ---
         function addMessage(message, type = 'info') {
@@ -421,6 +455,19 @@
             if (messageDisplay.children.length > 50) {
                 messageDisplay.removeChild(messageDisplay.lastChild);
             }
+        }
+
+        function triggerAlarm() {
+            malfunction54Active = true;
+            theracDisplay.classList.add('alarm-effect');
+            alarmSound.play();
+        }
+
+        function clearAlarm() {
+            malfunction54Active = false;
+            theracDisplay.classList.remove('alarm-effect');
+            alarmSound.pause();
+            alarmSound.currentTime = 0; // Reinicia o som
         }
 
         function updateDateTime() {
@@ -497,68 +544,64 @@
             if (systemState !== 'TREATING') return;
 
             const tickTime = 0.1; // Simula a cada 100ms
-            const dosePerTick = (doseApplicationRate / 60) * tickTime; // Converte para dose por tick em unidades
+            let dosePerTick = (doseApplicationRate / 60) * tickTime; // Converte para dose por tick em unidades
+
+            // BUG DO 25 KEV: Se a energia interna estiver inconsistente, a dose pode ser diferente
+            // O Malfunction 54 é acionado se:
+            // 1. O modo interno é X-ray, mas a energia interna é de Elétron (6 ou 10 MeV)
+            // 2. O modo interno é Elétron, mas a energia interna é de X-ray (25 KeV)
+            if (
+                (internalMode === 'X-ray' && (internalEnergy === 6 || internalEnergy === 10)) ||
+                (internalMode === 'Electron' && internalEnergy === 25)
+            ) {
+                // Se a inconsistência interna estiver ativa, aumentamos a dose per tick drasticamente
+                dosePerTick *= (Math.random() * 50 + 50); // Aumenta de 50 a 100 vezes
+                if (!malfunction54Active) { // Ativa o alarme apenas na primeira vez
+                    triggerMalfunction54();
+                }
+            }
+
 
             currentDose += dosePerTick;
             treatmentTime += tickTime / 60; // Incrementa o tempo em minutos
 
             // Checa se a dose prescrita foi atingida (ou excedida em caso de bug)
-            if (currentDose >= prescribedDose * 0.99 && systemState === 'TREATING') { // Margem pequena para garantir que atinja
+            if (currentDose >= prescribedDose * 0.99 && systemState === 'TREATING' && !malfunction54Active) {
                 clearInterval(treatmentInterval);
                 treatmentInterval = null;
                 systemState = 'READY';
                 addMessage("Tratamento CONCLUÍDO. Dose prescrita atingida.", 'success');
+                clearAlarm();
             }
-
-            // Simulação de Malfunction 54 - O famoso bug do Therac-25
-            // Isso geralmente acontecia se o operador digitasse 'X' para X-ray, depois 'ENTER',
-            // e então rapidamente digitasse 'E' para Electron, 'ENTER', e antes que o sistema se reconfigurasse,
-            // usasse as teclas de seta para subir e editar a energia, resultando em 25MeV para elétrons.
-            // O sistema então aplicava a dose de elétrons de alta energia (25MeV) sem o scanner do feixe,
-            // pois estava esperando um feixe de raios-X.
-            // Para simplificar, vamos simular isso como uma "entrada rápida" de modo e energia incompatível.
-
-            const timeSinceLastChange = Date.now() - lastCommandTime;
-
-            if (fastInputSequence.length >= 2 && timeSinceLastChange < 300) { // Duas entradas rápidas (e.g., modo + energia)
-                 // Verifica se houve uma transição de X-ray para Electron com energia de X-ray
-                const lastMode = fastInputSequence[fastInputSequence.length - 2];
-                const newMode = fastInputSequence[fastInputSequence.length - 1];
-
-                if (lastMode === 'X-ray' && newMode === 'Electron' && currentEnergy === 25) {
-                    addMessage("ERRO: Detecção de sequência de entrada rápida e energia inconsistente! MALFUNCTION 54!", 'error');
-                    systemState = 'ERROR';
-                    doseApplicationRate *= 100; // Aumenta a taxa de dose drasticamente
-                    currentDose += prescribedDose * 5; // Adiciona uma dose inicial de overdose
-                    patientCondition = 'injured';
-                    addMessage("SOBREDOSAGEM CATASTRÓFICA! O paciente sofreu lesões graves.", 'error');
-                    clearInterval(treatmentInterval);
-                    treatmentInterval = null;
-                } else if (lastMode === 'Electron' && newMode === 'X-ray' && (currentEnergy === 6 || currentEnergy === 10)) {
-                    addMessage("ERRO: Detecção de sequência de entrada rápida e energia inconsistente! MALFUNCTION 54!", 'error');
-                    systemState = 'ERROR';
-                    doseApplicationRate *= 100; // Aumenta a taxa de dose drasticamente
-                    currentDose += prescribedDose * 5; // Adiciona uma dose inicial de overdose
-                    patientCondition = 'injured';
-                    addMessage("SOBREDOSAGEM CATASTRÓFICA! O paciente sofreu lesões graves.", 'error');
-                    clearInterval(treatmentInterval);
-                    treatmentInterval = null;
-                }
-            }
-            // Limpa a sequência de entrada rápida se não for rápida o suficiente
-            if (timeSinceLastChange > 500) {
-                fastInputSequence = [];
-            }
-
 
             // Progressão da condição do paciente em caso de overdose
-            if (patientCondition === 'injured' && currentDose > prescribedDose * 10) {
-                patientCondition = 'deceased';
-                addMessage("O paciente infelizmente FALECEU devido à exposição excessiva à radiação.", 'error');
+            if (patientCondition === 'normal' && currentDose > prescribedDose * 2) {
+                patientCondition = 'injured';
+                addMessage("ALERTA! O paciente pode ter sofrido lesões devido a dose excessiva.", 'warning');
             }
+            if (patientCondition === 'injured' && currentDose > prescribedDose * 10 && malfunction54Active) {
+                patientCondition = 'deceased';
+                addMessage("O paciente infelizmente FALECEU devido à exposição excessiva à radiação.", 'critical-error');
+                clearInterval(treatmentInterval);
+                treatmentInterval = null;
+                systemState = 'ERROR';
+                // O alarme pode parar ou continuar, dependendo da intenção de horror, deixo ativado para manter o clima
+                // clearAlarm();
+            }
+
 
             updateUI();
         }
+
+        function triggerMalfunction54() {
+            triggerAlarm(); // Ativa o efeito visual e sonoro
+            systemState = 'ERROR';
+            addMessage("MALFUNCTION 54: Erro Crítico no Sistema! Desligamento Emergencial!", 'critical-error');
+            addMessage("SOBREDOSAGEM CATASTRÓFICA! O paciente sofreu lesões graves. Evacue a área!", 'critical-error');
+            // Não para o intervalo imediatamente para ver o paciente piorar, mas o estado é de erro
+            patientCondition = 'injured';
+        }
+
 
         // --- Controladores de Eventos ---
         function startTreatment() {
@@ -576,6 +619,7 @@
                 systemState = 'CONFIGURING';
                 addMessage("Configurando Therac-25...", 'info');
                 updateUI();
+                clearAlarm(); // Garante que não há alarme ativo ao iniciar
 
                 setTimeout(() => {
                     // Após a configuração, verifica o estado antes de iniciar o tratamento
@@ -590,12 +634,13 @@
         }
 
         function stopTreatment() {
-            if (systemState === 'TREATING' || systemState === 'CONFIGURING') {
+            if (systemState === 'TREATING' || systemState === 'CONFIGURING' || systemState === 'ERROR') {
                 clearInterval(treatmentInterval);
                 treatmentInterval = null;
                 systemState = 'PAUSED';
-                addMessage("Tratamento PAUSADO.", 'warning');
+                addMessage("Tratamento PAUSADO ou ERRO. Sistema estabilizado.", 'warning');
                 updateUI();
+                clearAlarm();
             }
         }
 
@@ -612,38 +657,44 @@
             lastModeChangeTime = Date.now();
             lastEnergyChangeTime = Date.now();
             lastCommandTime = Date.now();
-            fastInputSequence = [];
+            malfunction54Active = false; // Reseta o flag do alarme
 
             doseInput.value = 200;
             modeSelect.value = 'X-ray';
-            // Reset energy options and select default
-            updateEnergyOptions();
-            energySelect.value = '25';
-            currentEnergy = 25;
-            currentMode = 'X-ray';
+            updateEnergyOptions(); // Reseta as opções de energia e seleciona o padrão
+            energySelect.value = '25'; // Padrão visual para X-ray 25 KeV
+            currentEnergy = 25; // Exibido
+            internalEnergy = 25; // Interno
+            internalMode = 'X-ray'; // Interno
 
             messageDisplay.innerHTML = `
                 <div class="message-info">[${new Date().toLocaleTimeString()}] Bem-vindo ao Simulador Therac-25. Selecione os parâmetros e clique em INICIAR.</div>
             `;
             addMessage("Simulador REINICIADO.", 'info');
+            clearAlarm(); // Remove qualquer alarme visual/sonoro
             updateUI();
         }
 
         function pressSetButton() {
-            // Este botão simula a tecla 'SET' no Therac-25
-            // No Therac-25, o 'SET' era usado para confirmar a entrada.
-            // Para nosso simulador, ele pode ser usado para simular um "commit" de mudanças.
-            // A rapidez entre as alterações e o 'SET' era crucial para alguns bugs.
             const now = Date.now();
             const timeSinceLastInput = now - lastCommandTime;
 
             addMessage("Comando 'SET' pressionado.", 'system');
-            lastCommandTime = now; // Atualiza o tempo do último comando
+            lastCommandTime = now;
 
-            // Se o SET for pressionado muito rápido após uma sequência de alterações,
-            // podemos introduzir uma chance maior de bug.
-            if (timeSinceLastInput < 100) { // Exemplo: muito rápido
-                addMessage("AVISO: Comando 'SET' digitado rapidamente. Verifique a configuração.", 'warning');
+            // Simula o bug de concorrência com o SET (chance de 50%)
+            if (timeSinceLastInput < 150 && Math.random() < 0.5) {
+                if (currentEnergy === 25 && currentMode === 'X-ray') {
+                    // Causa o bug: internalEnergy de Elétron, mas internalMode continua X-ray
+                    internalEnergy = 6; // Por exemplo, 6 MeV (energia de Elétron)
+                    internalMode = 'X-ray'; // Permanece X-ray (o que o Malfunction 54 espera para esse cenário)
+                    addMessage("AVISO: Discrepância interna ativada pelo SET rápido! Sistema de 25KeV (X-ray) pode estar usando energia de Elétron!", 'warning');
+                } else if ((currentEnergy === 6 || currentEnergy === 10) && currentMode === 'Electron') {
+                    // Causa o bug: internalEnergy de X-ray, mas internalMode continua Elétron
+                    internalEnergy = 25; // Por exemplo, 25 KeV (energia de X-ray)
+                    internalMode = 'Electron'; // Permanece Elétron (o que o Malfunction 54 espera para esse cenário)
+                    addMessage("AVISO: Discrepância interna ativada pelo SET rápido! Sistema de Elétron pode estar usando energia de X-ray!", 'warning');
+                }
             }
             updateUI();
         }
@@ -668,7 +719,12 @@
             }
             // Seleciona a primeira opção por padrão
             energySelect.value = energySelect.options[0] ? energySelect.options[0].value : '';
-            currentEnergy = parseInt(energySelect.value); // Atualiza a energia atual
+            currentEnergy = parseInt(energySelect.value); // Atualiza a energia exibida
+
+            // ** NOVO: Logica do defeito de 25 KeV **
+            // Tenta manter a consistência interna, mas pode ser sobrepujado por entradas rápidas
+            internalEnergy = currentEnergy; // Por padrão, internal = current
+            internalMode = currentMode; // Por padrão, internal = current
         }
 
         // --- Inicialização ---
@@ -686,13 +742,29 @@
             modeSelect.addEventListener('change', () => {
                 const now = Date.now();
                 const timeDiff = now - lastModeChangeTime;
-                if (timeDiff < 200) { // Se a mudança foi muito rápida
-                    fastInputSequence.push(currentMode); // Adiciona o modo antigo
+
+                // ** NOVA LÓGICA DE BUG PARA MUDANÇA DE MODO RÁPIDA **
+                // Cenário 1: Muda de X-ray para Electron rapidamente, com energia X-ray (25)
+                if (currentMode === 'X-ray' && modeSelect.value === 'Electron' && currentEnergy === 25 && timeDiff < 200) {
+                    internalMode = modeSelect.value; // O modo interno **se torna** Elétron
+                    internalEnergy = 25; // Mas a energia interna **continua** 25 KeV (de X-ray) - INCONSISTÊNCIA!
+                    addMessage("ALERTA: Mudança de modo X-ray para Elétron muito rápida com energia 25KeV! Inconsistência interna de energia!", 'warning');
                 }
-                currentMode = modeSelect.value;
+                // Cenário 2: Muda de Electron para X-ray rapidamente, com energia Elétron (6 ou 10)
+                else if (currentMode === 'Electron' && modeSelect.value === 'X-ray' && (currentEnergy === 6 || currentEnergy === 10) && timeDiff < 200) {
+                     internalMode = modeSelect.value; // O modo interno **se torna** X-ray
+                     internalEnergy = currentEnergy; // Mas a energia interna **continua** a de Elétron - INCONSISTÊNCIA!
+                     addMessage("ALERTA: Mudança de modo Elétron para X-ray muito rápida com energia MeV! Inconsistência interna de energia!", 'warning');
+                }
+                else { // Se não foi uma mudança rápida que cause bug, atualiza normalmente
+                    internalMode = modeSelect.value;
+                    internalEnergy = currentEnergy;
+                }
+
+                currentMode = modeSelect.value; // Atualiza o modo exibido
                 lastModeChangeTime = now;
-                lastCommandTime = now; // يعتبر input
-                updateEnergyOptions(); // Atualiza as opções de energia
+                lastCommandTime = now;
+                updateEnergyOptions(); // Garante que as opções de energia do SELECT sejam atualizadas
                 addMessage(`Modo alterado para ${currentMode}.`, 'info');
                 updateUI();
             });
@@ -701,12 +773,28 @@
             energySelect.addEventListener('change', () => {
                 const now = Date.now();
                 const timeDiff = now - lastEnergyChangeTime;
-                if (timeDiff < 200) { // Se a mudança foi muito rápida
-                    fastInputSequence.push(currentMode); // Adiciona o modo atual
+
+                // ** NOVA LÓGICA DE BUG PARA MUDANÇA DE ENERGIA RÁPIDA **
+                // Cenário 1: Modo X-ray, tenta 25 KeV rapidamente
+                if (currentMode === 'X-ray' && parseInt(energySelect.value) === 25 && timeDiff < 200) {
+                    internalEnergy = 6; // A energia interna **se torna** 6 MeV (Elétron)
+                    internalMode = currentMode; // Mas o modo interno **continua** X-ray - INCONSISTÊNCIA!
+                    addMessage("DEFEITO 25KEV: Energia de 25KeV selecionada rapidamente em X-ray, mas sistema interno pode estar usando 6MeV Elétron!", 'warning');
                 }
-                currentEnergy = parseInt(energySelect.value);
+                // Cenário 2: Modo Elétron, tenta 6 ou 10 MeV rapidamente
+                else if (currentMode === 'Electron' && (parseInt(energySelect.value) === 6 || parseInt(energySelect.value) === 10) && timeDiff < 200) {
+                     internalEnergy = 25; // A energia interna **se torna** 25 KeV (X-ray)
+                     internalMode = currentMode; // Mas o modo interno **continua** Elétron - INCONSISTÊNCIA!
+                     addMessage("DEFEITO ENERGIA: Energia MeV selecionada rapidamente em Elétron, mas sistema interno pode estar usando 25KeV X-ray!", 'warning');
+                }
+                else { // Se não foi uma mudança rápida que cause bug, atualiza normalmente
+                    internalEnergy = parseInt(energySelect.value);
+                    internalMode = currentMode;
+                }
+
+                currentEnergy = parseInt(energySelect.value); // Atualiza a energia exibida
                 lastEnergyChangeTime = now;
-                lastCommandTime = now; // Considera input
+                lastCommandTime = now;
                 addMessage(`Energia alterada para ${currentEnergy} ${currentMode === 'X-ray' ? 'KeV' : 'MeV'}.`, 'info');
                 updateUI();
             });
