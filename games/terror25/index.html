@@ -235,6 +235,23 @@
         .patient-status.normal { color: #0f0; }
         .patient-status.injured { color: #ff0; }
         .patient-status.deceased { color: #f00; }
+
+   .critical-effect {
+        animation: critical-glitch 0.2s infinite alternate;
+        filter: hue-rotate(180deg) contrast(1.8) invert(1) blur(1px);
+        border-color: #f0f;
+        box-shadow: 0 0 40px #f0f, inset 0 0 40px #f0f;
+    }
+
+    .patient-status.critical {
+        color: #f0f;
+        animation: blink-text 0.3s infinite alternate;
+    }
+
+    @keyframes critical-glitch {
+        from { filter: hue-rotate(160deg) contrast(2) invert(0.9) blur(1px); }
+        to { filter: hue-rotate(200deg) contrast(2.5) invert(1) blur(2px); }
+    }
     </style>
 </head>
 <body>
@@ -475,6 +492,81 @@
             currentDateSpan.textContent = now.toLocaleDateString('pt-BR');
             currentTimeSpan.textContent = now.toLocaleTimeString('pt-BR');
         }
+
+function glitchMessage(message) {
+        const glitchText = message.split('').map(c => Math.random() < 0.1 ? '#' : c).join('');
+        addMessage(glitchText, 'critical-error');
+    }
+
+    function triggerMalfunction54() {
+        triggerAlarm();
+        systemState = 'ERROR';
+        addMessage("MALFUNCTION 54: Erro Crítico no Sistema! Desligamento Emergencial!", 'critical-error');
+        glitchMessage(">>> FALHA IRREVERSÍVEL NO SISTEMA DE RADIAÇÃO <<<");
+        glitchMessage(">>> PACIENTE SEM SINAIS VITAIS <<<");
+        patientCondition = 'injured';
+    }
+
+    function applyDoseTick() {
+        if (systemState !== 'TREATING') return;
+
+        const tickTime = 0.1;
+        let dosePerTick = (doseApplicationRate / 60) * tickTime;
+
+        if (
+            (internalMode === 'X-ray' && (internalEnergy === 6 || internalEnergy === 10)) ||
+            (internalMode === 'Electron' && internalEnergy === 25)
+        ) {
+            dosePerTick *= (Math.random() * 50 + 50);
+            if (!malfunction54Active) {
+                triggerMalfunction54();
+            }
+        }
+
+        currentDose += dosePerTick;
+        treatmentTime += tickTime / 60;
+
+        if (currentDose >= prescribedDose * 0.99 && systemState === 'TREATING' && !malfunction54Active) {
+            clearInterval(treatmentInterval);
+            treatmentInterval = null;
+            systemState = 'READY';
+            addMessage("Tratamento CONCLUÍDO. Dose prescrita atingida.", 'success');
+            clearAlarm();
+        }
+
+        if (patientCondition === 'normal' && currentDose > prescribedDose * 2) {
+            patientCondition = 'injured';
+            addMessage("ALERTA! O paciente pode ter sofrido lesões devido a dose excessiva.", 'warning');
+        }
+
+        if (patientCondition === 'injured' && currentDose > prescribedDose * 5 && !theracDisplay.classList.contains('critical-effect')) {
+            patientCondition = 'critical';
+            theracDisplay.classList.add('critical-effect');
+            addMessage("!!! ALERTA MÁXIMO: Condição do paciente crítica !!!", 'critical-error');
+            addMessage("Sintomas severos. Sistema instável. Intervenção impossível.", 'critical-error');
+        }
+
+        if (patientCondition === 'critical' && currentDose > prescribedDose * 10 && malfunction54Active) {
+            patientCondition = 'deceased';
+            addMessage("O paciente infelizmente FALECEU devido à exposição extrema.", 'critical-error');
+            clearInterval(treatmentInterval);
+            treatmentInterval = null;
+            systemState = 'ERROR';
+        }
+
+        if (malfunction54Active && Math.random() < 0.02) {
+            addMessage("!!! O sistema congelou !!!", 'error');
+            startButton.disabled = true;
+            stopButton.disabled = true;
+            setTimeout(() => {
+                addMessage("Sistema parcialmente reativado...", 'info');
+                startButton.disabled = false;
+                stopButton.disabled = false;
+            }, 3000);
+        }
+
+        updateUI();
+    }
 
         // Atualiza a UI com os dados do estado
         function updateUI() {
