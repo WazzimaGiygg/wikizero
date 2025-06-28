@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pacpédia contra os moderadores Wiki</title>
     <style>
         body {
@@ -12,32 +12,32 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             min-height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
 
+        /* Variáveis CSS para cores do labirinto - para cores aleatórias por fase */
         :root {
             --wall-color: #050;
             --path-color: #1a1a1a;
             --game-border-color: #0f0;
         }
 
-        #game-info {
-            display: flex;
-            justify-content: space-between;
-            width: 90%;
-            max-width: 600px;
-            margin-top: 10px;
-            font-size: 1.2em;
-            color: #0f0;
-        }
-
         #game-area {
             display: flex;
             gap: 20px;
             align-items: flex-start;
-            margin-top: 20px;
+        }
+
+        #game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            color: #0f0;
         }
 
         #game-container {
@@ -45,14 +45,20 @@
             background-color: #333;
             padding: 10px;
             display: grid;
+            gap: 0;
             position: relative;
             box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            outline: none;
         }
 
         .cell {
             width: 30px;
             height: 30px;
             box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
         }
 
         .wall {
@@ -65,16 +71,14 @@
         }
 
         .player {
-            background-image: url('wazzimagiygg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background-color: #ff0;
             border: 2px solid #fff;
             border-radius: 5px;
             position: absolute;
             width: 26px;
             height: 26px;
             transition: left 0.1s linear, top 0.1s linear;
+            box-sizing: border-box;
             z-index: 10;
         }
 
@@ -97,27 +101,30 @@
         }
 
         .ghost {
-            background-image: url('chronus.jpg');
-            background-size: cover;
+            /* Removido background-color sólido, usando imagem */
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Wikipedia_wordmark.svg/320px-Wikipedia_wordmark.svg.png'); /* URL do logo da Wikipédia - procure uma versão transparente ou pequena */
+            background-size: cover; /* Ajusta a imagem para cobrir o elemento */
             background-repeat: no-repeat;
             background-position: center;
             border: 2px solid #fff;
-            border-radius: 50%;
+            border-radius: 50%; /* Mantém o formato arredondado */
             position: absolute;
             width: 26px;
             height: 26px;
             transition: left 0.2s linear, top 0.2s linear;
+            box-sizing: border-box;
             z-index: 8;
         }
 
         .ghost.scared {
-            filter: brightness(1.5) saturate(0.5);
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Wiki_logo.svg/320px-Wiki_logo.svg.png'); /* Outra imagem ou um filtro CSS para o estado "assustado" */
+            /* filter: brightness(0.5) sepia(1) hue-rotate(200deg); */ /* Exemplo de filtro para mudar cor */
             animation: flashScared 0.8s infinite alternate;
         }
 
         @keyframes flashScared {
             from { opacity: 1; }
-            to { opacity: 0.5; }
+            to { opacity: 0.5; } /* Simplesmente faz a imagem piscar a opacidade */
         }
 
         #score-display, #lives-display, #message-display {
@@ -130,18 +137,19 @@
             margin-top: 10px;
         }
 
-        button {
-            margin-top: 15px;
+        #start-button, #name-input-button, #resume-button { /* Adicionado #resume-button */
+            margin-top: 20px;
             padding: 10px 20px;
-            font-size: 1em;
+            font-size: 1.5em;
             background-color: #0a0;
             color: #eee;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.2s;
         }
 
-        button:hover {
+        #start-button:hover, #name-input-button:hover, #resume-button:hover { /* Adicionado #resume-button */
             background-color: #070;
         }
 
@@ -164,18 +172,23 @@
         }
 
         #high-scores-container {
+            margin-left: 30px;
             background-color: #333;
             border: 2px solid #0f0;
             padding: 15px;
             box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
             border-radius: 8px;
             width: 250px;
+            box-sizing: border-box;
         }
 
         #high-scores-container h2 {
             color: #0f0;
             text-align: center;
             margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #070;
+            padding-bottom: 10px;
         }
 
         #high-scores-list {
@@ -185,88 +198,670 @@
         }
 
         #high-scores-list li {
-            padding: 5px 0;
+            padding: 8px 0;
             border-bottom: 1px dashed #444;
             display: flex;
             justify-content: space-between;
+            font-size: 1em;
         }
 
-        #main-menu {
-            margin-top: 30px;
-            background-color: #111;
-            border: 1px solid #0f0;
-            padding: 15px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
+        #high-scores-list li:last-child {
+            border-bottom: none;
         }
 
-        #main-menu summary {
-            cursor: pointer;
-            color: #0f0;
+        #high-scores-list li .player-name {
+            color: #fff;
         }
 
-        #main-menu textarea {
-            font-family: monospace;
-            background-color: #000;
-            color: #0f0;
-            border: 1px solid #0f0;
-            padding: 5px;
-            margin-top: 10px;
-            width: 100%;
+        #high-scores-list li .player-score {
+            color: #ff0;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <h1>Pacpédia contra os moderadores Wiki</h1>
-
     <div id="game-info">
         <div id="score-display">Pontos: 0</div>
         <div id="lives-display">Vidas: ❤️ ❤️ ❤️</div>
     </div>
-
     <div id="game-area">
-        <div id="game-container"></div>
-
+        <div id="game-container">
+        </div>
         <div id="high-scores-container">
             <h2>Recordes</h2>
-            <ul id="high-scores-list"></ul>
-            <button onclick="resetHighScores()">Resetar Recordes</button>
+            <ul id="high-scores-list">
+            </ul>
         </div>
     </div>
-
     <div id="message-display">Use as setas do teclado para mover. Clique em "Iniciar Jogo" para começar!</div>
-
-    <!-- Nome para recorde -->
-    <div id="name-input-container">
+    <button id="start-button">Iniciar Jogo</button>
+    <button id="resume-button" style="display: none;">Voltar a Jogar</button> <div id="name-input-container">
         <p>Parabéns! Você fez um novo recorde!</p>
         <input type="text" id="player-name-input" placeholder="Seu nome">
         <button id="name-input-button">Salvar Recorde</button>
     </div>
 
-    <!-- Menu Inicial -->
-    <div id="main-menu">
-        <button onclick="startGame()">Iniciar Jogo</button>
-        <details>
-            <summary>Configurações ></summary>
-            <label>Dificuldade:
-                <select id="difficulty-select">
-                    <option value="easy">Fácil</option>
-                    <option value="medium" selected>Média</option>
-                    <option value="hard">Difícil</option>
-                </select>
-            </label>
-            <br><br>
-            <button onclick="resetHighScores()">Apagar Recordes</button>
-            <br><br>
-            <label>Adicione o jogo ao seu site:</label>
-            <textarea readonly><iframe src="https://seudominio.com/pacpedia.html" width="600" height="500"></iframe></textarea>
-        </details>
-    </div>
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const scoreDisplay = document.getElementById('score-display');
+        const livesDisplay = document.getElementById('lives-display');
+        const messageDisplay = document.getElementById('message-display');
+        const startButton = document.getElementById('start-button');
+        const resumeButton = document.getElementById('resume-button'); // Novo
+        const nameInputContainer = document.getElementById('name-input-container');
+        const playerNameInput = document.getElementById('player-name-input');
+        const nameInputButton = document.getElementById('name-input-button');
+        const highScoresList = document.getElementById('high-scores-list');
+        const gameInfo = document.getElementById('game-info');
 
-    <button id="developer-button">Desenvolvedor: Invencível</button>
+        const CELL_SIZE = 30;
+        let score = 0;
+        let lives = 3;
+        let gameRunning = false;
+        let playerX = 0;
+        let playerY = 0;
+        let playerDirection = '';
+        let playerSpeed = 100;
+        let ghostSpeed = 300;
+        let currentLevel = 0;
 
-    <!-- Script do jogo -->
-    <script src="script.js"></script>
+        let ghostInterval;
+        let playerMoveInterval;
+        let invulnerabilityTimeout;
+
+        let isInvulnerable = false;
+
+        // Dimensões base para os mapas gerados aleatoriamente
+        const MAP_ROWS = 15;
+        const MAP_COLS = 15;
+
+        // O array 'maps' agora será preenchido dinamicamente com mapas aleatórios
+        // Manteremos um array vazio ou com um mapa inicial como placeholder
+        let maps = [];
+        // Gere o primeiro mapa aleatório ao carregar
+        maps.push(generateRandomMap(MAP_ROWS, MAP_COLS));
+
+        let dotsCount = 0;
+        const gameElements = {}; // To store references to player, dots, ghosts, pellets
+
+        /**
+         * FUNÇÃO PLACEHOLDER: Você PRECISA implementar um algoritmo de geração de labirinto robusto aqui.
+         * Exemplos de algoritmos: Recursive Backtracker, Prim's Algorithm.
+         * O objetivo é criar um labirinto onde todos os caminhos são conectados e os itens são acessíveis.
+         */
+        function generateRandomMap(rows, cols) {
+            let newMap = Array(rows).fill(0).map(() => Array(cols).fill(1)); [cite_start]// Começa com tudo parede [cite: 66]
+
+            // Implementação SIMPLIFICADA e BÁSICA de um gerador de labirinto para demonstração.
+            // Isso NÃO garante labirintos perfeitos ou totalmente jogáveis para um jogo Pac-Man complexo.
+            // Você precisará de um algoritmo mais sofisticado.
+
+            // Definir fronteiras
+            for (let r = 0; r < rows; r++) {
+                newMap[r][0] = 1;
+                newMap[r][cols - 1] = 1;
+            }
+            for (let c = 0; c < cols; c++) {
+                newMap[0][c] = 1;
+                newMap[rows - 1][c] = 1;
+            }
+
+            // Abrir alguns caminhos aleatoriamente (muito simplificado)
+            // Isso pode criar labirintos desconectados.
+            for (let r = 1; r < rows - 1; r++) {
+                for (let c = 1; c < cols - 1; c++) {
+                    if (Math.random() > 0.3) { // 70% de chance de ser caminho
+                        newMap[r][c] = 0;
+                    }
+                }
+            }
+
+            let playerSpawn = {x: -1, y: -1};
+            let ghostSpawns = [];
+            let powerPelletSpawns = [];
+
+            // Coletar todas as células abertas para distribuição de itens
+            let openCells = [];
+            for (let r = 1; r < rows - 1; r++) {
+                for (let c = 1; c < cols - 1; c++) {
+                    if (newMap[r][c] === 0) {
+                        openCells.push({ x: c, y: r });
+                    }
+                }
+            }
+
+            // Embaralhar as células abertas para randomização
+            for (let i = openCells.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [openCells[i], openCells[j]] = [openCells[j], openCells[i]];
+            }
+
+            // Distribuir Player, Ghost, Power Pellets e Dots
+            if (openCells.length > 0) {
+                playerSpawn = openCells.pop();
+                newMap[playerSpawn.y][playerSpawn.x] = 3; [cite_start]// Player start [cite: 63, 64]
+            }
+
+            let numGhosts = Math.min(2 + currentLevel, Math.floor(openCells.length / 10)); // Max 2+currentLevel ghosts, limited by open cells
+            for (let i = 0; i < numGhosts && openCells.length > 0; i++) {
+                const pos = openCells.pop();
+                ghostSpawns.push(pos);
+                newMap[pos.y][pos.x] = 4; [cite_start]// Ghost start [cite: 64]
+            }
+
+            let numPowerPellets = Math.min(2, Math.floor(openCells.length / 20)); // Max 2 power pellets
+            for (let i = 0; i < numPowerPellets && openCells.length > 0; i++) {
+                const pos = openCells.pop();
+                powerPelletSpawns.push(pos);
+                newMap[pos.y][pos.x] = 5; [cite_start]// Power Pellet [cite: 63, 64]
+            }
+
+            // Preencher o resto com dots
+            openCells.forEach(cell => {
+                [cite_start]newMap[cell.y][cell.x] = 2; // Dot [cite: 62]
+            });
+
+            console.log("Generated Map for Level", currentLevel, ":", newMap);
+            return newMap;
+        }
+
+
+        function initializeGame(mapIndex) {
+            gameContainer.innerHTML = ''; [cite_start]// Clear previous map [cite: 73]
+            const currentMapData = maps[mapIndex]; [cite_start]// Get the current map (could be a newly generated one) [cite: 74]
+            [cite_start]gameContainer.style.gridTemplateColumns = `repeat(${currentMapData[0].length}, ${CELL_SIZE}px)`; [cite: 74]
+            [cite_start]gameContainer.style.gridTemplateRows = `repeat(${currentMapData.length}, ${CELL_SIZE}px)`; [cite: 74]
+
+            [cite_start]// Set width of game-info to match game-container [cite: 75]
+            [cite_start]gameInfo.style.width = `${currentMapData[0].length * CELL_SIZE + 20}px`; [cite: 75]
+
+            [cite_start]dotsCount = 0; [cite: 76]
+            [cite_start]gameElements.dots = []; [cite: 76]
+            [cite_start]gameElements.powerPellets = []; [cite: 76]
+            [cite_start]gameElements.ghosts = []; [cite: 76]
+            gameElements.ghostElements = []; [cite_start]// To keep track of ghost DOM elements [cite: 77]
+
+            [cite_start]// Generate random colors for the current level [cite: 72]
+            const wallColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+            const pathColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+            const gameBorderColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+
+            // Apply custom properties
+            document.documentElement.style.setProperty('--wall-color', wallColor);
+            document.documentElement.style.setProperty('--path-color', pathColor);
+            document.documentElement.style.setProperty('--game-border-color', gameBorderColor);
+
+
+            let tempMap = currentMapData.map(row => [...row]); [cite_start]// Deep copy for mutable operations [cite: 77, 78]
+
+            [cite_start]let initialGhostPositions = []; [cite: 79]
+            for (let r = 0; r < tempMap.length; r++) {
+                for (let c = 0; c < tempMap[r].length; c++) {
+                    [cite_start]const cellValue = tempMap[r][c]; [cite: 80]
+                    [cite_start]if (cellValue === 3) { // Player start [cite: 80]
+                        [cite_start]playerX = c; [cite: 81]
+                        [cite_start]playerY = r; [cite: 81]
+                        tempMap[r][c] = 0; [cite_start]// Treat as path after placing player [cite: 81]
+                    [cite_start]} else if (cellValue === 4) { // Ghost start [cite: 81]
+                        [cite_start]initialGhostPositions.push({ x: c, y: r }); [cite: 82]
+                        tempMap[r][c] = 0; [cite_start]// Treat as path after placing ghost [cite: 82]
+                    }
+                }
+            }
+
+            [cite_start]// Render the map and elements [cite: 83]
+            for (let r = 0; r < tempMap.length; r++) {
+                for (let c = 0; c < tempMap[r].length; c++) {
+                    [cite_start]const cell = document.createElement('div'); [cite: 84]
+                    [cite_start]cell.classList.add('cell'); [cite: 84]
+
+                    if (tempMap[r][c] === 1) {
+                        [cite_start]cell.classList.add('wall'); [cite: 85]
+                    } else {
+                        [cite_start]cell.classList.add('path'); [cite: 86]
+                        [cite_start]if (currentMapData[r][c] === 2) { // Use original map for dots/pellets [cite: 86]
+                            [cite_start]const dot = document.createElement('div'); [cite: 87]
+                            [cite_start]dot.classList.add('dot'); [cite: 87]
+                            [cite_start]dot.style.left = `${c * CELL_SIZE + (CELL_SIZE / 2 - 4)}px`; [cite: 88]
+                            [cite_start]dot.style.top = `${r * CELL_SIZE + (CELL_SIZE / 2 - 4)}px`; [cite: 88]
+                            [cite_start]gameContainer.appendChild(dot); [cite: 88]
+                            [cite_start]gameElements.dots.push({ element: dot, x: c, y: r }); [cite: 89]
+                            [cite_start]dotsCount++; [cite: 89]
+                        } else if (currentMapData[r][c] === 5) {
+                            [cite_start]const pellet = document.createElement('div'); [cite: 90]
+                            [cite_start]pellet.classList.add('power-pellet'); [cite: 90]
+                            [cite_start]pellet.style.left = `${c * CELL_SIZE + (CELL_SIZE / 2 - 7.5)}px`; [cite: 91]
+                            [cite_start]pellet.style.top = `${r * CELL_SIZE + (CELL_SIZE / 2 - 7.5)}px`; [cite: 92]
+                            [cite_start]gameContainer.appendChild(pellet); [cite: 92]
+                            [cite_start]gameElements.powerPellets.push({ element: pellet, x: c, y: r }); [cite: 92]
+                        }
+                    }
+                    [cite_start]gameContainer.appendChild(cell); [cite: 93]
+                }
+            }
+
+            [cite_start]// Add player [cite: 94]
+            [cite_start]const player = document.createElement('div'); [cite: 94]
+            [cite_start]player.classList.add('player'); [cite: 94]
+            [cite_start]gameContainer.appendChild(player); [cite: 94]
+            [cite_start]gameElements.player = player; [cite: 94]
+
+            [cite_start]// Add ghosts based on initial positions and current level [cite: 94]
+            gameElements.ghosts = []; [cite_start]// Clear previous ghosts logic objects [cite: 95]
+            gameElements.ghostElements.forEach(g => g.remove()); [cite_start]// Remove old ghost DOM elements [cite: 96]
+            gameElements.ghostElements = []; [cite_start]// Clear ghost DOM elements array [cite: 97]
+
+            // Limita o número de fantasmas com base nas posições iniciais disponíveis
+            const numGhostsForLevel = Math.min(initialGhostPositions.length, 1 + Math.floor(currentLevel / 2)); [cite_start]// Aumenta 1 fantasma a cada 2 níveis, mínimo de 1 [cite: 98]
+            for (let i = 0; i < numGhostsForLevel; i++) {
+                const ghostPos = initialGhostPositions[i % initialGhostPositions.length]; [cite_start]// Cycle through available ghost starts [cite: 99]
+                [cite_start]const ghostElement = document.createElement('div'); [cite: 100]
+                [cite_start]ghostElement.classList.add('ghost'); [cite: 100]
+                [cite_start]gameContainer.appendChild(ghostElement); [cite: 102]
+                gameElements.ghosts.push({
+                    element: ghostElement,
+                    x: ghostPos.x,
+                    y: ghostPos.y,
+                    [cite_start]initialX: ghostPos.x, // Store initial position for respawn [cite: 103]
+                    [cite_start]initialY: ghostPos.y, [cite: 103]
+                    [cite_start]isEaten: false // New: State if ghost is eaten [cite: 103]
+                });
+                gameElements.ghostElements.push(ghostElement); [cite_start]// Store DOM element [cite: 104]
+            }
+
+            [cite_start]updatePlayerPosition(); [cite: 105]
+            [cite_start]updateGhostPositions(); [cite: 105]
+            updateLivesDisplay(); [cite_start]// Update lives display [cite: 105]
+        }
+
+        function updatePlayerPosition() {
+            if (gameElements.player) {
+                [cite_start]gameElements.player.style.left = `${playerX * CELL_SIZE + 2}px`; [cite: 106]
+                [cite_start]gameElements.player.style.top = `${playerY * CELL_SIZE + 2}px`; [cite: 106]
+            }
+        }
+
+        function updateGhostPositions() {
+            gameElements.ghosts.forEach(ghost => {
+                ghost.element.style.left = `${ghost.x * CELL_SIZE + 2}px`;
+                ghost.element.style.top = `${ghost.y * CELL_SIZE + 2}px`;
+            [cite_start]}); [cite: 107]
+        }
+
+        function updateLivesDisplay() {
+            [cite_start]livesDisplay.innerHTML = 'Vidas: ' + '❤️ '.repeat(lives); [cite: 108]
+        }
+
+        function activateInvulnerability() {
+            [cite_start]isInvulnerable = true; [cite: 109]
+            gameElements.player.style.backgroundColor = '#00f'; [cite_start]// Player turns blue [cite: 109]
+            gameElements.ghosts.forEach(ghost => {
+                [cite_start]if (!ghost.isEaten) { // Only scare ghosts that haven't been eaten [cite: 109]
+                    [cite_start]ghost.element.classList.add('scared'); [cite: 109]
+                    ghost.speedMultiplier = 0.5; [cite_start]// Make scared ghosts slower [cite: 110]
+                }
+            });
+            [cite_start]// Clear any existing timeout to prevent overlapping invulnerability [cite: 111]
+            if (invulnerabilityTimeout) {
+                [cite_start]clearTimeout(invulnerabilityTimeout); [cite: 112]
+            }
+
+            invulnerabilityTimeout = setTimeout(() => {
+                deactivateInvulnerability();
+            }, 7000); [cite_start]// Invulnerable for 7 seconds (adjust as needed) [cite: 113]
+        }
+
+        function deactivateInvulnerability() {
+            [cite_start]isInvulnerable = false; [cite: 114]
+            gameElements.player.style.backgroundColor = '#ff0'; [cite_start]// Player returns to yellow [cite: 114]
+            gameElements.ghosts.forEach(ghost => {
+                [cite_start]ghost.element.classList.remove('scared'); [cite: 114]
+                ghost.speedMultiplier = 1; [cite_start]// Reset ghost speed [cite: 115]
+            });
+            [cite_start]// Ensure any flashing animation is removed if not scared [cite: 115]
+            [cite_start]gameElements.ghostElements.forEach(g => g.style.animation = ''); [cite: 116]
+        }
+
+        function checkCollisions() {
+            [cite_start]// Check dot collisions [cite: 116]
+            gameElements.dots.forEach((dot, index) => {
+                if (dot.element.style.display !== 'none' && dot.x === playerX && dot.y === playerY) {
+                    dot.element.style.display = 'none';
+                    [cite_start]score++; [cite: 117]
+                    [cite_start]dotsCount--; [cite: 117]
+                    [cite_start]scoreDisplay.textContent = `Pontos: ${score}`; [cite: 117]
+                }
+            });
+            [cite_start]// Check power pellet collisions [cite: 118]
+            gameElements.powerPellets.forEach((pellet, index) => {
+                if (pellet.element.style.display !== 'none' && pellet.x === playerX && pellet.y === playerY) {
+                    pellet.element.style.display = 'none';
+                    [cite_start]activateInvulnerability(); [cite: 119]
+                }
+            });
+            [cite_start]// Check ghost collisions [cite: 120]
+            gameElements.ghosts.forEach(ghost => {
+                if (ghost.x === playerX && ghost.y === playerY && !ghost.isEaten) {
+                    if (isInvulnerable) {
+                        [cite_start]// Player eats ghost [cite: 121]
+                        [cite_start]ghost.isEaten = true; [cite: 121]
+                        ghost.element.style.display = 'none'; [cite_start]// Hide eaten ghost [cite: 121]
+                        score += 10; [cite_start]// Bonus points for eating ghost [cite: 121]
+                        [cite_start]scoreDisplay.textContent = `Pontos: ${score}`; [cite: 122]
+
+                        [cite_start]// Respawn ghost after a short delay [cite: 122]
+                        setTimeout(() => {
+                            [cite_start]ghost.x = ghost.initialX; [cite: 123]
+                            [cite_start]ghost.y = ghost.initialY; [cite: 123]
+                            [cite_start]ghost.element.style.display = 'block'; [cite: 123]
+                            [cite_start]ghost.isEaten = false; [cite: 124]
+                            ghost.element.classList.remove('scared'); [cite_start]// Remove scared class when respawning [cite: 124]
+                            ghost.speedMultiplier = 1; [cite_start]// Reset speed [cite: 125]
+                            [cite_start]updateGhostPositions(); [cite: 126]
+                        }, 3000); [cite_start]// Respawn after 3 seconds [cite: 126]
+                    } else {
+                        [cite_start]// Player hit by ghost, lose a life [cite: 126]
+                        [cite_start]lives--; [cite: 127]
+                        [cite_start]updateLivesDisplay(); [cite: 127]
+                        if (lives <= 0) {
+                            [cite_start]endGame('Você foi pego pelos fantasmas e perdeu todas as vidas! Fim de jogo.'); [cite: 128]
+                        } else {
+                            messageDisplay.textContent = 'Você perdeu uma vida! Clique em "Voltar a Jogar" para continuar.';
+                            [cite_start]clearInterval(playerMoveInterval); [cite: 129]
+                            [cite_start]clearInterval(ghostInterval); [cite: 130]
+                            clearTimeout(invulnerabilityTimeout); // Certifique-se de limpar o timeout de invulnerabilidade
+                            gameRunning = false; // Pausa o jogo
+
+                            // Esconder o jogador temporariamente e resetar sua posição
+                            [cite_start]gameElements.player.style.display = 'none'; [cite: 130]
+                            [cite_start]const currentMapData = maps[currentLevel]; [cite: 131]
+                            [cite_start]for (let r = 0; r < currentMapData.length; r++) { [cite: 131]
+                                [cite_start]for (let c = 0; c < currentMapData[r].length; c++) { [cite: 132]
+                                    [cite_start]if (currentMapData[r][c] === 3) { [cite: 132]
+                                        [cite_start]playerX = c; [cite: 132]
+                                        [cite_start]playerY = r; [cite: 133]
+                                        break;
+                                    }
+                                }
+                            }
+                            [cite_start]updatePlayerPosition(); [cite: 134]
+
+                            [cite_start]// Resetar fantasmas para suas posições iniciais e afastar [cite: 135]
+                            [cite_start]gameElements.ghosts.forEach(ghost => { [cite: 135]
+                                [cite_start]ghost.x = ghost.initialX; [cite: 135]
+                                [cite_start]ghost.y = ghost.initialY; [cite: 136]
+                                [cite_start]ghost.element.style.display = 'block'; [cite: 137]
+                                [cite_start]ghost.isEaten = false; [cite: 138]
+                                [cite_start]ghost.element.classList.remove('scared'); [cite: 139]
+                                [cite_start]ghost.speedMultiplier = 1; [cite: 139]
+                            });
+                            [cite_start]updateGhostPositions(); [cite: 140]
+                            deactivateInvulnerability(); // Garanta que a invulnerabilidade esteja desativada
+
+                            // Mostrar o botão de retomar
+                            resumeButton.style.display = 'block';
+                            startButton.style.display = 'none'; // Esconda o botão "Iniciar Jogo"
+                        }
+                    }
+                }
+            });
+            [cite_start]// Check win condition (all dots collected) [cite: 142]
+            if (dotsCount === 0) {
+                // Gere o próximo mapa antes de prosseguir
+                const nextLevelMap = generateRandomMap(MAP_ROWS, MAP_COLS); [cite_start]// Gerar novo mapa [cite: 72]
+                maps.push(nextLevelMap); // Adicione o novo mapa ao array
+
+                if (currentLevel < maps.length - 1) { // Verifica se há mais mapas (agora sempre haverá um próximo)
+                    messageDisplay.textContent = 'Todos os pontos coletados! [cite_start]Preparando próximo nível...'; [cite: 143]
+                    [cite_start]clearInterval(playerMoveInterval); [cite: 143]
+                    [cite_start]clearInterval(ghostInterval); [cite: 144]
+                    deactivateInvulnerability(); [cite_start]// Reset invulnerability [cite: 144]
+                    setTimeout(() => {
+                        [cite_start]currentLevel++; [cite: 144]
+                        startGame(); [cite_start]// Load next level [cite: 144]
+                    }, 2000); [cite_start]// 2 second pause [cite: 144]
+                } else {
+                    [cite_start]endGame('Parabéns! Você completou todos os níveis e coletou todos os pontos!'); [cite: 145]
+                }
+            }
+        }
+
+        function movePlayer() {
+            [cite_start]let newPlayerX = playerX; [cite: 146]
+            [cite_start]let newPlayerY = playerY; [cite: 146]
+
+            switch (playerDirection) {
+                [cite_start]case 'up': newPlayerY--; break; [cite: 147]
+                case 'down': newPlayerY++; break;
+                case 'left': newPlayerX--; break;
+                case 'right': newPlayerX++; break;
+                [cite_start]case 'stop': return; [cite: 148]
+            }
+
+            [cite_start]const currentMapData = maps[currentLevel]; [cite: 149]
+            [cite_start]// Check for wall collision [cite: 149]
+            if (newPlayerY >= 0 && newPlayerY < currentMapData.length &&
+                newPlayerX >= 0 && newPlayerX < currentMapData[0].length &&
+                [cite_start]currentMapData[newPlayerY][newPlayerX] !== 1) { // 1 is wall [cite: 149]
+                [cite_start]playerX = newPlayerX; [cite: 150]
+                [cite_start]playerY = newPlayerY; [cite: 150]
+                updatePlayerPosition();
+                checkCollisions();
+            } else {
+                [cite_start]playerDirection = 'stop'; [cite: 151]
+            }
+        }
+
+        function moveGhosts() {
+            gameElements.ghosts.forEach(ghost => {
+                [cite_start]if (ghost.isEaten) return; // Don't move eaten ghosts [cite: 151]
+
+                const currentGhostSpeed = ghostSpeed * (ghost.speedMultiplier || 1); [cite_start]// Adjust speed if scared [cite: 152]
+                [cite_start]if (Date.now() - (ghost.lastMoveTime || 0) < currentGhostSpeed) { [cite: 152]
+                    return; [cite_start]// Not time to move yet [cite: 152]
+                }
+                [cite_start]ghost.lastMoveTime = Date.now(); [cite: 152]
+
+                [cite_start]let possibleMoves = []; [cite: 152]
+                [cite_start]const currentMapData = maps[currentLevel]; [cite: 153]
+
+                [cite_start]// Check all 4 directions for valid moves [cite: 153]
+                if (ghost.y > 0 && currentMapData[ghost.y - 1][ghost.x] !== 1) possibleMoves.push({ x: ghost.x, y: ghost.y - 1 }); [cite_start]// Up [cite: 153]
+                if (ghost.y < currentMapData.length - 1 && currentMapData[ghost.y + 1][ghost.x] !== 1) possibleMoves.push({ x: ghost.x, y: ghost.y + 1 }); [cite_start]// Down [cite: 154]
+                if (ghost.x > 0 && currentMapData[ghost.y][ghost.x - 1] !== 1) possibleMoves.push({ x: ghost.x - 1, y: ghost.y }); [cite_start]// Left [cite: 155]
+                if (ghost.x < currentMapData[0].length - 1 && currentMapData[ghost.y][ghost.x + 1] !== 1) possibleMoves.push({ x: ghost.x + 1, y: ghost.y }); [cite_start]// Right [cite: 156]
+
+                [cite_start]if (possibleMoves.length > 0) { [cite: 156]
+                    [cite_start]let chosenMove = null; [cite: 157]
+                    [cite_start]if (isInvulnerable) { // Flee from player when player is invulnerable [cite: 157]
+                        [cite_start]let furthestDistance = -1; [cite: 158]
+                        [cite_start]for (const move of possibleMoves) { [cite: 158]
+                            [cite_start]const dist = Math.abs(playerX - move.x) + Math.abs(playerY - move.y); [cite: 159]
+                            [cite_start]if (dist > furthestDistance) { [cite: 159]
+                                [cite_start]furthestDistance = dist; [cite: 160]
+                                [cite_start]chosenMove = move; [cite: 160]
+                            }
+                        }
+                    [cite_start]} else { // Chase player [cite: 161]
+                        [cite_start]let closestDistance = Infinity; [cite: 161]
+                        [cite_start]for (const move of possibleMoves) { [cite: 161]
+                            [cite_start]const dist = Math.abs(playerX - move.x) + Math.abs(playerY - move.y); [cite: 162]
+                            [cite_start]if (dist < closestDistance) { [cite: 162]
+                                [cite_start]closestDistance = dist; [cite: 163]
+                                [cite_start]chosenMove = move; [cite: 163]
+                            }
+                        }
+                    }
+
+                    [cite_start]if (chosenMove) { [cite: 163]
+                        [cite_start]ghost.x = chosenMove.x; [cite: 164]
+                        [cite_start]ghost.y = chosenMove.y; [cite: 164]
+                    [cite_start]} else { // Fallback to random if no good move found (shouldn't happen with valid moves) [cite: 164]
+                         [cite_start]chosenMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)]; [cite: 165]
+                         [cite_start]ghost.x = chosenMove.x; [cite: 165]
+                         [cite_start]ghost.y = chosenMove.y; [cite: 165]
+                    }
+                }
+            });
+            [cite_start]updateGhostPositions(); [cite: 166]
+            checkCollisions(); [cite_start]// Check after ghost moves as well [cite: 166]
+        }
+
+        function startGame() {
+            if (gameRunning && currentLevel === 0 && lives === 3) {
+                 [cite_start]// Game is already running or just started, do nothing unless it's a new game reset [cite: 167]
+            [cite_start]} else if (gameRunning && currentLevel > 0) { [cite: 167]
+                [cite_start]// Already running and progressing to next level [cite: 167]
+            } else {
+                [cite_start]// New game or restart after game over [cite: 167]
+                [cite_start]score = 0; [cite: 168]
+                [cite_start]lives = 3; [cite: 168]
+                currentLevel = 0;
+                [cite_start]// Gerar o primeiro mapa para um novo jogo [cite: 72]
+                maps = [generateRandomMap(MAP_ROWS, MAP_COLS)];
+                [cite_start]messageDisplay.textContent = 'Use as setas do teclado para mover.'; [cite: 168]
+                [cite_start]startButton.style.display = 'none'; [cite: 169]
+                nameInputContainer.style.display = 'none'; [cite_start]// Hide name input [cite: 169]
+                resumeButton.style.display = 'none'; // Esconder botão de retomar
+                playerDirection = ''; [cite_start]// Reset player direction [cite: 170]
+                deactivateInvulnerability(); [cite_start]// Ensure no lingering invulnerability [cite: 171]
+            }
+
+            [cite_start]gameRunning = true; [cite: 172]
+            [cite_start]startButton.style.display = 'none'; [cite: 172]
+            [cite_start]messageDisplay.textContent = `Nível ${currentLevel + 1}...`; [cite: 172]
+
+            [cite_start]initializeGame(currentLevel); [cite: 173]
+            [cite_start]// Clear any existing intervals before starting new ones [cite: 173]
+            [cite_start]clearInterval(playerMoveInterval); [cite: 174]
+            [cite_start]clearInterval(ghostInterval); [cite: 174]
+            clearTimeout(invulnerabilityTimeout); [cite_start]// Also clear invulnerability timeout [cite: 174]
+
+            [cite_start]playerMoveInterval = setInterval(movePlayer, playerSpeed); [cite: 175]
+            [cite_start]ghostInterval = setInterval(moveGhosts, ghostSpeed); [cite: 175]
+        }
+
+        function endGame(message) {
+            [cite_start]gameRunning = false; [cite: 176]
+            [cite_start]clearInterval(playerMoveInterval); [cite: 176]
+            [cite_start]clearInterval(ghostInterval); [cite: 176]
+            clearTimeout(invulnerabilityTimeout); [cite_start]// Ensure timeout is cleared [cite: 176]
+            deactivateInvulnerability(); [cite_start]// Reset player/ghost states [cite: 177]
+
+            [cite_start]messageDisplay.textContent = message; [cite: 178]
+            [cite_start]startButton.textContent = 'Jogar Novamente'; [cite: 178]
+            [cite_start]startButton.style.display = 'block'; [cite: 178]
+            [cite_start]playerDirection = 'stop'; [cite: 178]
+            resumeButton.style.display = 'none'; // Esconder botão de retomar
+
+            [cite_start]checkHighScore(score); [cite: 179]
+        }
+
+        // --- Keyboard Control ---
+        document.addEventListener('keydown', (event) => {
+            [cite_start]if (!gameRunning) return; [cite: 179]
+
+            switch (event.key) {
+                case 'ArrowUp':
+                [cite_start]case 'w': [cite: 180]
+                case 'W':
+                    [cite_start]playerDirection = 'up'; [cite: 181]
+                    break;
+                case 'ArrowDown':
+                [cite_start]case 's': [cite: 181]
+                case 'S':
+                    [cite_start]playerDirection = 'down'; [cite: 181]
+                    break;
+                case 'ArrowLeft':
+                [cite_start]case 'a': [cite: 182]
+                case 'A':
+                    [cite_start]playerDirection = 'left'; [cite: 182]
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                [cite_start]case 'D': [cite: 183]
+                    [cite_start]playerDirection = 'right'; [cite: 183]
+                    break;
+                [cite_start]case ' ': // Spacebar to stop [cite: 183]
+                    [cite_start]playerDirection = 'stop'; [cite: 184]
+                    break;
+            }
+            [cite_start]movePlayer(); [cite: 185]
+        });
+        [cite_start]// --- High Score Logic --- [cite: 186]
+        [cite_start]const HIGH_SCORES_KEY = 'pacmanHighScores'; [cite: 187]
+        function loadHighScores() {
+            [cite_start]const scores = JSON.parse(localStorage.getItem(HIGH_SCORES_KEY) || '[]'); [cite: 188]
+            return scores.sort((a, b) => b.score - a.score); [cite_start]// Sort descending [cite: 188]
+        }
+
+        function saveHighScores(scores) {
+            [cite_start]localStorage.setItem(HIGH_SCORES_KEY, JSON.stringify(scores)); [cite: 189]
+            [cite_start]displayHighScores(); [cite: 189]
+        }
+
+        function displayHighScores() {
+            [cite_start]const scores = loadHighScores(); [cite: 190]
+            highScoresList.innerHTML = ''; [cite_start]// Clear current list [cite: 190]
+            [cite_start]if (scores.length === 0) { [cite: 190]
+                [cite_start]highScoresList.innerHTML = '<li>Nenhum recorde ainda.</li>'; [cite: 191]
+                return;
+            }
+            [cite_start]scores.slice(0, 10).forEach((entry, index) => { // Display top 10 [cite: 191]
+                [cite_start]const li = document.createElement('li'); [cite: 191]
+                li.innerHTML = `<span class="player-name">${index + 1}. ${entry.name || [cite_start]'Anônimo'}</span> <span class="player-score">${entry.score}</span>`; [cite: 191]
+                [cite_start]highScoresList.appendChild(li); [cite: 192]
+            });
+        }
+
+        function checkHighScore(finalScore) {
+            [cite_start]const scores = loadHighScores(); [cite: 192]
+            const minScore = scores.length < 10 ? [cite_start]0 : scores[scores.length - 1].score; [cite: 193]
+            [cite_start]if (finalScore > minScore) { [cite: 194]
+                messageDisplay.textContent = `Novo Recorde! [cite_start]Sua pontuação: ${finalScore}`; [cite: 195]
+                nameInputContainer.style.display = 'flex'; [cite_start]// Show input field [cite: 195]
+                playerNameInput.value = ''; [cite_start]// Clear previous name [cite: 196]
+                [cite_start]playerNameInput.focus(); [cite: 197]
+                startButton.style.display = 'none'; [cite_start]// Hide start button until name is saved [cite: 197]
+                resumeButton.style.display = 'none'; // Esconder botão de retomar
+            } else {
+                [cite_start]messageDisplay.textContent += ` Sua pontuação final foi: ${finalScore}.`; [cite: 198]
+            }
+        }
+
+        [cite_start]nameInputButton.addEventListener('click', () => { [cite: 198]
+            [cite_start]let playerName = playerNameInput.value.trim(); [cite: 198]
+            [cite_start]if (playerName === '') { [cite: 198]
+                [cite_start]playerName = 'Anônimo'; [cite: 199]
+            }
+            [cite_start]const newScoreEntry = { name: playerName, score: score }; [cite: 199]
+            [cite_start]const scores = loadHighScores(); [cite: 199]
+            [cite_start]scores.push(newScoreEntry); [cite: 199]
+            saveHighScores(scores); [cite_start]// Sorts and saves [cite: 199]
+
+            nameInputContainer.style.display = 'none'; [cite_start]// Hide input [cite: 199]
+            startButton.style.display = 'block'; [cite_start]// Show start button again [cite: 199]
+            messageDisplay.textContent = `Recorde salvo! [cite_start]${playerName}: ${score} pontos.`; [cite: 200]
+        });
+
+        // Event listener para o novo botão de retomar
+        resumeButton.addEventListener('click', () => {
+            gameElements.player.style.display = 'block'; // Mostrar o jogador novamente
+            playerDirection = ''; // Parar movimento do jogador
+            messageDisplay.textContent = 'Use as setas do teclado para mover.';
+            playerMoveInterval = setInterval(movePlayer, playerSpeed);
+            ghostInterval = setInterval(moveGhosts, ghostSpeed);
+            deactivateInvulnerability(); // Garanta que a invulnerabilidade esteja desativada
+            resumeButton.style.display = 'none'; // Esconder o botão de retomar
+            gameRunning = true; // Retomar o jogo
+        });
+
+
+        // Initial setup
+        initializeGame(currentLevel); [cite_start]// Load initial map [cite: 201]
+        displayHighScores(); [cite_start]// Load and display high scores on page load [cite: 202]
+        [cite_start]startButton.addEventListener('click', startGame); [cite: 202]
+    </script>
 </body>
 </html>
