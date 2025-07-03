@@ -91,3 +91,87 @@ body {
 .tableau-pile .card:first-child {
     margin-top: 0; /* The first card in a tableau pile should not be offset */
 }
+
+/* style.css (Adicione estas regras) */
+
+.card.dragging {
+    opacity: 0.7;
+    border: 2px dashed #eee; /* Feedback visual enquanto arrasta */
+}
+
+.pile.drag-over {
+    border: 2px dashed yellow; /* Feedback visual para a pilha de destino válida */
+    background-color: rgba(255, 255, 0, 0.1); /* Um leve brilho amarelado */
+}
+
+.card.face-up .suit-symbol {
+    /* Remova as propriedades de fonte e cor se estiverem aqui */
+    font-size: 0; /* Torna o texto do símbolo invisível */
+    width: 30px; /* Largura para sua imagem do naipe */
+    height: 30px; /* Altura para sua imagem do naipe */
+    background-size: contain; /* Redimensiona a imagem para caber */
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Regras específicas para cada naipe */
+.card.face-up[data-suit="hearts"] .suit-symbol {
+    background-image: url('images/heart.png');
+}
+
+.card.face-up[data-suit="diamonds"] .suit-symbol {
+    background-image: url('images/diamond.png');
+}
+
+.card.face-up[data-suit="clubs"] .suit-symbol {
+    background-image: url('images/club.png');
+}
+
+.card.face-up[data-suit="spades"] .suit-symbol {
+    background-image: url('images/spade.png');
+}
+
+/* Opcional: Para o naipe pequeno no canto superior/inferior da carta */
+.card.face-up::before,
+.card.face-up::after {
+    content: ''; /* Essencial para pseudo-elementos com background-image */
+    position: absolute;
+    width: 20px; /* Tamanho menor para os cantos */
+    height: 20px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.card.face-up::before {
+    top: 5px;
+    left: 5px;
+}
+
+.card.face-up::after {
+    bottom: 5px;
+    right: 5px;
+    transform: rotate(180deg); /* Vira o naipe inferior */
+}
+
+.card.face-up[data-suit="hearts"]::before,
+.card.face-up[data-suit="hearts"]::after {
+    background-image: url('images/heart.png');
+}
+
+.card.face-up[data-suit="diamonds"]::before,
+.card.face-up[data-suit="diamonds"]::after {
+    background-image: url('images/diamond.png');
+}
+
+.card.face-up[data-suit="clubs"]::before,
+.card.face-up[data-suit="clubs"]::after {
+    background-image: url('images/club.png');
+}
+
+.card.face-up[data-suit="spades"]::before,
+.card.face-up[data-suit="spades"]::after {
+    background-image: url('images/spade.png');
+}
+
+/* As cores dos naipes (vermelho/preto) ainda são controladas pelo JS no .card.face-up */
+/* Mas as cores das imagens não são afetadas. Se suas imagens já são coloridas, você pode remover a linha de style.color no JS. */

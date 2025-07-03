@@ -3,14 +3,14 @@
 // --- Definição das Cartas e Variáveis Globais ---
 const suits = ['hearts', 'diamonds', 'clubs', 'spades']; // Corações, Ouros, Paus, Espadas
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-
+/*
 const suitSymbols = {
     'hearts': '♥',
     'diamonds': '♦',
     'clubs': '♣',
     'spades': '♠'
 };
-
+*/
 const redSuits = ['hearts', 'diamonds'];
 const blackSuits = ['clubs', 'spades'];
 
@@ -99,13 +99,15 @@ function createCardElement(card) {
 
     if (card.isFaceUp) {
         cardDiv.classList.add('face-up');
-        // Define a cor do texto com base no naipe
+        // Define a cor do texto (para o rank) com base no naipe
         if (redSuits.includes(card.suit)) {
             cardDiv.style.color = 'red';
         } else {
             cardDiv.style.color = 'black';
         }
-        cardDiv.innerHTML = `<div class="rank">${card.rank}</div><div class="suit-symbol">${suitSymbols[card.suit]}</div>`;
+        // MODIFIQUE ESTA LINHA:
+        // Remove `<div class="suit-symbol">${suitSymbols[card.suit]}</div>`
+        cardDiv.innerHTML = `<div class="rank">${card.rank}</div><div class="suit-symbol"></div>`; // A div suit-symbol agora será preenchida pelo CSS
     } else {
         cardDiv.classList.add('back');
     }
