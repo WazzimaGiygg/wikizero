@@ -1,483 +1,310 @@
-// script.js
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-// --- Definição das Cartas e Variáveis Globais ---
-const suits = ['hearts', 'diamonds', 'clubs', 'spades']; // Corações, Ouros, Paus, Espadas
-const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-/*
-const suitSymbols = {
-    'hearts': '♥',
-    'diamonds': '♦',
-    'clubs': '♣',
-    'spades': '♠'
+const TILE_SIZE = 64;
+const MAP_ROWS = 10;
+const MAP_COLS = 10;
+const ENEMY_SPEED = 1.2;
+
+let map = [];
+let enemies = [];
+let score = 0;
+let highScore = parseInt(localStorage.getItem("highscore")) || 0;
+let phase = 1;
+let gameStarted = false;
+
+document.getElementById("recordeValor").textContent = highScore;
+
+const player = {
+  x: 0,
+  y: 0,
+  angle: 0,
+  speed: 3,
+  size: 10
 };
-*/
-const redSuits = ['hearts', 'diamonds'];
-const blackSuits = ['clubs', 'spades'];
 
-// Variáveis de estado do jogo
-let gameDeck = []; // O baralho de onde as cartas são compradas
-let wastePile = []; // Pilha de descarte
-let foundationPiles = [[], [], [], []]; // Quatro pilhas base (ases)
-let tableauPiles = [[], [], [], [], [], [], []]; // Sete pilhas do tabuleiro
+let keys = {};
+let bullets = [];
 
-// Variáveis para o Drag and Drop
-let draggedCard = null; // A carta (ou grupo de cartas) que está sendo arrastada
-let originalPileData = { type: null, index: -1, cardIndex: -1 }; // Dados da pilha de origem
-let draggedCardsArray = []; // Array para armazenar o grupo de cartas arrastadas no tableau
-
-// --- Funções Principais do Jogo ---
-
-/**
- * Cria um baralho padrão de 52 cartas.
- * @returns {Array<Object>} O baralho de cartas.
- */
-function createDeck() {
-    let deck = [];
-    for (const suit of suits) {
-        for (const rank of ranks) {
-            deck.push({
-                suit: suit,
-                rank: rank,
-                isFaceUp: false // Todas as cartas começam viradas para baixo no baralho
-            });
-        }
-    }
-    return deck;
-}
-
-/**
- * Embaralha um array usando o algoritmo Fisher-Yates.
- * @param {Array<Object>} deck O baralho a ser embaralhado.
- * @returns {Array<Object>} O baralho embaralhado.
- */
-function shuffleDeck(deck) {
-    let currentIndex = deck.length, randomIndex;
-
-    while (currentIndex !== 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-        [deck[currentIndex], deck[randomIndex]] = [deck[randomIndex], deck[currentIndex]];
-    }
-    return deck;
-}
-
-/**
- * Inicializa o estado do jogo: cria e embaralha o baralho, e distribui as cartas.
- */
-function initializeGame() {
-    gameDeck = shuffleDeck(createDeck());
-
-    // Limpa todas as pilhas para um novo jogo
-    wastePile = [];
-    foundationPiles = [[], [], [], []];
-    tableauPiles = [[], [], [], [], [], [], []];
-
-    // Distribui as cartas para as pilhas do tabuleiro
-    for (let i = 0; i < 7; i++) { // Colunas
-        for (let j = i; j < 7; j++) { // Cartas por coluna
-            const card = gameDeck.pop();
-            tableauPiles[j].push(card);
-            // A última carta de cada pilha do tabuleiro fica virada para cima
-            if (j === i) {
-                card.isFaceUp = true;
-            }
-        }
-    }
-    renderGame(); // Exibe o estado inicial no HTML
-}
-
-/**
- * Cria um elemento HTML `div` para representar uma carta.
- * @param {Object} card O objeto da carta (suit, rank, isFaceUp).
- * @returns {HTMLElement} O elemento div da carta.
- */
-function createCardElement(card) {
-    const cardDiv = document.createElement('div');
-    cardDiv.classList.add('card');
-    cardDiv.dataset.suit = card.suit;
-    cardDiv.dataset.rank = card.rank;
-
-    if (card.isFaceUp) {
-        cardDiv.classList.add('face-up');
-        // Define a cor do texto (para o rank) com base no naipe
-        if (redSuits.includes(card.suit)) {
-            cardDiv.style.color = 'red';
-        } else {
-            cardDiv.style.color = 'black';
-        }
-        // MODIFIQUE ESTA LINHA:
-        // Remove `<div class="suit-symbol">${suitSymbols[card.suit]}</div>`
-        cardDiv.innerHTML = `<div class="rank">${card.rank}</div><div class="suit-symbol"></div>`; // A div suit-symbol agora será preenchida pelo CSS
-    } else {
-        cardDiv.classList.add('back');
-    }
-    return cardDiv;
-}
-
-/**
- * Renderiza todo o estado atual do jogo no HTML.
- * Atualiza todas as pilhas e cartas visíveis.
- */
-function renderGame() {
-    // Renderiza o baralho de compras
-    const deckContainer = document.getElementById('deck');
-    deckContainer.innerHTML = '';
-    deckContainer.classList.remove('empty'); // Remove classe de vazio por segurança
-
-    if (gameDeck.length > 0) {
-        // Apenas uma carta para representar o baralho virado para baixo
-        const cardBackDiv = document.createElement('div');
-        cardBackDiv.classList.add('card', 'back');
-        deckContainer.appendChild(cardBackDiv);
-    } else {
-        deckContainer.classList.add('empty'); // Adiciona uma classe para indicar que está vazio
-    }
-
-    // Renderiza a pilha de descarte
-    const wastePileEl = document.getElementById('waste-pile');
-    wastePileEl.innerHTML = '';
-    // Adicionar listeners para dropar na pilha de descarte (se necessário no futuro)
-    wastePileEl.addEventListener('dragover', allowDrop);
-    wastePileEl.addEventListener('drop', drop);
-    wastePileEl.addEventListener('dragleave', dragLeave);
-    wastePileEl.addEventListener('dragenter', dragEnter);
-
-    if (wastePile.length > 0) {
-        const topWasteCard = wastePile[wastePile.length - 1]; // Pega a carta do topo
-        const cardEl = createCardElement(topWasteCard);
-        // A carta do topo da pilha de descarte é arrastável
-        cardEl.classList.add('draggable-card');
-        cardEl.setAttribute('draggable', 'true');
-        cardEl.addEventListener('dragstart', dragStart);
-        cardEl.dataset.pileType = 'waste';
-        cardEl.dataset.pileIndex = 0; // A pilha de descarte é conceitualmente uma única pilha
-        cardEl.dataset.cardIndex = wastePile.length - 1; // Índice da carta no topo
-        wastePileEl.appendChild(cardEl);
-    }
-
-    // Renderiza as pilhas do tabuleiro
-    tableauPiles.forEach((pile, index) => {
-        const tableauEl = document.getElementById(`tableau-${index + 1}`);
-        tableauEl.innerHTML = ''; // Limpa a pilha antes de renderizar
-        // Adiciona listeners para dropar nas pilhas do tableau
-        tableauEl.addEventListener('dragover', allowDrop);
-        tableauEl.addEventListener('drop', drop);
-        tableauEl.addEventListener('dragleave', dragLeave);
-        tableauEl.addEventListener('dragenter', dragEnter);
-
-        pile.forEach((card, cardIndex) => {
-            const cardEl = createCardElement(card);
-            cardEl.dataset.pileType = 'tableau';
-            cardEl.dataset.pileIndex = index;
-            cardEl.dataset.cardIndex = cardIndex;
-
-            // Adiciona uma pequena margem para empilhar as cartas visualmente
-            if (cardIndex > 0) {
-                cardEl.style.marginTop = '-85px'; // Ajuste este valor para o empilhamento
-            }
-
-            // Torna as cartas viradas para cima no tableau arrastáveis
-            if (card.isFaceUp) {
-                cardEl.classList.add('draggable-card');
-                cardEl.setAttribute('draggable', 'true');
-                cardEl.addEventListener('dragstart', dragStart);
-            }
-            tableauEl.appendChild(cardEl);
-        });
-    });
-
-    // Renderiza as pilhas base (foundation)
-    foundationPiles.forEach((pile, index) => {
-        const foundationEl = document.getElementById(`foundation-${index + 1}`);
-        foundationEl.innerHTML = '';
-        // Adiciona listeners para dropar nas pilhas da fundação
-        foundationEl.addEventListener('dragover', allowDrop);
-        foundationEl.addEventListener('drop', drop);
-        foundationEl.addEventListener('dragleave', dragLeave);
-        foundationEl.addEventListener('dragenter', dragEnter);
-
-        if (pile.length > 0) {
-            const topCard = pile[pile.length - 1];
-            const cardEl = createCardElement(topCard);
-            cardEl.dataset.pileType = 'foundation';
-            cardEl.dataset.pileIndex = index;
-            cardEl.dataset.cardIndex = pile.length - 1; // Último índice
-            // Cartas da fundação geralmente não são arrastáveis para fora no Paciência clássico
-            // Mas poderíamos adicionar: cardEl.setAttribute('draggable', 'true'); cardEl.addEventListener('dragstart', dragStart);
-            foundationEl.appendChild(cardEl);
-        }
-    });
-}
-
-// --- Funções de Manipulação de Drag and Drop ---
-
-/**
- * Inicia o processo de arrasto de uma carta ou grupo de cartas.
- * @param {Event} event O evento dragstart.
- */
-function dragStart(event) {
-    const cardElement = event.target;
-    cardElement.classList.add('dragging'); // Feedback visual
-
-    const pileType = cardElement.dataset.pileType;
-    const pileIndex = parseInt(cardElement.dataset.pileIndex);
-    const cardIndex = parseInt(cardElement.dataset.cardIndex);
-
-    // Resetar variáveis de arrasto
-    draggedCard = null;
-    originalPileData = { type: null, index: -1, cardIndex: -1 };
-    draggedCardsArray = [];
-
-    originalPileData.type = pileType;
-    originalPileData.index = pileIndex;
-    originalPileData.cardIndex = cardIndex;
-
-    let sourcePileArray;
-
-    if (pileType === 'tableau') {
-        sourcePileArray = tableauPiles[pileIndex];
-        draggedCardsArray = sourcePileArray.slice(cardIndex);
-    } else if (pileType === 'waste') {
-        sourcePileArray = wastePile;
-        draggedCard = wastePile[cardIndex];
-        draggedCardsArray = [draggedCard]; // Da waste, sempre uma única carta
-    }
-
-    // Passa os dados da carta/pilha através do dataTransfer
-    event.dataTransfer.setData('text/plain', JSON.stringify(originalPileData));
-    event.dataTransfer.effectAllowed = 'move';
-}
-
-/**
- * Permite que um elemento seja um alvo de drop.
- * @param {Event} event O evento dragover.
- */
-function allowDrop(event) {
-    event.preventDefault(); // Impede o comportamento padrão do navegador (ex: abrir imagem)
-    if (event.target.classList.contains('pile') || event.target.closest('.pile')) {
-        const targetPileEl = event.target.classList.contains('pile') ? event.target : event.target.closest('.pile');
-        targetPileEl.classList.add('drag-over'); // Feedback visual
-    }
-}
-
-/**
- * Adiciona feedback visual quando o mouse entra em um alvo de drop.
- * @param {Event} event O evento dragenter.
- */
-function dragEnter(event) {
-    event.preventDefault();
-    if (event.target.classList.contains('pile') || event.target.closest('.pile')) {
-        const targetPileEl = event.target.classList.contains('pile') ? event.target : event.target.closest('.pile');
-        targetPileEl.classList.add('drag-over');
-    }
-}
-
-/**
- * Remove feedback visual quando o mouse sai de um alvo de drop.
- * @param {Event} event O evento dragleave.
- */
-function dragLeave(event) {
-    if (event.target.classList.contains('pile') || event.target.closest('.pile')) {
-        const targetPileEl = event.target.classList.contains('pile') ? event.target : event.target.closest('.pile');
-        targetPileEl.classList.remove('drag-over');
-    }
-}
-
-/**
- * Lida com o evento de soltar a carta. Valida o movimento e atualiza o estado do jogo.
- * @param {Event} event O evento drop.
- */
-// ... (código anterior da função drop) ...
-
-function drop(event) {
-    event.preventDefault();
-    const data = JSON.parse(event.dataTransfer.getData('text/plain'));
-
-    const sourcePileType = data.type;
-    const sourcePileIndex = data.pileIndex;
-    const sourceCardIndex = data.cardIndex;
-
-    const targetElement = event.target.closest('.pile');
-    if (!targetElement) {
-        cleanupDrag();
-        return; // Não soltou em uma pilha válida
-    }
-
-    const targetPileType = targetElement.id.includes('tableau') ? 'tableau' :
-                           targetElement.id.includes('foundation') ? 'foundation' :
-                           targetElement.id.includes('waste') ? 'waste' : null;
-
-    let targetPileIndex = -1;
-    if (targetPileType === 'tableau') {
-        targetPileIndex = parseInt(targetElement.id.replace('tableau-', '')) - 1;
-    } else if (targetPileType === 'foundation') {
-        targetPileIndex = parseInt(targetElement.id.replace('foundation-', '')) - 1;
-    } else if (targetPileType === 'waste') {
-        targetPileIndex = 0; // A pilha de descarte é única
-    }
-
-    let isValidMove = false;
-    let cardsToMove = [];
-    let sourcePileArray = []; // Inicializa com um array vazio para evitar undefined
-
-    // Determina as cartas a serem movidas e a pilha de origem
-    if (sourcePileType === 'tableau') {
-        if (tableauPiles[sourcePileIndex]) { // Adiciona verificação de existência da pilha
-            sourcePileArray = tableauPiles[sourcePileIndex];
-            // Certifique-se de que sourceCardIndex não é maior que o tamanho da pilha
-            if (sourceCardIndex >= 0 && sourceCardIndex < sourcePileArray.length) {
-                cardsToMove = sourcePileArray.slice(sourceCardIndex);
-            }
-        }
-    } else if (sourcePileType === 'waste') {
-        sourcePileArray = wastePile;
-        if (sourceCardIndex >= 0 && sourceCardIndex < sourcePileArray.length) {
-            cardsToMove = [wastePile[sourceCardIndex]]; // Da waste, sempre uma única carta
-        }
-    } else {
-        // Caso a origem não seja reconhecida, limpa e sai
-        cleanupDrag();
-        return;
-    }
-
-
-    if (cardsToMove.length === 0) {
-        cleanupDrag();
-        return; // Nenhuma carta para mover ou origem inválida
-    }
-
-    const topCardToMove = cardsToMove[0];
-
-    // ... (restante da sua lógica de validação de movimento e execução) ...
-}
-    // --- Lógica de Validação de Movimento ---
-    if (targetPileType === 'tableau') {
-        const targetPileArray = tableauPiles[targetPileIndex];
-        if (targetPileArray.length === 0) {
-            // Regra: Só pode mover um Rei para uma pilha vazia do tabuleiro
-            if (topCardToMove.rank === 'K') {
-                isValidMove = true;
-            }
-        } else {
-            const topCardInTargetPile = targetPileArray[targetPileArray.length - 1];
-            // Regra: Alternar cores e rank decrescente
-            const topCardToMoveColor = redSuits.includes(topCardToMove.suit) ? 'red' : 'black';
-            const topCardInTargetPileColor = redSuits.includes(topCardInTargetPile.suit) ? 'red' : 'black';
-
-            const rankIndexToMove = ranks.indexOf(topCardToMove.rank);
-            const rankIndexInTarget = ranks.indexOf(topCardInTargetPile.rank);
-
-            if (topCardToMoveColor !== topCardInTargetPileColor &&
-                rankIndexToMove === rankIndexInTarget - 1) {
-                isValidMove = true;
-            }
-        }
-    } else if (targetPileType === 'foundation') {
-        // Regra: Apenas uma carta pode ser movida para a fundação por vez
-        if (cardsToMove.length === 1) {
-            const targetFoundationPile = foundationPiles[targetPileIndex];
-            if (targetFoundationPile.length === 0) {
-                // Regra: Só pode começar uma fundação com um Ás
-                if (topCardToMove.rank === 'A') {
-                    isValidMove = true;
-                }
-            } else {
-                const topCardInFoundation = targetFoundationPile[targetFoundationPile.length - 1];
-                // Regra: Mesmo naipe e rank crescente
-                const rankIndexToMove = ranks.indexOf(topCardToMove.rank);
-                const rankIndexInFoundation = ranks.indexOf(topCardInFoundation.rank);
-
-                if (topCardToMove.suit === topCardInFoundation.suit &&
-                    rankIndexToMove === rankIndexInFoundation + 1) {
-                    isValidMove = true;
-                }
-            }
-        }
-    }
-
-    if (isValidMove) {
-        // Realiza o movimento: remove da origem e adiciona ao destino
-        sourcePileArray.splice(sourceCardIndex, cardsToMove.length);
-
-        if (targetPileType === 'tableau') {
-            tableauPiles[targetPileIndex].push(...cardsToMove);
-            // Se a pilha de origem era do tableau e a carta abaixo virou, vira ela
-            if (sourcePileType === 'tableau' && sourcePileArray.length > 0) {
-                const lastCardInSource = sourcePileArray[sourcePileArray.length - 1];
-                if (!lastCardInSource.isFaceUp) {
-                    lastCardInSource.isFaceUp = true;
-                }
-            }
-        } else if (targetPileType === 'foundation') {
-            foundationPiles[targetPileIndex].push(...cardsToMove);
-            // Se a pilha de origem era do tableau e a carta abaixo virou, vira ela
-            if (sourcePileType === 'tableau' && sourcePileArray.length > 0) {
-                const lastCardInSource = sourcePileArray[sourcePileArray.length - 1];
-                if (!lastCardInSource.isFaceUp) {
-                    lastCardInSource.isFaceUp = true;
-                }
-            }
-        }
-    }
-
-    cleanupDrag(); // Limpa o estado do arrasto
-    renderGame(); // Atualiza a interface do jogo
-    checkWinCondition(); // Verifica se o jogo terminou
-
-
-/**
- * Garante que a classe 'dragging' e 'drag-over' sejam removidas após o arrasto.
- */
-function cleanupDrag() {
-    const draggingCard = document.querySelector('.card.dragging');
-    if (draggingCard) {
-        draggingCard.classList.remove('dragging');
-    }
-    document.querySelectorAll('.pile.drag-over').forEach(el => {
-        el.classList.remove('drag-over');
-    });
-    draggedCard = null;
-    originalPileData = { type: null, index: -1, cardIndex: -1 };
-    draggedCardsArray = [];
-}
-
-/**
- * Verifica se o jogador venceu o jogo.
- */
-function checkWinCondition() {
-    const allCardsInFoundation = foundationPiles.every(pile => pile.length === 13);
-    if (allCardsInFoundation) {
-        // Um pequeno atraso para a renderização final antes do alerta
-        setTimeout(() => {
-            alert('Parabéns! Você venceu o jogo de Paciência!');
-            // Poderíamos adicionar opções como "Jogar Novamente" aqui
-        }, 100);
-    }
-}
-
-// --- Event Listeners ---
-
-// Adicionar ouvinte de evento para o clique no baralho de compras
-document.getElementById('deck').addEventListener('click', () => {
-    if (gameDeck.length > 0) {
-        const card = gameDeck.pop();
-        card.isFaceUp = true; // A carta virada do baralho de compras sempre fica para cima
-        wastePile.push(card);
-    } else {
-        // Se o baralho de compras estiver vazio, recicla a pilha de descarte
-        if (wastePile.length > 0) { // Só recicla se houver cartas no descarte
-            // Inverte a ordem das cartas ao reciclar para simular a virada do baralho
-            while (wastePile.length > 0) {
-                const card = wastePile.pop();
-                card.isFaceUp = false; // Vira as cartas para baixo novamente
-                gameDeck.push(card);
-            }
-            // Opcional: Para Paciência com baralho infinito, não reembaralharia. Para 1 ou 3 passagens, sim.
-            // gameDeck = shuffleDeck(gameDeck); // Descomente se quiser reembaralhar o deck reciclado
-        }
-    }
-    renderGame(); // Renderiza o jogo após a ação
+document.getElementById("startBtn").addEventListener("click", () => {
+  document.getElementById("menu").style.display = "none";
+  gameStarted = true;
+  canvas.requestPointerLock();
+  startNewPhase();
 });
 
-// Iniciar o jogo quando a página carregar
-document.addEventListener('DOMContentLoaded', initializeGame);
+canvas.addEventListener("click", () => {
+  if (gameStarted) {
+    canvas.requestPointerLock();
+  }
+});
+
+document.addEventListener("mousemove", (e) => {
+  if (document.pointerLockElement === canvas) {
+    player.angle += e.movementX * 0.002;
+  }
+});
+
+document.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
+document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
+
+document.addEventListener("mousedown", (e) => {
+  if (e.button === 0 && gameStarted) shoot();
+});
+
+function placeEnemies(layout, count = 3) {
+  let list = [];
+  while (list.length < count) {
+    const row = Math.floor(Math.random() * MAP_ROWS);
+    const col = Math.floor(Math.random() * MAP_COLS);
+    if (layout[row][col] === 0) {
+      const e = {
+        x: col * TILE_SIZE + TILE_SIZE / 2,
+        y: row * TILE_SIZE + TILE_SIZE / 2,
+        alive: true
+      };
+      list.push(e);
+    }
+  }
+  return list;
+}
+
+// Gerador de mapa com spawn garantido
+function generateSafeMap() {
+  let layout;
+  let spawn;
+
+  while (true) {
+    layout = Array.from({ length: MAP_ROWS }, () =>
+      Array.from({ length: MAP_COLS }, () => (Math.random() < 0.25 ? 1 : 0))
+    );
+
+    // Borda de parede
+    for (let i = 0; i < MAP_ROWS; i++) {
+      layout[i][0] = layout[i][MAP_COLS - 1] = 1;
+    }
+    for (let j = 0; j < MAP_COLS; j++) {
+      layout[0][j] = layout[MAP_ROWS - 1][j] = 1;
+    }
+
+    // Spawn seguro
+    for (let row = 1; row < MAP_ROWS - 1; row++) {
+      for (let col = 1; col < MAP_COLS - 1; col++) {
+        if (
+          layout[row][col] === 0 &&
+          layout[row + 1][col] === 0 &&
+          layout[row][col + 1] === 0
+        ) {
+          spawn = { x: col * TILE_SIZE + TILE_SIZE / 2, y: row * TILE_SIZE + TILE_SIZE / 2 };
+          return { layout, spawn };
+        }
+      }
+    }
+  }
+}
+
+function startNewPhase() {
+  const result = generateSafeMap();
+  map = result.layout;
+
+  // Spawn player
+  player.x = result.spawn.x;
+  player.y = result.spawn.y;
+  player.angle = 0;
+  bullets = [];
+
+  // Células acessíveis do spawn do player
+  const spawnRow = Math.floor(player.y / TILE_SIZE);
+  const spawnCol = Math.floor(player.x / TILE_SIZE);
+  const accessibleCells = getAccessibleCells(map, spawnRow, spawnCol);
+
+  // Gerar inimigos só em células acessíveis
+  enemies = [];
+  while (enemies.length < 3 + Math.floor(phase / 2)) {
+    const idx = Math.floor(Math.random() * accessibleCells.length);
+    const cell = accessibleCells[idx];
+    const x = cell.c * TILE_SIZE + TILE_SIZE / 2;
+    const y = cell.r * TILE_SIZE + TILE_SIZE / 2;
+
+    // Evitar spawn sobre o player e inimigos já colocados
+    if (
+      Math.hypot(player.x - x, player.y - y) > TILE_SIZE * 1.5 &&
+      !enemies.some(e => Math.hypot(e.x - x, e.y - y) < TILE_SIZE)
+    ) {
+      enemies.push({ x, y, alive: true });
+    }
+  }
+}
+
+
+function resetGame() {
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem("highscore", highScore);
+  }
+  alert(`Você foi pego!\nPontuação: ${score}\nRecorde: ${highScore}`);
+  score = 0;
+  phase = 1;
+  document.getElementById("recordeValor").textContent = highScore;
+  document.getElementById("menu").style.display = "flex";
+  gameStarted = false;
+}
+
+function isWall(x, y) {
+  let col = Math.floor(x / TILE_SIZE);
+  let row = Math.floor(y / TILE_SIZE);
+  return map[row]?.[col] === 1;
+}
+
+function updatePlayer() {
+  let dx = 0, dy = 0;
+  if (keys["w"]) { dx += Math.cos(player.angle); dy += Math.sin(player.angle); }
+  if (keys["s"]) { dx -= Math.cos(player.angle); dy -= Math.sin(player.angle); }
+  if (keys["a"]) { dx += Math.sin(player.angle); dy -= Math.cos(player.angle); }
+  if (keys["d"]) { dx -= Math.sin(player.angle); dy += Math.cos(player.angle); }
+
+  let newX = player.x + dx * player.speed;
+  let newY = player.y + dy * player.speed;
+  if (!isWall(newX, player.y)) player.x = newX;
+  if (!isWall(player.x, newY)) player.y = newY;
+}
+
+function shoot() {
+  const rayX = Math.cos(player.angle);
+  const rayY = Math.sin(player.angle);
+  let x = player.x, y = player.y;
+
+  for (let i = 0; i < 1000; i++) {
+    x += rayX; y += rayY;
+    if (isWall(x, y)) break;
+
+    for (let e of enemies) {
+      if (e.alive && Math.hypot(e.x - x, e.y - y) < 12) {
+        e.alive = false;
+        break;
+      }
+    }
+  }
+
+  bullets.push({ startX: player.x, startY: player.y, endX: x, endY: y, time: 10 });
+}
+
+function updateEnemies() {
+  if (!gameStarted) return;
+  for (let e of enemies) {
+    if (!e.alive) continue;
+    const dx = player.x - e.x;
+    const dy = player.y - e.y;
+    const dist = Math.hypot(dx, dy);
+
+    if (dist < 20) {
+      gameStarted = false;
+      return resetGame();
+    }
+
+    const moveX = (dx / dist) * ENEMY_SPEED;
+    const moveY = (dy / dist) * ENEMY_SPEED;
+    if (!isWall(e.x + moveX, e.y)) e.x += moveX;
+    if (!isWall(e.x, e.y + moveY)) e.y += moveY;
+  }
+}
+
+function checkVictory() {
+  if (enemies.every(e => !e.alive)) {
+    score += 10;
+    phase++;
+    startNewPhase();
+  }
+}
+
+function drawHUD() {
+  ctx.fillStyle = "white";
+  ctx.font = "20px sans-serif";
+  ctx.fillText(`Fase: ${phase}`, 20, 30);
+  ctx.fillText(`Pontos: ${score}`, 20, 60);
+  ctx.fillText(`Recorde: ${highScore}`, 20, 90);
+}
+
+function drawAll() {
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  map.forEach((row, r) => row.forEach((t, c) => {
+    ctx.fillStyle = t === 1 ? "#4444aa" : "#222";
+    ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  }));
+  for (let b of bullets) {
+    ctx.strokeStyle = "#f00";
+    ctx.beginPath(); ctx.moveTo(b.startX, b.startY);
+    ctx.lineTo(b.endX, b.endY);
+    ctx.stroke(); b.time--;
+  }
+  bullets = bullets.filter(b => b.time > 0);
+  for (let e of enemies) {
+    if (e.alive) {
+      ctx.fillStyle = "#f0f";
+      ctx.beginPath(); ctx.arc(e.x, e.y, 12, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  ctx.fillStyle = "#0f0";
+  ctx.beginPath(); ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = "#0f0";
+  ctx.beginPath(); ctx.moveTo(player.x, player.y);
+  ctx.lineTo(player.x + Math.cos(player.angle) * 30, player.y + Math.sin(player.angle) * 30);
+  ctx.stroke();
+
+  // Mira no centro da tela
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.arc(canvas.width / 2, canvas.height / 2, 3, 0, Math.PI * 2);
+  ctx.fill();
+
+  drawHUD();
+}
+
+function gameLoop() {
+  if (gameStarted) {
+    updatePlayer();
+    updateEnemies();
+    checkVictory();
+    drawAll();
+  }
+  requestAnimationFrame(gameLoop);
+}
+
+function getAccessibleCells(layout, startRow, startCol) {
+  const visited = Array.from({ length: MAP_ROWS }, () => Array(MAP_COLS).fill(false));
+  const queue = [{ r: startRow, c: startCol }];
+  visited[startRow][startCol] = true;
+  const accessible = [];
+
+  while (queue.length > 0) {
+    const { r, c } = queue.shift();
+    accessible.push({ r, c });
+
+    const neighbors = [
+      { r: r - 1, c },
+      { r: r + 1, c },
+      { r, c: c - 1 },
+      { r, c: c + 1 }
+    ];
+
+    for (const n of neighbors) {
+      if (
+        n.r >= 0 && n.r < MAP_ROWS &&
+        n.c >= 0 && n.c < MAP_COLS &&
+        !visited[n.r][n.c] &&
+        layout[n.r][n.c] === 0
+      ) {
+        visited[n.r][n.c] = true;
+        queue.push(n);
+      }
+    }
+  }
+
+  return accessible;
+}
+
+
+gameLoop();

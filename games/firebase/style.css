@@ -1,177 +1,48 @@
-body {
-    font-family: sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #333;
-    margin: 0;
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #000;
 }
 
-#game-container {
-    display: flex;
-    flex-direction: column;
-    background-color: #28a745; /* Green felt color */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  cursor: crosshair;
 }
 
-#top-area {
-    display: flex;
-    margin-bottom: 20px;
-    gap: 15px; /* Space between elements */
+#menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.9);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
 }
 
-#foundation-piles {
-    display: flex;
-    gap: 15px;
-    margin-left: auto; /* Push foundation piles to the right */
+#menu h1 {
+  font-size: 3rem;
+  margin-bottom: 30px;
 }
 
-#tableau-area {
-    display: flex;
-    gap: 15px;
+#menu button {
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  background: #4444aa;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
 }
 
-.pile {
-    width: 80px; /* Standard card width */
-    height: 110px; /* Standard card height */
-    border: 2px dashed rgba(255, 255, 255, 0.5);
-    border-radius: 5px;
-    position: relative;
-    box-sizing: border-box; /* Include padding/border in width/height */
-    display: flex; /* For stacking cards later */
-    flex-direction: column; /* For stacking cards later */
-    align-items: flex-start;
+#menu p {
+  margin-top: 20px;
+  font-size: 1.1rem;
 }
-
-/* Basic card styling */
-.card {
-    width: 100%;
-    height: 100%;
-    background-color: #fff;
-    border: 1px solid #000;
-    border-radius: 5px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-    position: absolute; /* Allow stacking */
-    top: 0;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2em;
-    font-weight: bold;
-    color: black;
-    box-sizing: border-box;
-}
-
-.card.back {
-    background-color: #007bff; /* Blue for card backs */
-    background-image: linear-gradient(45deg, rgba(255,255,255,.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.2) 50%, rgba(255,255,255,.2) 75%, transparent 75%, transparent);
-    background-size: 20px 20px;
-    color: transparent; /* No text on back */
-}
-
-/* Specific styling for the deck to show the single card back */
-#deck {
-    z-index: 1; /* Make sure the deck card is visible */
-}
-
-/* For tableau piles, to allow stacking with an offset */
-.tableau-pile {
-    min-height: 110px; /* Ensure pile has height even if empty */
-}
-
-.tableau-pile .card {
-    position: relative; /* Cards within tableau will stack relatively */
-    margin-top: -85px; /* Adjust this value to control card overlap */
-}
-
-.tableau-pile .card:first-child {
-    margin-top: 0; /* The first card in a tableau pile should not be offset */
-}
-
-/* style.css (Adicione estas regras) */
-
-.card.dragging {
-    opacity: 0.7;
-    border: 2px dashed #eee; /* Feedback visual enquanto arrasta */
-}
-
-.pile.drag-over {
-    border: 2px dashed yellow; /* Feedback visual para a pilha de destino válida */
-    background-color: rgba(255, 255, 0, 0.1); /* Um leve brilho amarelado */
-}
-
-.card.face-up .suit-symbol {
-    /* Remova as propriedades de fonte e cor se estiverem aqui */
-    font-size: 0; /* Torna o texto do símbolo invisível */
-    width: 30px; /* Largura para sua imagem do naipe */
-    height: 30px; /* Altura para sua imagem do naipe */
-    background-size: contain; /* Redimensiona a imagem para caber */
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-/* Regras específicas para cada naipe */
-.card.face-up[data-suit="hearts"] .suit-symbol {
-    background-image: url('images/heart.png');
-}
-
-.card.face-up[data-suit="diamonds"] .suit-symbol {
-    background-image: url('images/diamond.png');
-}
-
-.card.face-up[data-suit="clubs"] .suit-symbol {
-    background-image: url('images/club.png');
-}
-
-.card.face-up[data-suit="spades"] .suit-symbol {
-    background-image: url('images/spade.png');
-}
-
-/* Opcional: Para o naipe pequeno no canto superior/inferior da carta */
-.card.face-up::before,
-.card.face-up::after {
-    content: ''; /* Essencial para pseudo-elementos com background-image */
-    position: absolute;
-    width: 20px; /* Tamanho menor para os cantos */
-    height: 20px;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
-.card.face-up::before {
-    top: 5px;
-    left: 5px;
-}
-
-.card.face-up::after {
-    bottom: 5px;
-    right: 5px;
-    transform: rotate(180deg); /* Vira o naipe inferior */
-}
-
-.card.face-up[data-suit="hearts"]::before,
-.card.face-up[data-suit="hearts"]::after {
-    background-image: url('images/heart.png');
-}
-
-.card.face-up[data-suit="diamonds"]::before,
-.card.face-up[data-suit="diamonds"]::after {
-    background-image: url('images/diamond.png');
-}
-
-.card.face-up[data-suit="clubs"]::before,
-.card.face-up[data-suit="clubs"]::after {
-    background-image: url('images/club.png');
-}
-
-.card.face-up[data-suit="spades"]::before,
-.card.face-up[data-suit="spades"]::after {
-    background-image: url('images/spade.png');
-}
-
-/* As cores dos naipes (vermelho/preto) ainda são controladas pelo JS no .card.face-up */
-/* Mas as cores das imagens não são afetadas. Se suas imagens já são coloridas, você pode remover a linha de style.color no JS. */

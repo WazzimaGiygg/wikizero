@@ -1,37 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solitaire (Paciência)</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>FPS Wiki Zero</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div id="game-container">
-        <div id="top-area">
-            <div id="deck-container" class="pile">
-                <div id="deck" class="card back"></div>
-            </div>
-            <div id="waste-pile" class="pile"></div>
-            <div id="foundation-piles">
-                <div class="foundation-pile pile" id="foundation-1"></div>
-                <div class="foundation-pile pile" id="foundation-2"></div>
-                <div class="foundation-pile pile" id="foundation-3"></div>
-                <div class="foundation-pile pile" id="foundation-4"></div>
-            </div>
-        </div>
+  <div id="menu">
+    <h1>FPS Wiki Zero</h1>
+    <button id="startBtn">Iniciar Jogo</button>
+    <p id="recorde">Recorde: <span id="recordeValor">0</span></p>
+  </div>
 
-        <div id="tableau-area">
-            <div class="tableau-pile pile" id="tableau-1"></div>
-            <div class="tableau-pile pile" id="tableau-2"></div>
-            <div class="tableau-pile pile" id="tableau-3"></div>
-            <div class="tableau-pile pile" id="tableau-4"></div>
-            <div class="tableau-pile pile" id="tableau-5"></div>
-            <div class="tableau-pile pile" id="tableau-6"></div>
-            <div class="tableau-pile pile" id="tableau-7"></div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
+  <canvas id="gameCanvas"></canvas>
+  <script src="script.js"></script>
 </body>
 </html>
