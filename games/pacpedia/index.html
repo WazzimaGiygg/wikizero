@@ -3,246 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacpédia contra os moderadores Wiki</title>
-    <style>
-        body {
-            background-color: #222;
-            color: #eee;
-            font-family: 'Courier New', monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-
-        /* Variáveis CSS para cores do labirinto - para cores aleatórias por fase */
-        :root {
-            --wall-color: #050;
-            --path-color: #1a1a1a;
-            --game-border-color: #0f0;
-        }
-
-        #game-area {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-        }
-
-        #game-info {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-            color: #0f0;
-        }
-
-        #game-container {
-            border: 2px solid var(--game-border-color);
-            background-color: #333;
-            padding: 10px;
-            display: grid;
-            gap: 0;
-            position: relative;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
-            outline: none;
-        }
-
-        .cell {
-            width: 30px;
-            height: 30px;
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8em;
-        }
-
-        .wall {
-            background-color: var(--wall-color);
-            border: 1px solid var(--game-border-color);
-        }
-
-        .path {
-            background-color: var(--path-color);
-        }
-
-        .player {
-            background-color: #ff0;
-            border: 2px solid #fff;
-            border-radius: 5px;
-            position: absolute;
-            width: 26px;
-            height: 26px;
-            transition: left 0.1s linear, top 0.1s linear;
-            box-sizing: border-box;
-            z-index: 10;
-        }
-
-        .dot {
-            background-color: #fff;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            position: absolute;
-            z-index: 5;
-        }
-
-        .power-pellet {
-            background-color: #00f;
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            position: absolute;
-            z-index: 6;
-        }
-
-        .ghost {
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Wikipedia_wordmark.svg/320px-Wikipedia_wordmark.svg.png');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            border: 2px solid #fff;
-            border-radius: 50%;
-            position: absolute;
-            width: 26px;
-            height: 26px;
-            transition: left 0.2s linear, top 0.2s linear;
-            box-sizing: border-box;
-            z-index: 8;
-        }
-
-        .ghost.scared {
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Wiki_logo.svg/320px-Wiki_logo.svg.png');
-            animation: flashScared 0.8s infinite alternate;
-        }
-
-        @keyframes flashScared {
-            from { opacity: 1; }
-            to { opacity: 0.5; }
-        }
-
-        #score-display, #lives-display, #message-display {
-            font-size: 1.2em;
-            color: #0f0;
-            text-align: center;
-        }
-
-        #message-display {
-            margin-top: 10px;
-        }
-
-        #start-button, #name-input-button, #resume-button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 1.5em;
-            background-color: #0a0;
-            color: #eee;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        #start-button:hover, #name-input-button:hover, #resume-button:hover {
-            background-color: #070;
-        }
-
-        #name-input-container {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        #player-name-input {
-            padding: 8px;
-            font-size: 1.2em;
-            width: 200px;
-            margin-bottom: 10px;
-            background-color: #444;
-            color: #eee;
-            border: 1px solid #0f0;
-            border-radius: 3px;
-        }
-
-        #high-scores-container {
-            margin-left: 30px;
-            background-color: #333;
-            border: 2px solid #0f0;
-            padding: 15px;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
-            border-radius: 8px;
-            width: 250px;
-            box-sizing: border-box;
-        }
-
-        #high-scores-container h2 {
-            color: #0f0;
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #070;
-            padding-bottom: 10px;
-        }
-
-        #high-scores-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        #high-scores-list li {
-            padding: 8px 0;
-            border-bottom: 1px dashed #444;
-            display: flex;
-            justify-content: space-between;
-            font-size: 1em;
-        }
-
-        #high-scores-list li:last-child {
-            border-bottom: none;
-        }
-
-        #high-scores-list li .player-name {
-            color: #fff;
-        }
-
-        #high-scores-list li .player-score {
-            color: #ff0;
-            font-weight: bold;
-        }
-    </style>
+    <title>Pac-Man Genérico</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Pacpédia contra os moderadores Wiki</h1>
-    <div id="game-info">
-        <div id="score-display">Pontos: 0</div>
-        <div id="lives-display">Vidas: ❤️ ❤️ ❤️</div>
-    </div>
-    <div id="game-area">
-        <div id="game-container">
+    <h1>Nosso Pac-Man Genérico</h1>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div id="hud">
+            <div id="scoreDisplay">Pontuação: 0</div>
+            <div id="messageDisplay">Pressione "Iniciar Jogo"</div>
+            <button id="startButton">Iniciar Jogo</button>
+            <button id="settingsButton">Configurações</button>
         </div>
-        <div id="high-scores-container">
-            <h2>Recordes</h2>
-            <ul id="high-scores-list">
-            </ul>
+        <div id="settingsPanel" class="hidden">
+            <h2>Configurações</h2>
+            <label for="speedRange">Velocidade:</label>
+            <input type="range" id="speedRange" min="50" max="500" value="150">
+            <span id="currentSpeedValue">150</span> ms
+            <button id="closeSettingsButton">Fechar</button>
         </div>
     </div>
-    <div id="message-display">Use as setas do teclado para mover. Clique em "Iniciar Jogo" para começar!</div>
-    <button id="start-button">Iniciar Jogo</button>
-    <button id="resume-button" style="display: none;">Voltar a Jogar</button>
-    <button id="developer-button">Desenvolvedor: Invencível</button> <div id="name-input-container">
-
-    <div id="name-input-container">
-        <p>Parabéns! Você fez um novo recorde!</p>
-        <input type="text" id="player-name-input" placeholder="Seu nome">
-        <button id="name-input-button">Salvar Recorde</button>
-    </div>
-
     <script src="script.js"></script>
 </body>
 </html>
