@@ -1,46 +1,93 @@
 body {
-    margin: 0;
-    overflow: hidden; /* Remove barras de rolagem */
-    font-family: Arial, sans-serif;
-    background-color: #000;
-    color: #fff;
+    font-family: sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    background-color: #333;
+    margin: 0;
 }
 
 #game-container {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #28a745; /* Green felt color */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
-canvas {
-    display: block;
-    width: 100% !important; /* Garante que o canvas ocupe a tela toda */
-    height: 100% !important; /* Garante que o canvas ocupe a tela toda */
+#top-area {
+    display: flex;
+    margin-bottom: 20px;
+    gap: 15px; /* Space between elements */
 }
 
-#crosshair {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    border: 1px solid white;
-    transform: translate(-50%, -50%);
-    box-sizing: border-box;
-    z-index: 10;
+#foundation-piles {
+    display: flex;
+    gap: 15px;
+    margin-left: auto; /* Push foundation piles to the right */
 }
 
-#ui-elements {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 10px;
+#tableau-area {
+    display: flex;
+    gap: 15px;
+}
+
+.pile {
+    width: 80px; /* Standard card width */
+    height: 110px; /* Standard card height */
+    border: 2px dashed rgba(255, 255, 255, 0.5);
     border-radius: 5px;
-    z-index: 10;
+    position: relative;
+    box-sizing: border-box; /* Include padding/border in width/height */
+    display: flex; /* For stacking cards later */
+    flex-direction: column; /* For stacking cards later */
+    align-items: flex-start;
+}
+
+/* Basic card styling */
+.card {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    border: 1px solid #000;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    position: absolute; /* Allow stacking */
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    font-weight: bold;
+    color: black;
+    box-sizing: border-box;
+}
+
+.card.back {
+    background-color: #007bff; /* Blue for card backs */
+    background-image: linear-gradient(45deg, rgba(255,255,255,.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.2) 50%, rgba(255,255,255,.2) 75%, transparent 75%, transparent);
+    background-size: 20px 20px;
+    color: transparent; /* No text on back */
+}
+
+/* Specific styling for the deck to show the single card back */
+#deck {
+    z-index: 1; /* Make sure the deck card is visible */
+}
+
+/* For tableau piles, to allow stacking with an offset */
+.tableau-pile {
+    min-height: 110px; /* Ensure pile has height even if empty */
+}
+
+.tableau-pile .card {
+    position: relative; /* Cards within tableau will stack relatively */
+    margin-top: -85px; /* Adjust this value to control card overlap */
+}
+
+.tableau-pile .card:first-child {
+    margin-top: 0; /* The first card in a tableau pile should not be offset */
 }
