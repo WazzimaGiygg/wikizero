@@ -1,0 +1,100 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: var(--bg-color, #282c34); /* Variável para cor de fundo */
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+#game-container {
+    position: relative;
+    border: 2px solid var(--border-color, #61dafb); /* Variável para cor da borda */
+    overflow: hidden;
+    background-color: var(--path-color, #333); /* Caminho */
+}
+
+#maze {
+    display: grid;
+    background-color: var(--path-color, #333);
+}
+
+.wall {
+    background-color: var(--wall-color, #61dafb); /* Variável para cor das paredes */
+}
+
+.path {
+    background-color: var(--path-color, #333); /* Variável para cor dos caminhos */
+}
+
+#player {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: var(--player-color, #e0b0ff); /* Variável para cor do jogador */
+    border-radius: 50%;
+    transition: left 0.05s linear, top 0.05s linear;
+}
+
+#start-point, #end-point {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    box-sizing: border-box;
+}
+
+#start-point {
+    background-color: var(--start-color, #4CAF50); /* Verde */
+    border: 2px solid var(--start-border-color, #388E3C);
+}
+
+#end-point {
+    background-color: var(--end-color, #f44336); /* Vermelho */
+    border: 2px solid var(--end-border-color, #D32F2F);
+}
+
+#info {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column; /* Para colocar o tempo e os botões em colunas */
+    align-items: center;
+    gap: 10px;
+}
+
+#info p {
+    font-size: 1.2em;
+    margin: 0;
+}
+
+.buttons-container {
+    display: flex;
+    gap: 15px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 1em;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
