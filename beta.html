@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Comparador e Conversor Numérico Composto</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef;
+      padding: 20px;
+    }
+    select, button, input {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    #console {
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      padding: 10px;
+      margin-top: 20px;
+      height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Comparador e Conversor Numérico Composto</h2>
+
+  <!-- Comparador -->
+  <label for="comparador">Escolha uma comparação:</label>
+  <select id="comparador">
+    <option value="ipv">IPv4 vs IPv6</option>
+    <option value="senha">Senha Segura vs Senha Comum</option>
+    <option value="tel">Telefone Nacional vs Internacional</option>
+  </select>
+  <button onclick="comparar()">Comparar</button>
+
+  <hr>
+
+  <!-- Conversor -->
+  <h3>Conversor e Interpretação de Números</h3>
+  <label for="base">Escolha a base:</label>
+  <select id="base">
+    <option value="2">Binário</option>
+    <option value="8">Octal</option>
+    <option value="10">Decimal</option>
+    <option value="16">Hexadecimal</option>
+  </select>
+  <input type="text" id="numero" placeholder="Digite um número ou composto">
+  <button onclick="converter()">Converter e Interpretar</button>
+
+  <div id="console"></div>
+
+  <script>
+    const consoleDiv = document.getElementById("console");
+    let linhas = 0;
+    const limite = 127;
+
+    const comparacoes = {
+      ipv: [
+        "IPv4 usa endereços de 32 bits (ex: 192.168.0.1).",
+        "IPv6 usa endereços de 128 bits (ex: 2001:0db8::1).",
+        "IPv4 tem cerca de 4 bilhões de endereços.",
+        "IPv6 tem 340 undecilhões de endereços (quase infinito).",
+        "IPv6 é mais seguro nativamente (IPSec embutido)."
+      ],
+      senha: [
+        "Senhas seguras incluem letras, números e símbolos (!@#).",
+        "Senhas mais usadas: '123456', 'qwerty', 'senha123'.",
+        "Senhas fortes têm mais de 12 caracteres.",
+        "Senhas comuns são vulneráveis a ataques de dicionário.",
+        "Usar autenticação de dois fatores melhora a segurança."
+      ],
+      tel: [
+        "Telefone nacional: (11) 91234-5678",
+        "Telefone internacional: +55 11 91234-5678",
+        "Chamadas internacionais precisam de código do país.",
+        "Números internacionais incluem código de área.",
+        "Formatos variam: EUA usa +1, Brasil usa +55."
+      ]
+    };
+
+    function comparar() {
+      const tipo = document.getElementById("comparador").value;
+      if (linhas >= limite) {
+        alert("Limite de 127 linhas atingido!");
+        return;
+      }
+      const novas = comparacoes[tipo];
+      novas.forEach((linha) => {
+        adicionarLinha(linha);
+      });
+    }
+
+    function converter() {
+      const base = parseInt(document.getElementById("base").value);
+      const entrada = document.getElementById("numero").value.trim().toLowerCase();
+
+      if (linhas >= limite) {
+        alert("Limite de 127 linhas atingido!");
+        return;
+      }
+
+      adicionarLinha(`Entrada: ${entrada} (base ${base})`);
+
+      if (base === 2) {
+        const decimal = parseInt(entrada, 2);
+        adicionarLinha(`→ Decimal: ${isNaN(decimal) ? "inválido" : decimal}`);
+        adicionarLinha(`→ Interpretação Binária: ${interpretarBinario(entrada)}`);
+      } else if (base === 8) {
+        const decimal = parseInt(entrada, 8);
+        adicionarLinha(`→ Decimal: ${isNaN(decimal) ? "inválido" : decimal}`);
+        const interpretado = interpretarOctal(entrada);
+        adicionarLinha(`→ Interpretação Octal: ${interpretado}`);
+        calcularValorComposto(entrada, "octal");
+      } else if (base === 16) {
+        const decimal = parseInt(entrada, 16);
+        adicionarLinha(`→ Decimal: ${isNaN(decimal) ? "inválido" : decimal}`);
+        const interpretado = interpretarHexa(entrada);
+        adicionarLinha(`→ Interpretação Hexadecimal: ${interpretado}`);
+        calcularValorComposto(entrada, "hexa");
+      } else if (base === 10) {
+        const decimal = parseInt(entrada, 10);
+        if (!isNaN(decimal)) {
+          adicionarLinha(`→ Binário: ${decimal.toString(2)}`);
+          adicionarLinha(`→ Octal: ${decimal.toString(8)}`);
+          adicionarLinha(`→ Hexadecimal: ${decimal.toString(16)}`);
+        } else {
+          adicionarLinha("→ Entrada inválida.");
+        }
+      }
+    }
+
+    function adicionarLinha(texto) {
+      if (linhas >= limite) return;
+      consoleDiv.innerText += `${linhas + 1}: ${texto}\n`;
+      linhas++;
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    }
+
+    function interpretarBinario(bin) {
+      const mapa = {
+        "0": "0", "1": "1",
+        "10": "X0", "11": "X1",
+        "100": "Y0", "101": "Y1",
+        "110": "Z0", "111": "Z1"
+      };
+
+      let result = "";
+      let i = 0;
+      while (i < bin.length) {
+        let matched = false;
+        for (let j = 3; j >= 1; j--) {
+          const parte = bin.slice(i, i + j);
+          if (mapa[parte]) {
+            result += mapa[parte] + " ";
+            i += j;
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) {
+          result += "? ";
+          i++;
+        }
+      }
+      return result.trim();
+    }
+
+    function interpretarOctal(oct) {
+      const primarios = ['0','1','2','3','4','5','6','7'];
+      const compostos = [];
+      for (let prefix of ['x', 'y', 'z']) {
+        for (let i = 0; i <= 7; i++) {
+          compostos.push(prefix + i);
+        }
+      }
+
+      let result = "";
+      let i = 0;
+      while (i < oct.length) {
+        const ch = oct[i];
+        if (primarios.includes(ch)) {
+          result += ch + " ";
+          i++;
+        } else if (i + 1 < oct.length) {
+          const combinado = oct[i] + oct[i + 1];
+          if (compostos.includes(combinado)) {
+            result += combinado + " ";
+            i += 2;
+          } else {
+            result += "? ";
+            i++;
+          }
+        } else {
+          result += "? ";
+          i++;
+        }
+      }
+      return result.trim();
+    }
+
+    function interpretarHexa(hex) {
+      const primarios = "0123456789abcdef".split("");
+      const compostos = [];
+      for (let prefix of ['x', 'y', 'z']) {
+        for (let c of primarios) {
+          compostos.push(prefix + c);
+        }
+      }
+
+      let result = "";
+      let i = 0;
+      while (i < hex.length) {
+        const ch = hex[i];
+        if (primarios.includes(ch)) {
+          result += ch + " ";
+          i++;
+        } else if (i + 1 < hex.length) {
+          const combinado = hex[i] + hex[i + 1];
+          if (compostos.includes(combinado)) {
+            result += combinado + " ";
+            i += 2;
+          } else {
+            result += "? ";
+            i++;
+          }
+        } else {
+          result += "? ";
+          i++;
+        }
+      }
+      return result.trim();
+    }
+
+    function calcularValorComposto(entrada, tipo) {
+      const grupos = entrada.match(/([xyz][0-9a-f])/g);
+      if (!grupos) return;
+
+      grupos.forEach(g => {
+        let base = 0;
+        let pos = 0;
+
+        if (tipo === "octal") {
+          base = g[0] === 'x' ? 8 : g[0] === 'y' ? 16 : 24;
+          pos = parseInt(g[1]);
+          if (isNaN(pos) || pos > 7) {
+            adicionarLinha(`→ ${g.toUpperCase()} inválido para octal composto`);
+            return;
+          }
+        } else if (tipo === "hexa") {
+          base = g[0] === 'x' ? 16 : g[0] === 'y' ? 32 : 48;
+          pos = parseInt(g[1], 16);
+          if (isNaN(pos) || pos > 15) {
+            adicionarLinha(`→ ${g.toUpperCase()} inválido para hexadecimal composto`);
+            return;
+          }
+        }
+
+        const valor = base + pos;
+        adicionarLinha(`→ ${g.toUpperCase()} representa o valor decimal: ${valor}`);
+      });
+    }
+  </script>
+
+</body>
+</html>
