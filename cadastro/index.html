@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro na Rede Social - Minha Rede</title>
+    <link rel="stylesheet" href="style.css"> <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+    
+</head>
+<body>
+    <div class="container">
+        <h1>Bem-vindo à Minha Rede Social</h1>
+        <p>Para acessar ou se cadastrar, por favor, utilize sua conta Google.</p>
+
+        <button id="google-login-btn" class="login-button google">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/100px-Google_%22G%22_logo.svg.png" alt="Google Logo">
+            Entrar com Google
+        </button>
+
+        <div id="feedback-message" class="message"></div>
+
+        <div id="profile-setup-section" style="display:none;">
+            <h2>Quase lá! Complete seu perfil:</h2>
+            <form id="profile-form">
+                <label for="username">Nome de Usuário:</label>
+                <input type="text" id="username" required>
+                <label for="bio">Biografia:</label>
+                <textarea id="bio"></textarea>
+                <button type="submit">Salvar Perfil</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script> </body>
+</html>
