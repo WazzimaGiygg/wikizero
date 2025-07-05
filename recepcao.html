@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -107,23 +108,23 @@
         <h1>Fórum</h1>
 
         <div id="loginPromptSection" style="display: none; text-align: center; padding: 20px; border: 1px dashed #ccc; border-radius: 5px;">
-            <p>Faça login para criar novos tópicos e participar das discussões.</p>
+            <p>Faça login para criar novos fóruns e participar das discussões.</p>
             <p>Você pode fazer login na página principal da Wiki Zone Zero Mod.</p>
         </div>
 
         <div id="createForumSection" style="display: none;">
-            <h2>Criar Novo Tópico</h2>
-            <input type="text" id="forumSubject" placeholder="Assunto do Tópico">
-            <textarea id="firstMessageContent" placeholder="Primeira mensagem do tópico"></textarea>
-            <button id="createForumBtn">Criar Tópico</button>
+            <h2>Criar Novo Fórum</h2>
+            <input type="text" id="forumSubject" placeholder="Assunto do Fórum">
+            <textarea id="firstMessageContent" placeholder="Primeira mensagem do fórum"></textarea>
+            <button id="createForumBtn">Criar Fórum</button>
         </div>
 
         <hr>
 
         <div id="listForumsSection">
-            <h2>Tópicos Disponíveis</h2>
+            <h2>Fóruns Disponíveis</h2>
             <ul id="forumList">
-                <li>Carregando tópicos...</li>
+                <li>Carregando fóruns...</li>
             </ul>
         </div>
 
@@ -169,8 +170,8 @@
 
         let currentUser = null; // Variável global para o usuário autenticado
         let currentUserIsAdmin = false; // Variável para rastrear o status de admin
-        let currentLoadedTopicId = null; // ID do tópico atualmente visualizado
-        let currentLoadedTopicCreatorUid = null; // ID do criador do tópico atualmente visualizado
+        let currentLoadedForumId = null; // ID do fórum atualmente visualizado
+        let currentLoadedForumUserId = null; // ID do criador do fórum atualmente visualizado (necessário para a estrutura do Firestore)
 
         // --- Lógica de Autenticação para o forum.html ---
         auth.onAuthStateChanged(async (user) => {
@@ -188,20 +189,21 @@
                 // Se o usuário está logado, mostra a seção de criação
                 document.getElementById('createForumSection').style.display = 'block';
                 document.getElementById('loginPromptSection').style.display = 'none';
-                displayTopics(); // Carrega os tópicos, considerando o status de admin
+                displayForums(); // Carrega os fóruns, considerando o status de admin
             } else {
                 // Se não está logado, oculta a seção de criação e mostra o aviso
                 document.getElementById('createForumSection').style.display = 'none';
                 document.getElementById('loginPromptSection').style.display = 'block';
-                // Ainda chamamos displayTopics para carregar tópicos públicos, se houver
-                displayTopics(); 
+                document.getElementById('forumList').innerHTML = '<li>Faça login para ver os fóruns disponíveis.</li>';
+                currentUserIsAdmin = false; // Garante que o status de admin seja falso
+                displayForums(); // Ainda chamamos para o caso de querer mostrar fóruns públicos (adaptável)
             }
         });
 
-        // --- Lógica de Criação de Tópico ---
+        // --- Lógica de Criação de Fórum ---
         document.getElementById('createForumBtn').addEventListener('click', async () => {
             if (!currentUser) {
-                alert("Você precisa estar logado para criar um tópico!");
+                alert("Você precisa estar logado para criar um fórum!");
                 return;
             }
 
@@ -214,79 +216,89 @@
             }
 
             try {
-                // 1. Crie um novo documento de tópico diretamente na coleção 'forum'
-                const newTopicRef = await db.collection('forum').add({
-                    titulo: subject, // Mudado para 'titulo' conforme as regras
-                    descricao: firstContent, // Conteúdo da primeira mensagem como descrição do tópico
-                    criadorUid: currentUser.uid, // Salva o UID do criador
-                    criadorNome: currentUser.displayName || currentUser.email, // Salva o nome do criador
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                // 1. Crie um novo documento de fórum dentro do userId do usuário logado
+                const newForumRef = await db.collection('users')
+                                            .doc(currentUser.uid)
+                                            .collection('forums')
+                                            .add({
+                                                subject: subject,
+                                                authorUid: currentUser.uid, // Salva o UID do criador
+                                                authorName: currentUser.displayName || currentUser.email, // Salva o nome do criador
+                                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                                            });
 
-                // 2. Adicione a primeira mensagem a este tópico na subcoleção 'posts'
-                await newTopicRef.collection('posts').add({
-                    content: firstContent, // O conteúdo da primeira mensagem
+                // 2. Adicione a primeira mensagem a este fórum
+                await newForumRef.collection('messages').add({
+                    content: firstContent,
                     userId: currentUser.uid, // ID do usuário que enviou a mensagem
                     userName: currentUser.displayName || currentUser.email, // Nome do usuário
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp() // Mudado para createdAt
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                alert("Tópico criado com sucesso!");
+                alert("Fórum criado com sucesso!");
                 document.getElementById('forumSubject').value = '';
                 document.getElementById('firstMessageContent').value = '';
-                displayTopics(); // Atualiza a lista de tópicos
+                displayForums(); // Atualiza a lista de fóruns
             } catch (error) {
-                console.error("Erro ao criar tópico:", error);
-                alert("Ocorreu um erro ao criar o tópico: " + error.message);
+                console.error("Erro ao criar fórum:", error);
+                alert("Ocorreu um erro ao criar o fórum: " + error.message);
             }
         });
 
-        // --- Lógica de Listagem de Tópicos ---
-        async function displayTopics() {
+        // --- Lógica de Listagem de Fóruns (Modificada para Admins) ---
+        async function displayForums() {
             const forumListElement = document.getElementById('forumList');
-            forumListElement.innerHTML = '<li>Carregando tópicos...</li>';
+            forumListElement.innerHTML = '<li>Carregando fóruns...</li>'; // Limpa e mostra carregando
 
-            // A query agora é sempre na coleção de nível superior 'forum'
-            let topicsQuery = db.collection('forum').orderBy('createdAt', 'desc');
+            let forumsQuery;
+
+            if (currentUserIsAdmin) {
+                // Se for admin, usa collectionGroup para obter todos os fóruns de todos os usuários
+                forumsQuery = db.collectionGroup('forums');
+            } else if (currentUser) {
+                // Se for usuário normal logado, mostra apenas os seus fóruns
+                forumsQuery = db.collection('users').doc(currentUser.uid).collection('forums');
+            } else {
+                // Se não está logado, não pode ver os fóruns (pela sua estrutura e regras)
+                forumListElement.innerHTML = '<li>Faça login para ver e criar fóruns.</li>';
+                return;
+            }
 
             try {
-                const querySnapshot = await topicsQuery.get();
+                const querySnapshot = await forumsQuery.orderBy('createdAt', 'desc').get();
 
                 if (querySnapshot.empty) {
-                    forumListElement.innerHTML = '<li>Nenhum tópico encontrado.</li>';
+                    forumListElement.innerHTML = '<li>Nenhum fórum encontrado.</li>';
                     return;
                 }
 
                 forumListElement.innerHTML = ''; // Limpa "Carregando..."
                 querySnapshot.forEach(doc => {
-                    const topic = doc.data();
-                    const topicId = doc.id;
+                    const forum = doc.data();
+                    const forumId = doc.id;
+                    // Para o collectionGroup, o caminho completo do documento é necessário para acessar a subcoleção de mensagens.
+                    // Isso é capturado pelo doc.ref.parent.parent.id, que é o userId do criador do fórum.
+                    const forumCreatorUid = doc.ref.parent.parent.id; // Isso obtém o userId pai do fórum
 
                     const listItem = document.createElement('li');
-                    const topicDate = topic.createdAt ? new Date(topic.createdAt.toDate()).toLocaleString() : 'Data desconhecida';
+                    const forumDate = forum.createdAt ? new Date(forum.createdAt.toDate()).toLocaleString() : 'Data desconhecida';
                     
-                    // Safely get topic.titulo, defaulting to an empty string if undefined/null
-                    const topicTitle = topic.titulo ?? ''; 
+                    let forumInfoHtml = `<a href="#" data-forum-id="${forumId}" data-forum-creator-uid="${forumCreatorUid}">${forum.subject}</a><span class="forum-date">${forumDate}</span>`;
                     
-                    let topicInfoHtml = `<a href="#" data-topic-id="${topicId}" data-topic-creator-uid="${topic.criadorUid}">${topicTitle}</a><span class="forum-date">${topicDate}</span>`;
-                    
-                    // Somente mostra botões de editar/remover se o usuário for admin OU criador do tópico
-                    if (currentUser && (currentUserIsAdmin || topic.criadorUid === currentUser.uid)) {
-                        // Pass topicTitle, ensuring it's a string, and escape for HTML attribute
-                        const escapedTopicTitle = topicTitle.replace(/'/g, "\\'");
-                        topicInfoHtml += `
+                    if (currentUserIsAdmin || (currentUser && forum.authorUid === currentUser.uid)) {
+                        forumInfoHtml += `
                             <div class="forum-actions">
-                                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent edit-btn" onclick="editTopic('${topicId}', '${escapedTopicTitle}')">Editar</button>
-                                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored delete-btn" onclick="deleteTopic('${topicId}')">Remover</button>
+                                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent edit-btn" onclick="editForum('${forumCreatorUid}', '${forumId}', '${forum.subject.replace(/'/g, "\\'")}')">Editar</button>
+                                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored delete-btn" onclick="deleteForum('${forumCreatorUid}', '${forumId}')">Remover</button>
                             </div>
                         `;
                     }
-                    listItem.innerHTML = topicInfoHtml;
+                    listItem.innerHTML = forumInfoHtml;
                     
                     listItem.querySelector('a').addEventListener('click', (e) => {
                         e.preventDefault();
-                        // Ao clicar, carregamos as mensagens do tópico, passando o ID do criador do tópico
-                        loadTopicMessages(topicId, topic.criadorUid, topicTitle); // Pass topicTitle directly
+                        // Ao clicar, carregamos as mensagens do fórum, passando o ID do criador
+                        loadForumMessages(forumCreatorUid, forumId, forum.subject);
                     });
                     forumListElement.appendChild(listItem);
                 });
@@ -296,57 +308,48 @@
                 }
 
             } catch (error) {
-                console.error("Erro ao carregar tópicos:", error);
-                forumListElement.innerHTML = '<li>Erro ao carregar tópicos.</li>';
+                console.error("Erro ao carregar fóruns:", error);
+                forumListElement.innerHTML = '<li>Erro ao carregar fóruns.</li>';
             }
         }
 
-        // --- Função para Editar Tópico (Apenas Admin ou Proprietário) ---
-        async function editTopic(topicId, currentSubject) {
-            // Busque o documento do tópico para obter o criadorUid para a validação
-            const topicDoc = await db.collection('forum').doc(topicId).get();
-            const topicCreatorUid = topicDoc.exists ? topicDoc.data().criadorUid : null;
-
-            if (!currentUser || (!currentUserIsAdmin && currentUser.uid !== topicCreatorUid)) {
-                alert("Você não tem permissão para editar este tópico.");
+        // --- Função para Editar Fórum (Apenas Admin ou Proprietário) ---
+        async function editForum(forumCreatorUid, forumId, currentSubject) {
+            if (!currentUser || (!currentUserIsAdmin && currentUser.uid !== forumCreatorUid)) {
+                alert("Você não tem permissão para editar este fórum.");
                 return;
             }
 
-            // Ensure currentSubject is a string for prompt
-            const newSubject = prompt("Editar assunto do tópico:", currentSubject ?? '');
-            if (newSubject !== null && newSubject.trim() !== '') { // Check for null (cancel button)
+            const newSubject = prompt("Editar assunto do fórum:", currentSubject);
+            if (newSubject && newSubject.trim() !== '') {
                 try {
-                    await db.collection('forum').doc(topicId).update({
-                        titulo: newSubject.trim(), // Atualiza o campo 'titulo'
+                    await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).update({
+                        subject: newSubject.trim(),
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    alert("Tópico atualizado com sucesso!");
-                    displayTopics(); // Recarrega a lista para mostrar a mudança
+                    alert("Fórum atualizado com sucesso!");
+                    displayForums(); // Recarrega a lista para mostrar a mudança
                 } catch (error) {
-                    console.error("Erro ao atualizar tópico:", error);
-                    alert("Erro ao atualizar tópico: " + error.message);
+                    console.error("Erro ao atualizar fórum:", error);
+                    alert("Erro ao atualizar fórum: " + error.message);
                 }
             }
         }
 
-        // --- Função para Deletar Tópico (Apenas Admin ou Proprietário) ---
-        async function deleteTopic(topicId) {
-             // Busque o documento do tópico para obter o criadorUid para a validação
-            const topicDoc = await db.collection('forum').doc(topicId).get();
-            const topicCreatorUid = topicDoc.exists ? topicDoc.data().criadorUid : null;
-
-            if (!currentUser || (!currentUserIsAdmin && currentUser.uid !== topicCreatorUid)) {
-                alert("Você não tem permissão para remover este tópico.");
+        // --- Função para Deletar Fórum (Apenas Admin ou Proprietário) ---
+        async function deleteForum(forumCreatorUid, forumId) {
+            if (!currentUser || (!currentUserIsAdmin && currentUser.uid !== forumCreatorUid)) {
+                alert("Você não tem permissão para remover este fórum.");
                 return;
             }
 
-            if (!confirm('Tem certeza que deseja remover este tópico e TODAS as suas mensagens? Esta ação é irreversível!')) {
+            if (!confirm('Tem certeza que deseja remover este fórum e TODAS as suas mensagens? Esta ação é irreversível!')) {
                 return;
             }
 
             try {
                 // Para deletar as mensagens da subcoleção primeiro
-                const messagesRef = db.collection('forum').doc(topicId).collection('posts'); // Caminho correto para posts
+                const messagesRef = db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages');
                 const messagesSnapshot = await messagesRef.get();
                 const batch = db.batch();
 
@@ -355,44 +358,46 @@
                         batch.delete(msgDoc.ref);
                     });
                     await batch.commit();
-                    console.log('Todas as mensagens do tópico foram removidas.');
+                    console.log('Todas as mensagens do fórum foram removidas.');
                 }
                 
-                // Agora, deleta o documento do tópico
-                await db.collection('forum').doc(topicId).delete();
+                // Agora, deleta o documento do fórum
+                await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).delete();
                 
-                alert("Tópico removido com sucesso!");
-                displayTopics(); // Recarrega a lista de tópicos
+                alert("Fórum removido com sucesso!");
+                displayForums(); // Recarrega a lista de fóruns
             } catch (error) {
-                console.error("Erro ao remover tópico:", error);
-                alert("Erro ao remover tópico: " + error.message);
+                console.error("Erro ao remover fórum:", error);
+                alert("Erro ao remover fórum: " + error.message);
             }
         }
 
         // --- Lógica de Exibição e Envio de Mensagens ---
-        async function loadTopicMessages(topicId, topicCreatorUid, subject) {
-            currentLoadedTopicId = topicId;
-            currentLoadedTopicCreatorUid = topicCreatorUid; // Armazena o UID do criador do tópico
+        async function loadForumMessages(userId, forumId, subject) {
+            currentLoadedForumId = forumId;
+            currentLoadedForumUserId = userId; // Salva o ID do criador do fórum
 
             document.getElementById('listForumsSection').style.display = 'none';
             document.getElementById('createForumSection').style.display = 'none';
             document.getElementById('loginPromptSection').style.display = 'none';
             document.getElementById('forumDetailSection').style.display = 'block';
 
-            document.getElementById('forumDetailSubject').innerText = `Tópico: ${subject ?? ''}`; // Safely display subject
+            document.getElementById('forumDetailSubject').innerText = `Fórum: ${subject}`;
             const messagesContainer = document.getElementById('messagesContainer');
             messagesContainer.innerHTML = 'Carregando mensagens...';
 
             try {
-                // Obtém as mensagens do tópico específico na subcoleção 'posts'
-                const messagesSnapshot = await db.collection('forum')
-                                                .doc(topicId)
-                                                .collection('posts') // Caminho correto para posts
-                                                .orderBy('createdAt', 'asc') // Mudado para createdAt
-                                                .get();
+                // Obtém as mensagens do fórum específico
+                const messagesSnapshot = await db.collection('users')
+                                                    .doc(userId)
+                                                    .collection('forums')
+                                                    .doc(forumId)
+                                                    .collection('messages')
+                                                    .orderBy('timestamp', 'asc')
+                                                    .get();
 
                 if (messagesSnapshot.empty) {
-                    messagesContainer.innerHTML = '<p>Nenhuma mensagem ainda neste tópico.</p>';
+                    messagesContainer.innerHTML = '<p>Nenhuma mensagem ainda neste fórum.</p>';
                     return;
                 }
 
@@ -400,17 +405,14 @@
                 messagesSnapshot.forEach(msgDoc => {
                     const message = msgDoc.data();
                     const messageId = msgDoc.id;
-                    const messageElement = document.createElement('div');
+                    const messageElement = document.createElement('div'); // Mudado para div para melhor layout dos botões
                     messageElement.classList.add('message-item');
-                    const date = message.createdAt ? new Date(message.createdAt.toDate()).toLocaleString() : 'Data desconhecida'; // Mudado para createdAt
+                    const date = message.timestamp ? new Date(message.timestamp.toDate()).toLocaleString() : 'Data desconhecida';
                     const senderName = message.userName || 'Usuário Desconhecido';
                     
-                    // Safely get message.content, defaulting to empty string
-                    const messageContent = message.content ?? '';
-
                     messageElement.innerHTML = `
                         <strong>${senderName}</strong> <span class="timestamp">(${date})</span>
-                        <div class="message-content">${messageContent}</div>
+                        <div class="message-content">${message.content}</div>
                     `;
 
                     // Adiciona botões de editar/remover mensagem se for admin ou o próprio usuário
@@ -422,16 +424,14 @@
                         editBtn.classList.add('mdl-button', 'mdl-js-button', 'mdl-button--icon', 'edit-btn');
                         editBtn.innerHTML = '<i class="material-icons">edit</i>';
                         editBtn.title = "Editar Mensagem";
-                        // Pass messageContent, ensuring it's a string, and escape for HTML attribute
-                        const escapedMessageContent = messageContent.replace(/'/g, "\\'");
-                        editBtn.onclick = () => editMessage(topicId, messageId, escapedMessageContent);
+                        editBtn.onclick = () => editMessage(userId, forumId, messageId, message.content);
                         messageActions.appendChild(editBtn);
 
                         const deleteBtn = document.createElement('button');
                         deleteBtn.classList.add('mdl-button', 'mdl-js-button', 'mdl-button--icon', 'delete-btn');
                         deleteBtn.innerHTML = '<i class="material-icons">delete</i>';
                         deleteBtn.title = "Remover Mensagem";
-                        deleteBtn.onclick = () => deleteMessage(topicId, messageId);
+                        deleteBtn.onclick = () => deleteMessage(userId, forumId, messageId);
                         messageActions.appendChild(deleteBtn);
 
                         messageElement.appendChild(messageActions);
@@ -450,26 +450,21 @@
         }
 
         // --- Função para Editar Mensagem (Apenas Admin ou Proprietário da Mensagem) ---
-        async function editMessage(topicId, messageId, currentContent) {
-            // Busque o documento da mensagem para obter o userId para a validação
-            const messageDoc = await db.collection('forum').doc(topicId).collection('posts').doc(messageId).get();
-            const messageUserId = messageDoc.exists ? messageDoc.data().userId : null;
-
-            if (!currentUser || (!currentUserIsAdmin && currentUser.uid !== messageUserId)) {
+        async function editMessage(forumCreatorUid, forumId, messageId, currentContent) {
+            if (!currentUser || (!currentUserIsAdmin && currentUser.uid !== currentLoadedForumUserId)) { // Verifica o criador do fórum
                 alert("Você não tem permissão para editar esta mensagem.");
                 return;
             }
 
-            // Ensure currentContent is a string for prompt
-            const newContent = prompt("Editar mensagem:", currentContent ?? '');
-            if (newContent !== null && newContent.trim() !== '') { // Check for null (cancel button)
+            const newContent = prompt("Editar mensagem:", currentContent);
+            if (newContent && newContent.trim() !== '') {
                 try {
-                    await db.collection('forum').doc(topicId).collection('posts').doc(messageId).update({
+                    await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).update({
                         content: newContent.trim(),
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     alert("Mensagem atualizada com sucesso!");
-                    loadTopicMessages(currentLoadedTopicId, currentLoadedTopicCreatorUid, document.getElementById('forumDetailSubject').innerText.replace('Tópico: ', '')); // Recarrega mensagens
+                    loadForumMessages(forumCreatorUid, forumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
                 } catch (error) {
                     console.error("Erro ao atualizar mensagem:", error);
                     alert("Erro ao atualizar mensagem: " + error.message);
@@ -478,21 +473,17 @@
         }
 
         // --- Função para Deletar Mensagem (Apenas Admin ou Proprietário da Mensagem) ---
-        async function deleteMessage(topicId, messageId) {
-            // Busque o documento da mensagem para obter o userId para a validação
-            const messageDoc = await db.collection('forum').doc(topicId).collection('posts').doc(messageId).get();
-            const messageUserId = messageDoc.exists ? messageDoc.data().userId : null;
-
-            if (!currentUser || (!currentUserIsAdmin && currentUser.uid !== messageUserId)) {
+        async function deleteMessage(forumCreatorUid, forumId, messageId) {
+            if (!currentUser || (!currentUserIsAdmin && currentUser.uid !== currentLoadedForumUserId)) { // Verifica o criador do fórum
                 alert("Você não tem permissão para remover esta mensagem.");
                 return;
             }
 
             if (confirm('Tem certeza que deseja remover esta mensagem?')) {
                 try {
-                    await db.collection('forum').doc(topicId).collection('posts').doc(messageId).delete();
+                    await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).delete();
                     alert("Mensagem removida com sucesso!");
-                    loadTopicMessages(currentLoadedTopicId, currentLoadedTopicCreatorUid, document.getElementById('forumDetailSubject').innerText.replace('Tópico: ', '')); // Recarrega mensagens
+                    loadForumMessages(forumCreatorUid, forumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
                 } catch (error) {
                     console.error("Erro ao remover mensagem:", error);
                     alert("Erro ao remover mensagem: " + error.message);
@@ -501,8 +492,8 @@
         }
 
         document.getElementById('sendMessageBtn').addEventListener('click', async () => {
-            if (!currentUser || !currentLoadedTopicId) {
-                alert("Você precisa estar logado para enviar mensagens ou um tópico não foi selecionado corretamente.");
+            if (!currentUser || !currentLoadedForumId || !currentLoadedForumUserId) {
+                alert("Você precisa estar logado para enviar mensagens ou um fórum não foi selecionado corretamente.");
                 return;
             }
 
@@ -514,19 +505,21 @@
             }
 
             try {
-                await db.collection('forum')
-                                .doc(currentLoadedTopicId)
-                                .collection('posts') // Caminho correto para posts
+                await db.collection('users')
+                                .doc(currentLoadedForumUserId) // Use o ID do usuário que criou o fórum
+                                .collection('forums')
+                                .doc(currentLoadedForumId)
+                                .collection('messages')
                                 .add({
                                     content: newMessageContent,
                                     userId: currentUser.uid, // ID do usuário que está enviando a mensagem
                                     userName: currentUser.displayName || currentUser.email, // Nome do usuário
-                                    createdAt: firebase.firestore.FieldValue.serverTimestamp() // Mudado para createdAt
+                                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                                 });
 
                 document.getElementById('newMessageContent').value = '';
                 // Recarrega as mensagens para exibir a nova
-                loadTopicMessages(currentLoadedTopicId, currentLoadedTopicCreatorUid, document.getElementById('forumDetailSubject').innerText.replace('Tópico: ', ''));
+                loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', ''));
             } catch (error) {
                 console.error("Erro ao enviar mensagem:", error);
                 alert("Ocorreu um erro ao enviar sua mensagem: " + error.message);
@@ -543,10 +536,10 @@
                 document.getElementById('createForumSection').style.display = 'none';
                 document.getElementById('loginPromptSection').style.display = 'block';
             }
-            displayTopics(); // Recarrega a lista de tópicos
+            displayForums(); // Recarrega a lista de fóruns
         });
 
-        // Chamada inicial para carregar os tópicos
+        // Chamada inicial para carregar os fóruns
         // Isso será disparado pelo onAuthStateChanged quando o Firebase carregar o estado de autenticação
     </script>
 </body>
