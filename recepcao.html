@@ -8,85 +8,250 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
     <style>
-        body { font-family: 'Roboto', Arial, sans-serif; margin: 20px; background-color: #f5f5f5; color: #333; }
-        .container { max-width: 900px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h1, h2, h3 { color: #3f51b5; } /* Azul índigo do MDL */
-        input[type="text"], textarea {
-            width: calc(100% - 20px); /* Ajusta para padding */
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box; /* Inclui padding e borda na largura */
+             /* Variáveis de Cores (Opcional, mas útil para consistência) */
+        :root {
+            --primary-color: #3f51b5; /* Azul Índigo do MDL */
+            --primary-dark-color: #303f9f;
+            --accent-color: #ff4081; /* Rosa do MDL */
+            --background-light: #f5f5f5;
+            --background-dark: #e0e0e0;
+            --text-color-primary: #333;
+            --text-color-secondary: #666;
+            --border-color: #ddd;
+            --success-color: #4CAF50;
+            --danger-color: #f44336;
+            --warning-color: #ff9800;
+            --info-color: #2196f3;
         }
+
+        /* Base */
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-light);
+            color: var(--text-color-primary);
+            line-height: 1.6; /* Melhorar legibilidade */
+        }
+
+        .container {
+            max-width: 1000px; /* Um pouco mais largo para acomodar conteúdo */
+            margin: 20px auto;
+            padding: 20px 30px; /* Mais padding nas laterais */
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* Sombra mais pronunciada */
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-weight: 500; /* Levemente mais leve para títulos */
+        }
+
+        h1 { font-size: 2.2em; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
+        h2 { font-size: 1.8em; }
+        h3 { font-size: 1.4em; }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 30px 0;
+        }
+
+        /* Formulários */
+        input[type="text"],
+        textarea {
+            width: calc(100% - 22px); /* Ajusta para padding e borda */
+            padding: 10px;
+            margin-bottom: 12px; /* Mais espaço */
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 5px rgba(63, 81, 181, 0.2); /* Sombra ao focar */
+        }
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* Botões */
         button {
-            padding: 10px 15px;
-            background-color: #4CAF50; /* Verde */
-            color: white;
+            padding: 10px 20px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            margin-right: 10px;
+            margin-right: 8px; /* Menos espaço entre botões */
+            font-size: 0.95em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        button:hover { background-color: #45a049; }
-        button.delete-btn { background-color: #f44336; } /* Vermelho para deletar */
-        button.delete-btn:hover { background-color: #da190b; }
-        button.edit-btn { background-color: #ff9800; } /* Laranja para editar */
-        button.edit-btn:hover { background-color: #fb8c00; }
-        button#backToForumsBtn { background-color: #2196f3; } /* Azul para voltar */
-        button#backToForumsBtn:hover { background-color: #1976d2; }
-        ul#forumList, #messagesContainer {
+
+        button:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        button#createForumBtn,
+        button#sendMessageBtn {
+            background-color: var(--success-color);
+            color: white;
+        }
+        button#createForumBtn:hover,
+        button#sendMessageBtn:hover {
+            background-color: #45a049;
+        }
+
+        button.delete-btn {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        button.delete-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        button.edit-btn {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        button.edit-btn:hover {
+            background-color: #f57c00;
+        }
+
+        button#backToForumsBtn {
+            background-color: var(--info-color);
+            color: white;
+        }
+        button#backToForumsBtn:hover {
+            background-color: #1976d2;
+        }
+
+        /* Mensagens de Aviso/Login */
+        #loginPromptSection {
+            background-color: #ffe0b2; /* Laranja claro */
+            color: #e65100; /* Laranja escuro */
+            border: 1px solid #ffcc80;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* Lista de Fóruns */
+        ul#forumList {
             list-style: none;
             padding: 0;
             margin-top: 20px;
         }
+
         ul#forumList li {
-            background-color: #e8eaf6; /* Azul claro */
-            margin-bottom: 8px;
-            padding: 12px 15px;
-            border-radius: 4px;
+            background-color: #e8f0fe; /* Azul muito claro */
+            margin-bottom: 7px; /* Menos espaço para densidade */
+            padding: 12px 20px;
+            border-radius: 6px;
             display: flex;
-            flex-wrap: wrap; /* Permite que os botões quebrem a linha se necessário */
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: 1px solid #d0e0ff; /* Borda sutil */
         }
-        ul#forumList li:hover { background-color: #c5cae9; }
+
+        ul#forumList li:hover {
+            background-color: #d0e0ff; /* Azul ligeiramente mais escuro ao hover */
+            transform: translateY(-2px); /* Efeito de elevação */
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
         ul#forumList li a {
             text-decoration: none;
-            color: #3f51b5;
+            color: var(--primary-dark-color); /* Um tom mais escuro do azul primário */
             font-weight: bold;
-            flex-grow: 1; /* Permite que o link ocupe o espaço */
-            margin-right: 10px; /* Espaço entre o link e os botões */
+            font-size: 1.1em; /* Um pouco maior */
+            flex-grow: 1;
+            margin-right: 15px;
+            white-space: nowrap; /* Evita quebra de linha no título */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Adiciona reticências se o texto for muito longo */
         }
+
         ul#forumList li span.forum-date {
-            font-size: 0.8em;
-            color: #666;
+            font-size: 0.85em;
+            color: var(--text-color-secondary);
             margin-left: 10px;
+            flex-shrink: 0; /* Impede que a data encolha muito */
         }
+
         .forum-actions {
             display: flex;
-            gap: 5px; /* Espaço entre os botões */
+            gap: 8px; /* Espaço entre os botões de ação */
+            flex-shrink: 0;
         }
+        .forum-actions .mdl-button {
+            min-width: 0; /* Remove a largura mínima padrão do MDL para botões pequenos */
+            padding: 0 8px; /* Ajusta o padding para botões menores */
+            height: 30px; /* Altura menor */
+            line-height: 30px;
+        }
+        .forum-actions .mdl-button i {
+            font-size: 18px; /* Ícones menores */
+        }
+
+        /* Detalhe do Fórum (Mensagens) */
+        #messagesContainer {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fcfcfc; /* Fundo leve para o container de mensagens */
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+
         #messagesContainer .message-item {
-            background-color: #f0f4c3; /* Amarelo claro */
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 5px;
-            font-size: 0.95em;
+            background-color: #fdfdfd; /* Quase branco para mensagens */
+            padding: 12px 18px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.9em; /* Texto da mensagem um pouco menor */
             display: flex;
-            flex-direction: column; /* Coloca as ações abaixo do texto */
-            position: relative; /* Para posicionar botões de edição/deleção */
+            flex-direction: column;
+            position: relative;
+            border: 1px solid #f0f0f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
+        #messagesContainer .message-item:last-child {
+            margin-bottom: 0; /* Remove margem da última mensagem */
+        }
+
         #messagesContainer .message-item strong {
-            color: #555;
-            font-size: 0.9em;
+            color: var(--primary-dark-color); /* Nome do usuário mais visível */
+            font-size: 0.95em;
+            margin-bottom: 3px;
         }
+
         #messagesContainer .message-item .timestamp {
-            font-size: 0.8em;
-            color: #777;
-            margin-left: 5px;
+            font-size: 0.75em;
+            color: var(--text-color-secondary);
+            margin-left: 8px;
+            float: right; /* Alinha a data à direita do nome */
         }
-        .message-content { margin-top: 5px; }
+
+        .message-content {
+            margin-top: 8px;
+            color: var(--text-color-primary);
+            word-wrap: break-word; /* Garante que textos longos quebrem a linha */
+        }
+
         .message-actions {
             position: absolute;
             top: 10px;
@@ -94,11 +259,84 @@
             display: flex;
             gap: 5px;
         }
+        .message-actions .mdl-button {
+            min-width: 0;
+            padding: 0 6px; /* Ajusta padding para ícones */
+            height: 28px; /* Altura menor */
+            line-height: 28px;
+        }
+        .message-actions .mdl-button i {
+            font-size: 16px; /* Ícones menores para ações de mensagem */
+        }
+
+
+        /* Cabeçalho do Detalhe do Fórum */
         .forum-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        #forumDetailSubject {
+            margin: 0; /* Remove margem padrão do h2 */
+            flex-grow: 1;
+            font-size: 2em; /* Título do fórum um pouco maior */
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                margin: 10px auto;
+                padding: 15px;
+            }
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.5em; }
+            h3 { font-size: 1.2em; }
+
+            ul#forumList li {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px 15px;
+            }
+            ul#forumList li a {
+                margin-right: 0;
+                margin-bottom: 5px;
+                font-size: 1em;
+            }
+            ul#forumList li span.forum-date {
+                margin-left: 0;
+                margin-bottom: 10px;
+            }
+            .forum-actions {
+                width: 100%;
+                justify-content: flex-end;
+                margin-top: 10px;
+            }
+            #messagesContainer .message-item {
+                padding: 10px 15px;
+            }
+            .message-actions {
+                position: static; /* Botões abaixo do texto em telas menores */
+                margin-top: 10px;
+                justify-content: flex-end;
+            }
+            #forumDetailSubject {
+                font-size: 1.5em;
+            }
+            .forum-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            #backToForumsBtn {
+                margin-top: 15px;
+                width: 100%;
+            }
         }
     </style>
 </head>
