@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar/Editar Post do Fórum - WZZM Admin</title>
+    <a href="./beta/"></a>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Roboto', 'Helvetica', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+        }
+        h1 {
+            color: #3f51b5;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .mdl-textfield {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .mdl-textfield__input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        textarea.mdl-textfield__input {
+            height: 120px;
+            min-height: 80px;
+            resize: vertical;
+        }
+        .mdl-button {
+            margin-right: 10px;
+        }
+        .actions {
+            text-align: right;
+            margin-top: 30px;
+        }
+        .error-message {
+            text-align: center;
+            padding: 15px;
+            color: #d32f2f;
+            background-color: #ffebee;
+            border: 1px solid #d32f2f;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
+        }
+        /* Estilos para o Quill Editor */
+        #editor-container {
+            height: 300px; /* Altura padrão para o editor */
+            margin-bottom: 20px;
+            border: 1px solid rgba(0,0,0,.12); /* Adiciona borda para combinar com MDL */
+            border-radius: 4px;
+        }
+        .ql-toolbar.ql-snow {
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+        .ql-container.ql-snow {
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+        /* Ajusta o rótulo para o editor de texto rico */
+        .rich-text-label {
+            color: rgba(0,0,0,.26);
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- SDKs do Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
+    <!-- Material Design Lite (MDL) JS -->
+    <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <!-- Quill Rich Text Editor JS -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+    <div class="container">
+        <h1 id="form-title">Adicionar Novo Post do Fórum</h1>
+
+        <div id="error-display" class="error-message"></div>
+
+        <form id="forum-post-form">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" id="post-title" required>
+                <label class="mdl-textfield__label" for="post-title">Título do Post *</label>
+            </div>
+
+            <label class="rich-text-label">Conteúdo do Post *</label>
+            <div id="editor-container"></div>
+            
+            <div class="actions">
+                <button type="submit" id="save-post-btn"
+                        class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                    Salvar Post
+                </button>
+                <button type="button" id="cancel-btn"
+                        class="mdl-button mdl-js-button mdl-button--raised">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // --- Configuração do Firebase com suas chaves e dados originais ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
+            authDomain: "wzzm-ce3fc.firebaseapp.com",
+            projectId: "wzzm-ce3fc",
+            storageBucket: "wzzm-ce3fc.appspot.com",
+            messagingSenderId: "249427877153",
+            appId: "1:249427877153:web:0e4297294794a5aadeb260",
+            measurementId: "G-PLKNZNFCQ8"
+        };
+
+        let app;
+        try {
+            app = firebase.app();
+        } catch (e) {
+            app = firebase.initializeApp(firebaseConfig);
+        }
+        const firestore = firebase.firestore();
+        const auth = firebase.auth(); // Inicializa o Auth
+
+        let currentUser = null; // Para armazenar o usuário logado
+        let currentPostId = null; // Para armazenar o ID do post em edição
+
+        const formTitle = document.getElementById('form-title');
+        const forumPostForm = document.getElementById('forum-post-form');
+        const errorDisplay = document.getElementById('error-display');
+        const savePostBtn = document.getElementById('save-post-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+
+        const postTitleInput = document.getElementById('post-title');
+
+        // --- Inicialização do Quill Editor ---
+        const quill = new Quill('#editor-container', {
+            theme: 'snow', // Tema 'snow' para uma barra de ferramentas visual
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'script': 'sub'}, { 'script': 'super' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    [{ 'direction': 'rtl' }],
+                    [{ 'align': [] }],
+                    ['link', 'image', 'video'], // Adicione se quiser suporte a imagens/vídeos
+                    ['clean'] // Remove formatação
+                ]
+            },
+            placeholder: 'Digite o conteúdo completo do post aqui...'
+        });
+
+        function displayError(message) {
+            errorDisplay.textContent = `Erro: ${message}`;
+            errorDisplay.style.display = 'block';
+        }
+
+        // Listener para o estado de autenticação
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                console.log("Usuário logado:", currentUser.uid);
+                const urlParams = new URLSearchParams(window.location.search);
+                const id = urlParams.get('id');
+                if (id) {
+                    currentPostId = id;
+                    formTitle.textContent = 'Editar Post do Fórum';
+                    loadForumPostData(id); // Carrega os dados do post para edição
+                }
+            } else {
+                currentUser = null;
+                console.warn("Nenhum usuário logado. Redirecionando para login...");
+                alert("Você precisa estar logado para adicionar ou editar posts do fórum.");
+                if (window.parent !== window && window.parent.postMessage) {
+                    window.parent.postMessage({ type: 'navigateIframe', url: './login.html' }, window.location.origin);
+                } else {
+                    window.location.href = './login.html';
+                }
+            }
+        });
+
+        // Carrega dados do post do fórum para edição
+        async function loadForumPostData(postId) {
+            try {
+                // A coleção 'forum' neste contexto é onde os documentos de fórum individuais são armazenados.
+                // Se você estiver editando um post dentro de um fórum específico (ex: /forum/{forumId}/posts/{postId}),
+                // você precisará do forumId também. Para este exemplo, assumimos que postId é o ID do documento do post.
+                const docRef = firestore.collection('forum').doc(postId);
+                const doc = await docRef.get();
+
+                if (doc.exists) {
+                    const data = doc.data();
+                    postTitleInput.value = data.title || '';
+
+                    // Carrega o conteúdo formatado no Quill do formato Delta JSON
+                    if (data.formattedContent) {
+                        const delta = JSON.parse(data.formattedContent);
+                        quill.setContents(delta);
+                    }
+
+                    // Atualiza o MDL para os campos pré-preenchidos
+                    if (window.componentHandler) {
+                        forumPostForm.querySelectorAll('.mdl-textfield').forEach(textfield => {
+                            if (textfield.MaterialTextfield) {
+                                textfield.MaterialTextfield.checkDirty();
+                                textfield.MaterialTextfield.checkValidity();
+                            }
+                        });
+                    }
+                } else {
+                    displayError("Post do fórum não encontrado.");
+                    console.error("Post com ID", postId, "não encontrado na coleção 'forum'.");
+                }
+            } catch (error) {
+                displayError("Erro ao carregar dados do post do fórum: " + error.message);
+                console.error("Erro ao carregar dados do post do fórum da coleção 'forum':", error);
+            }
+        }
+
+        // Função para salvar (adicionar ou atualizar) o post do fórum
+        async function saveForumPost(event) {
+            event.preventDefault();
+
+            if (!currentUser) {
+                displayError("Você precisa estar logado para salvar posts do fórum.");
+                return;
+            }
+
+            // Validação básica
+            if (!postTitleInput.value.trim()) {
+                displayError("O Título do Post é obrigatório.");
+                postTitleInput.focus();
+                return;
+            }
+            if (quill.root.innerHTML.trim() === '<p><br></p>' || quill.getText().trim() === '') {
+                displayError("O Conteúdo do Post é obrigatório.");
+                document.getElementById('editor-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            errorDisplay.style.display = 'none';
+            savePostBtn.disabled = true;
+
+            // Obter o conteúdo do Quill no formato Delta JSON para armazenamento
+            const postContent = JSON.stringify(quill.getContents());
+
+            const forumPostData = {
+                userId: currentUser.uid, // UID do autor do post
+                userName: currentUser.displayName || currentUser.email, // Nome do autor (ou email como fallback)
+                title: postTitleInput.value.trim(),
+                formattedContent: postContent, // Conteúdo formatado em Delta JSON
+                lastModified: firebase.firestore.FieldValue.serverTimestamp() // Data da última modificação
+            };
+
+            // Adiciona timestamp de criação apenas se for um novo post
+            if (!currentPostId) {
+                forumPostData.createdAt = firebase.firestore.FieldValue.serverTimestamp(); // Data de criação
+            }
+
+            try {
+                // A coleção 'forum' neste contexto é onde os documentos de fórum individuais são armazenados.
+                // Se você estiver salvando posts dentro de um fórum específico (ex: /forum/{forumId}/posts),
+                // você precisará da referência correta, que pode ser passada via URL ou estado.
+                // Para este exemplo, estamos salvando diretamente na coleção 'forum' como se cada documento fosse um post.
+                // Se a intenção é que os posts sejam SUBCOLEÇÕES, a lógica de `loadForumPostData` e `saveForumPost`
+                // precisará ser ajustada para incluir o `forumId` pai.
+                const forumCollectionRef = firestore.collection('forum');
+
+                if (currentPostId) {
+                    await forumCollectionRef.doc(currentPostId).update(forumPostData);
+                    alert("Post do fórum atualizado com sucesso!");
+                    console.log("Post do fórum atualizado na coleção 'forum':", currentPostId);
+                } else {
+                    const newDocRef = await forumCollectionRef.add(forumPostData);
+                    currentPostId = newDocRef.id;
+                    alert("Post do fórum adicionado com sucesso! ID: " + newDocRef.id);
+                    console.log("Novo post do fórum adicionado na coleção 'forum' com ID:", newDocRef.id);
+                    formTitle.textContent = 'Editar Post do Fórum';
+                }
+
+                // Notifica a janela pai para recarregar a lista de posts (se estiver em um iframe)
+                if (window.parent !== window && window.parent.postMessage) {
+                    window.parent.postMessage({ type: 'refreshForumPostsList' }, window.location.origin);
+                } else {
+                    alert("Post do fórum salvo! (Em ambiente de desenvolvimento sem iframe)");
+                }
+
+            } catch (error) {
+                displayError("Erro ao salvar post do fórum: " + error.message);
+                console.error("Erro ao salvar post do fórum na coleção 'forum':", error);
+            } finally {
+                savePostBtn.disabled = false;
+            }
+        }
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            forumPostForm.addEventListener('submit', saveForumPost);
+
+            cancelBtn.addEventListener('click', () => {
+                if (window.parent !== window && window.parent.postMessage) {
+                    window.parent.postMessage({ type: 'refreshForumPostsList' }, window.location.origin);
+                } else {
+                    window.history.back();
+                }
+            });
+
+            if (window.componentHandler) {
+                window.componentHandler.upgradeDom();
+            }
+        });
+    </script>
+<a href="./versãoemtestes/"></a>
+</body>
+</html>
