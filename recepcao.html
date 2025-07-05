@@ -265,13 +265,18 @@
                     const listItem = document.createElement('li');
                     const topicDate = topic.createdAt ? new Date(topic.createdAt.toDate()).toLocaleString() : 'Data desconhecida';
                     
-                    let topicInfoHtml = `<a href="#" data-topic-id="${topicId}" data-topic-creator-uid="${topic.criadorUid}">${topic.titulo}</a><span class="forum-date">${topicDate}</span>`;
+                    // Safely get topic.titulo, defaulting to an empty string if undefined/null
+                    const topicTitle = topic.titulo ?? ''; 
+                    
+                    let topicInfoHtml = `<a href="#" data-topic-id="${topicId}" data-topic-creator-uid="${topic.criadorUid}">${topicTitle}</a><span class="forum-date">${topicDate}</span>`;
                     
                     // Somente mostra botões de editar/remover se o usuário for admin OU criador do tópico
                     if (currentUser && (currentUserIsAdmin || topic.criadorUid === currentUser.uid)) {
+                        // Pass topicTitle, ensuring it's a string, and escape for HTML attribute
+                        const escapedTopicTitle = topicTitle.replace(/'/g, "\\'");
                         topicInfoHtml += `
                             <div class="forum-actions">
-                                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent edit-btn" onclick="editTopic('${topicId}', '${topic.titulo.replace(/'/g, "\\'")}')">Editar</button>
+                                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent edit-btn" onclick="editTopic('${topicId}', '${escapedTopicTitle}')">Editar</button>
                                 <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored delete-btn" onclick="deleteTopic('${topicId}')">Remover</button>
                             </div>
                         `;
@@ -281,7 +286,7 @@
                     listItem.querySelector('a').addEventListener('click', (e) => {
                         e.preventDefault();
                         // Ao clicar, carregamos as mensagens do tópico, passando o ID do criador do tópico
-                        loadTopicMessages(topicId, topic.criadorUid, topic.titulo);
+                        loadTopicMessages(topicId, topic.criadorUid, topicTitle); // Pass topicTitle directly
                     });
                     forumListElement.appendChild(listItem);
                 });
@@ -307,8 +312,9 @@
                 return;
             }
 
-            const newSubject = prompt("Editar assunto do tópico:", currentSubject);
-            if (newSubject && newSubject.trim() !== '') {
+            // Ensure currentSubject is a string for prompt
+            const newSubject = prompt("Editar assunto do tópico:", currentSubject ?? '');
+            if (newSubject !== null && newSubject.trim() !== '') { // Check for null (cancel button)
                 try {
                     await db.collection('forum').doc(topicId).update({
                         titulo: newSubject.trim(), // Atualiza o campo 'titulo'
@@ -373,7 +379,7 @@
             document.getElementById('loginPromptSection').style.display = 'none';
             document.getElementById('forumDetailSection').style.display = 'block';
 
-            document.getElementById('forumDetailSubject').innerText = `Tópico: ${subject}`; // Mudado para Tópico
+            document.getElementById('forumDetailSubject').innerText = `Tópico: ${subject ?? ''}`; // Safely display subject
             const messagesContainer = document.getElementById('messagesContainer');
             messagesContainer.innerHTML = 'Carregando mensagens...';
 
@@ -399,9 +405,12 @@
                     const date = message.createdAt ? new Date(message.createdAt.toDate()).toLocaleString() : 'Data desconhecida'; // Mudado para createdAt
                     const senderName = message.userName || 'Usuário Desconhecido';
                     
+                    // Safely get message.content, defaulting to empty string
+                    const messageContent = message.content ?? '';
+
                     messageElement.innerHTML = `
                         <strong>${senderName}</strong> <span class="timestamp">(${date})</span>
-                        <div class="message-content">${message.content}</div>
+                        <div class="message-content">${messageContent}</div>
                     `;
 
                     // Adiciona botões de editar/remover mensagem se for admin ou o próprio usuário
@@ -413,7 +422,9 @@
                         editBtn.classList.add('mdl-button', 'mdl-js-button', 'mdl-button--icon', 'edit-btn');
                         editBtn.innerHTML = '<i class="material-icons">edit</i>';
                         editBtn.title = "Editar Mensagem";
-                        editBtn.onclick = () => editMessage(topicId, messageId, message.content);
+                        // Pass messageContent, ensuring it's a string, and escape for HTML attribute
+                        const escapedMessageContent = messageContent.replace(/'/g, "\\'");
+                        editBtn.onclick = () => editMessage(topicId, messageId, escapedMessageContent);
                         messageActions.appendChild(editBtn);
 
                         const deleteBtn = document.createElement('button');
@@ -449,8 +460,9 @@
                 return;
             }
 
-            const newContent = prompt("Editar mensagem:", currentContent);
-            if (newContent && newContent.trim() !== '') {
+            // Ensure currentContent is a string for prompt
+            const newContent = prompt("Editar mensagem:", currentContent ?? '');
+            if (newContent !== null && newContent.trim() !== '') { // Check for null (cancel button)
                 try {
                     await db.collection('forum').doc(topicId).collection('posts').doc(messageId).update({
                         content: newContent.trim(),
@@ -486,7 +498,7 @@
                     alert("Erro ao remover mensagem: " + error.message);
                 }
             }
-        });
+        }
 
         document.getElementById('sendMessageBtn').addEventListener('click', async () => {
             if (!currentUser || !currentLoadedTopicId) {
