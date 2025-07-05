@@ -169,7 +169,7 @@
 
         let currentUser = null; // Variável global para o usuário autenticado
         let currentUserIsAdmin = false; // Variável para rastrear o status de admin
-        let currentLoadedTopicId = null; // ID do tópico atualmente visualizado (era forumId)
+        let currentLoadedTopicId = null; // ID do tópico atualmente visualizado
         let currentLoadedTopicCreatorUid = null; // ID do criador do tópico atualmente visualizado
 
         // --- Lógica de Autenticação para o forum.html ---
@@ -193,9 +193,8 @@
                 // Se não está logado, oculta a seção de criação e mostra o aviso
                 document.getElementById('createForumSection').style.display = 'none';
                 document.getElementById('loginPromptSection').style.display = 'block';
-                document.getElementById('forumList').innerHTML = '<li>Faça login para ver os tópicos disponíveis.</li>';
-                currentUserIsAdmin = false; // Garante que o status de admin seja falso
-                displayTopics(); // Ainda chamamos para o caso de querer mostrar tópicos públicos
+                // Ainda chamamos displayTopics para carregar tópicos públicos, se houver
+                displayTopics(); 
             }
         });
 
@@ -268,6 +267,7 @@
                     
                     let topicInfoHtml = `<a href="#" data-topic-id="${topicId}" data-topic-creator-uid="${topic.criadorUid}">${topic.titulo}</a><span class="forum-date">${topicDate}</span>`;
                     
+                    // Somente mostra botões de editar/remover se o usuário for admin OU criador do tópico
                     if (currentUser && (currentUserIsAdmin || topic.criadorUid === currentUser.uid)) {
                         topicInfoHtml += `
                             <div class="forum-actions">
@@ -413,14 +413,14 @@
                         editBtn.classList.add('mdl-button', 'mdl-js-button', 'mdl-button--icon', 'edit-btn');
                         editBtn.innerHTML = '<i class="material-icons">edit</i>';
                         editBtn.title = "Editar Mensagem";
-                        editBtn.onclick = () => editMessage(topicId, messageId, message.content); // userId não é mais necessário aqui
+                        editBtn.onclick = () => editMessage(topicId, messageId, message.content);
                         messageActions.appendChild(editBtn);
 
                         const deleteBtn = document.createElement('button');
                         deleteBtn.classList.add('mdl-button', 'mdl-js-button', 'mdl-button--icon', 'delete-btn');
                         deleteBtn.innerHTML = '<i class="material-icons">delete</i>';
                         deleteBtn.title = "Remover Mensagem";
-                        deleteBtn.onclick = () => deleteMessage(topicId, messageId); // userId não é mais necessário aqui
+                        deleteBtn.onclick = () => deleteMessage(topicId, messageId);
                         messageActions.appendChild(deleteBtn);
 
                         messageElement.appendChild(messageActions);
@@ -486,7 +486,7 @@
                     alert("Erro ao remover mensagem: " + error.message);
                 }
             }
-        }
+        });
 
         document.getElementById('sendMessageBtn').addEventListener('click', async () => {
             if (!currentUser || !currentLoadedTopicId) {
