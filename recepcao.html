@@ -138,6 +138,24 @@
             color: #fff;
         }
 
+        #google-sign-in-btn {
+            background-color: #4285f4; /* Cor do Google */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 15px auto;
+            width: fit-content;
+        }
+        #google-sign-in-btn:hover {
+            background-color: #357ae8;
+        }
+        #google-sign-in-btn .material-icons {
+            font-size: 20px; /* Tamanho do ícone do Google */
+        }
+
+
         /* Login Prompt */
         #loginPromptSection {
             text-align: center;
@@ -349,6 +367,13 @@
 
         <div id="loginPromptSection">
             <p>Por favor, faça login para criar fóruns e participar das discussões.</p>
+            <button class="mdl-button mdl-js-button mdl-button--raised" id="google-sign-in-btn">
+                <i class="material-icons">account_circle</i> Entrar com Google
+            </button>
+            <p>
+                <button class="mdl-button mdl-js-button mdl-button--raised" id="sign-out-btn" style="display: none;">Sair</button>
+            </p>
+            <p id="user-info" style="display: none;"></p>
         </div>
 
         <div id="createForumSection">
@@ -393,12 +418,12 @@
 
     <script>
         // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        // Para Firebase JS SDK v7.20.0 e posterior, measurementId é opcional
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY", // Substitua pela sua chave de API
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
+            apiKey: "YOUR_API_KEY", // SUBSTITUA PELA SUA CHAVE DE API
+            authDomain: "YOUR_AUTH_DOMAIN", // SUBSTITUA PELO SEU DOMÍNIO DE AUTENTICAÇÃO
+            projectId: "YOUR_PROJECT_ID",   // SUBSTITUA PELO SEU PROJECT ID
+            storageBucket: "YOUR_STORAGE_BUCKET", // SUBSTITUA PELO SEU STORAGE BUCKET
             messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
             appId: "YOUR_APP_ID",
             measurementId: "YOUR_MEASUREMENT_ID"
@@ -414,9 +439,16 @@
         const storage = firebase.storage(); // Inicializa o Firebase Storage
 
         let currentUser = null;
-        let currentUserIsAdmin = false; // Exemplo: Suponha que admins têm um campo 'isAdmin: true' no documento do usuário
+        let currentUserIsAdmin = false;
         let currentLoadedForumId = null;
-        let currentLoadedForumUserId = null; // Para fóruns criados sob IDs de usuário específicos
+        let currentLoadedForumUserId = null;
+
+        // Elementos UI para autenticação
+        const googleSignInBtn = document.getElementById('google-sign-in-btn');
+        const signOutBtn = document.getElementById('sign-out-btn');
+        const userInfoSpan = document.getElementById('user-info');
+        const loginPromptSection = document.getElementById('loginPromptSection');
+        const createForumSection = document.getElementById('createForumSection');
 
         // Variáveis para os editores Quill
         let firstMessageQuill;
@@ -471,20 +503,20 @@
                 modules: {
                     toolbar: {
                         container: [
-                            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+                            ['bold', 'italic', 'underline', 'strike'],
                             ['blockquote', 'code-block'],
-                            [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+                            [{ 'header': 1 }, { 'header': 2 }],
                             [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
-                            [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-                            [{ 'direction': 'rtl' }],                         // text direction
-                            [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+                            [{ 'script': 'sub'}, { 'script': 'super' }],
+                            [{ 'indent': '-1'}, { 'indent': '+1' }],
+                            [{ 'direction': 'rtl' }],
+                            [{ 'size': ['small', false, 'large', 'huge'] }],
                             [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                            [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+                            [{ 'color': [] }, { 'background': [] }],
                             [{ 'font': [] }],
                             [{ 'align': [] }],
-                            ['link', 'image', 'video'], // Link, imagem e vídeo
-                            ['clean']                                         // remove formatting button
+                            ['link', 'image', 'video'],
+                            ['clean']
                         ],
                         handlers: {
                             'image': function() {
@@ -517,28 +549,75 @@
             });
         });
 
+        // Configuração do provedor de autenticação Google
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // Event listener para o botão de login com Google
+        googleSignInBtn.addEventListener('click', async () => {
+            try {
+                await auth.signInWithPopup(provider);
+                // auth.onAuthStateChanged irá lidar com o resto
+            } catch (error) {
+                console.error("Erro ao fazer login com Google:", error);
+                alert("Erro ao fazer login com Google: " + error.message);
+            }
+        });
+
+        // Event listener para o botão de logout
+        signOutBtn.addEventListener('click', async () => {
+            try {
+                await auth.signOut();
+            } catch (error) {
+                console.error("Erro ao fazer logout:", error);
+                alert("Erro ao fazer logout: " + error.message);
+            }
+        });
+
 
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
             currentUserIsAdmin = false; // Reset admin status
+
             if (user) {
-                // Try to fetch user's profile to check for admin status
+                googleSignInBtn.style.display = 'none';
+                signOutBtn.style.display = 'inline-block';
+                userInfoSpan.style.display = 'block';
+                userInfoSpan.innerText = `Logado como: ${user.displayName || user.email}`;
+
+                // Verifica/cria o perfil do usuário no Firestore e define o status de admin
                 try {
-                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    const userDocRef = db.collection('users').doc(user.uid);
+                    const userDoc = await userDocRef.get();
+
                     if (userDoc.exists) {
                         currentUserIsAdmin = userDoc.data().isAdmin || false;
+                    } else {
+                        // Novo usuário, cria um documento básico para ele
+                        await userDocRef.set({
+                            uid: user.uid,
+                            displayName: user.displayName || 'Usuário Sem Nome',
+                            email: user.email,
+                            isAdmin: false, // Por padrão, não é admin. Admin status deve ser definido manualmente no Firestore.
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        console.log("Novo perfil de usuário criado no Firestore.");
+                        currentUserIsAdmin = false; // Garante que o novo usuário não seja admin
                     }
                 } catch (error) {
-                    console.error("Erro ao carregar perfil do usuário:", error);
+                    console.error("Erro ao carregar/criar perfil do usuário:", error);
                 }
 
-                document.getElementById('createForumSection').style.display = 'block';
-                document.getElementById('loginPromptSection').style.display = 'none';
+                createForumSection.style.display = 'block';
+                loginPromptSection.style.display = 'block'; // Mantenha visível para o botão de sair e info
             } else {
-                document.getElementById('createForumSection').style.display = 'none';
-                document.getElementById('loginPromptSection').style.display = 'block';
+                googleSignInBtn.style.display = 'inline-block';
+                signOutBtn.style.display = 'none';
+                userInfoSpan.style.display = 'none';
+                userInfoSpan.innerText = '';
+                createForumSection.style.display = 'none';
+                loginPromptSection.style.display = 'block';
             }
-            displayForums(); // Always display forums, but adjust visibility/actions based on auth
+            displayForums(); // Sempre exibe fóruns, mas ajusta visibilidade/ações com base na autenticação
         });
 
         document.getElementById('createForumBtn').addEventListener('click', async () => {
@@ -597,6 +676,8 @@
                 query = db.collectionGroup('forums').orderBy('createdAt', 'desc');
             } else if (currentUser) {
                 // Usuários logados veem apenas seus próprios fóruns
+                // Isso pode ser ajustado se você quiser que usuários logados vejam TUDO
+                // Por exemplo: query = db.collectionGroup('forums').orderBy('createdAt', 'desc');
                 query = db.collection('users').doc(currentUser.uid).collection('forums').orderBy('createdAt', 'desc');
             } else {
                 // Não logado: nenhum fórum para exibir
@@ -616,7 +697,7 @@
                     const forum = doc.data();
                     const forumId = doc.id;
                     // Para collectionGroup, o UID do criador é o parent do documento 'forums'
-                    const forumCreatorUid = doc.ref.parent.parent.id; // Navega para o UID do usuário
+                    const forumCreatorUid = doc.ref.parent.parent ? doc.ref.parent.parent.id : currentUser.uid; // Garante que o UID do criador seja correto
 
                     const li = document.createElement('li');
                     const date = forum.createdAt ? new Date(forum.createdAt.toDate()).toLocaleString() : 'Data desconhecida';
@@ -701,8 +782,8 @@
             currentLoadedForumId = forumId;
             currentLoadedForumUserId = forumCreatorUid;
             document.getElementById('listForumsSection').style.display = 'none';
-            document.getElementById('createForumSection').style.display = 'none'; // Esconde a seção de criação
-            document.getElementById('loginPromptSection').style.display = 'none'; // Esconde o prompt de login
+            createForumSection.style.display = 'none';
+            //loginPromptSection.style.display = 'none'; // Não esconda completamente, pois contém sair/info
             document.getElementById('forumDetailSection').style.display = 'block';
             document.getElementById('forumDetailSubject').innerText = 'Fórum: ' + forumSubject;
 
@@ -749,7 +830,15 @@
         }
 
         async function editMessage(forumCreatorUid, forumId, messageId, currentContent) {
-            if (!currentUser || (currentUser.uid !== (await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).get()).data().authorUid && !currentUserIsAdmin)) {
+            // Obtenha o UID do autor da mensagem para verificação de permissão
+            const messageDoc = await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).get();
+            if (!messageDoc.exists) {
+                alert("Mensagem não encontrada.");
+                return;
+            }
+            const messageAuthorUid = messageDoc.data().authorUid;
+
+            if (!currentUser || (currentUser.uid !== messageAuthorUid && !currentUserIsAdmin)) {
                 alert("Você não tem permissão para editar esta mensagem.");
                 return;
             }
@@ -776,7 +865,15 @@
         }
 
         async function deleteMessage(forumCreatorUid, forumId, messageId) {
-            if (!currentUser || (currentUser.uid !== (await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).get()).data().authorUid && !currentUserIsAdmin)) {
+            // Obtenha o UID do autor da mensagem para verificação de permissão
+            const messageDoc = await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).get();
+            if (!messageDoc.exists) {
+                alert("Mensagem não encontrada.");
+                return;
+            }
+            const messageAuthorUid = messageDoc.data().authorUid;
+
+            if (!currentUser || (currentUser.uid !== messageAuthorUid && !currentUserIsAdmin)) {
                 alert("Você não tem permissão para remover esta mensagem.");
                 return;
             }
@@ -831,11 +928,11 @@
             document.getElementById('forumDetailSection').style.display = 'none';
             document.getElementById('listForumsSection').style.display = 'block';
             if (currentUser) {
-                document.getElementById('createForumSection').style.display = 'block';
-                document.getElementById('loginPromptSection').style.display = 'none';
+                createForumSection.style.display = 'block';
+                loginPromptSection.style.display = 'block'; // Mantenha visível para o botão de sair e info
             } else {
-                document.getElementById('createForumSection').style.display = 'none';
-                document.getElementById('loginPromptSection').style.display = 'block';
+                createForumSection.style.display = 'none';
+                loginPromptSection.style.display = 'block';
             }
             displayForums(); // Recarrega a lista de fóruns
         });
