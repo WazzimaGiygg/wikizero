@@ -666,28 +666,22 @@
             }
         });
 
-        async function displayForums() {
-            const forumListElement = document.getElementById('forumList');
-            forumListElement.innerHTML = '<li>Carregando fóruns...</li>';
+async function displayForums() {
+    const forumListElement = document.getElementById('forumList');
+    forumListElement.innerHTML = '<li>Carregando fóruns...</li>';
 
-            let query;
-            if (currentUserIsAdmin) {
-                // Admins podem ver todos os fóruns através de uma collectionGroup query
-                query = db.collectionGroup('forums').orderBy('createdAt', 'desc');
-            } else if (currentUser) {
-                // Usuários logados veem apenas seus próprios fóruns
-                // Isso pode ser ajustado se você quiser que usuários logados vejam TUDO
-                // Por exemplo: query = db.collectionGroup('forums').orderBy('createdAt', 'desc');
-                query = db.collection('users').doc(currentUser.uid).collection('forums').orderBy('createdAt', 'desc');
-            } else {
-                // Não logado: nenhum fórum para exibir
-                forumListElement.innerHTML = '<li>Faça login para visualizar seus fóruns.</li>';
-                return;
-            }
+    // Exibe todos os fóruns para todos
+    let query = db.collectionGroup('forums').orderBy('createdAt', 'desc');
 
-            try {
-                const snapshot = await query.get();
-                if (snapshot.empty) {
+    try {
+        const snapshot = await query.get();
+        if (snapshot.empty) {
+            forumListElement.innerHTML = '<li>Nenhum fórum encontrado.</li>';
+            return;
+        }
+
+        forumListElement.innerHTML = '';
+        snapshot.forEach(doc => {
                     forumListElement.innerHTML = '<li>Nenhum fórum encontrado.</li>';
                     return;
                 }
