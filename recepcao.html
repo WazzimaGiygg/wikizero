@@ -476,14 +476,8 @@
         // Importa as funções necessárias do Firebase SDK v11
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, deleteDoc, query, orderBy, collectionGroup, writeBatch, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, deleteDoc, query, orderBy, collectionGroup, writeBatch, serverTimestamp, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
-
-        // Variáveis globais fornecidas pelo ambiente Canvas (se aplicável)
-        // Se você estiver executando isso fora do ambiente Canvas, pode precisar definir essas variáveis.
-        // const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        // const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { /* Sua config padrão aqui */ };
-        // const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // Sua configuração do Firebase (mantida do arquivo original)
         const firebaseConfig = {
@@ -720,7 +714,7 @@
                 createForumSection.style.display = 'none';
                 loginPromptSection.style.display = 'block';
             }
-            displayForums(); // Sempre exibe fóruns, mas ajusta visibilidade/ações com base na autenticação
+            window.displayForums(); // Chamada global
         });
 
         document.getElementById('createForumBtn').addEventListener('click', async () => {
@@ -762,14 +756,15 @@
                 await customAlert("Fórum criado com sucesso!");
                 document.getElementById('forumSubject').value = '';
                 firstMessageQuill.setContents([]); // Limpa o conteúdo do editor Quill
-                displayForums(); // Recarrega a lista de fóruns
+                window.displayForums(); // Recarrega a lista de fóruns
             } catch (error) {
                 console.error("Erro ao criar fórum:", error);
                 await customAlert("Erro ao criar fórum: " + error.message);
             }
         });
 
-        async function displayForums() {
+        // Torna as funções acessíveis globalmente
+        window.displayForums = async function() {
             const forumListElement = document.getElementById('forumList');
             forumListElement.innerHTML = '<li>Carregando fóruns...</li>';
 
@@ -800,14 +795,14 @@
                     const escapedSubject = forum.subject.replace(/'/g, "\\'");
 
                     li.innerHTML = `
-                        <a href="#" onclick="loadForumMessages('${forumCreatorUid}', '${forumId}', '${escapedSubject}')">${forum.subject}</a>
+                        <a href="#" onclick="window.loadForumMessages('${forumCreatorUid}', '${forumId}', '${escapedSubject}')">${forum.subject}</a>
                         <span class="forum-date">${date}</span>
                         <div class="forum-actions">
                             ${(currentUser && (currentUser.uid === forumCreatorUid || currentUserIsAdmin)) ? `
-                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="editForum('${forumCreatorUid}', '${forumId}', '${escapedSubject}')" title="Editar">
+                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="window.editForum('${forumCreatorUid}', '${forumId}', '${escapedSubject}')" title="Editar">
                                     <i class="material-icons">edit</i>
                                 </button>
-                                <button class="mdl-button mdl-js-button mdl-button--icon delete-btn" onclick="deleteForum('${forumCreatorUid}', '${forumId}')" title="Remover">
+                                <button class="mdl-button mdl-js-button mdl-button--icon delete-btn" onclick="window.deleteForum('${forumCreatorUid}', '${forumId}')" title="Remover">
                                     <i class="material-icons">delete</i>
                                 </button>
                             ` : ''}
@@ -823,7 +818,7 @@
             }
         }
 
-        async function editForum(forumCreatorUid, forumId, currentSubject) {
+        window.editForum = async function(forumCreatorUid, forumId, currentSubject) {
             if (!currentUser || (currentUser.uid !== forumCreatorUid && !currentUserIsAdmin)) {
                 await customAlert("Você não tem permissão para editar este fórum.");
                 return;
@@ -836,7 +831,7 @@
                         subject: newSubject.trim()
                     });
                     await customAlert("Fórum atualizado com sucesso!");
-                    displayForums(); // Recarrega a lista de fóruns
+                    window.displayForums(); // Recarrega a lista de fóruns
                 } catch (error) {
                     console.error("Erro ao atualizar fórum:", error);
                     await customAlert("Erro ao atualizar fórum: " + error.message);
@@ -846,7 +841,7 @@
             }
         }
 
-        async function deleteForum(forumCreatorUid, forumId) {
+        window.deleteForum = async function(forumCreatorUid, forumId) {
             if (!currentUser || (currentUser.uid !== forumCreatorUid && !currentUserIsAdmin)) {
                 await customAlert("Você não tem permissão para remover este fórum.");
                 return;
@@ -868,7 +863,7 @@
                     await deleteDoc(doc(db, 'users', forumCreatorUid, 'forums', forumId));
 
                     await customAlert("Fórum removido com sucesso!");
-                    displayForums(); // Recarrega a lista de fóruns
+                    window.displayForums(); // Recarrega a lista de fóruns
                 } catch (error) {
                     console.error("Erro ao remover fórum:", error);
                     await customAlert("Erro ao remover fórum: " + error.message);
@@ -876,7 +871,7 @@
             }
         }
 
-        async function loadForumMessages(forumCreatorUid, forumId, forumSubject) {
+        window.loadForumMessages = async function(forumCreatorUid, forumId, forumSubject) {
             currentLoadedForumId = forumId;
             currentLoadedForumUserId = forumCreatorUid;
             document.getElementById('listForumsSection').style.display = 'none';
@@ -912,10 +907,10 @@
                         <strong>${senderName}</strong> <span class="timestamp">(${date})</span>
                         <div class="message-content">${message.content}</div> <div class="message-actions">
                             ${(currentUser && (currentUser.uid === message.authorUid || currentUserIsAdmin)) ? `
-                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="editMessage('${forumCreatorUid}', '${forumId}', '${messageId}', \`${escapedContent}\`)" title="Editar Mensagem">
+                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="window.editMessage('${forumCreatorUid}', '${forumId}', '${messageId}', \`${escapedContent}\`)" title="Editar Mensagem">
                                     <i class="material-icons">edit</i>
                                 </button>
-                                <button class="mdl-button mdl-js-button mdl-button--icon delete-btn" onclick="deleteMessage('${forumCreatorUid}', '${forumId}', '${messageId}')" title="Remover Mensagem">
+                                <button class="mdl-button mdl-js-button mdl-button--icon delete-btn" onclick="window.deleteMessage('${forumCreatorUid}', '${forumId}', '${messageId}')" title="Remover Mensagem">
                                     <i class="material-icons">delete</i>
                                 </button>
                             ` : ''}
@@ -930,7 +925,7 @@
             }
         }
 
-        async function editMessage(forumCreatorUid, forumId, messageId, currentContent) {
+        window.editMessage = async function(forumCreatorUid, forumId, messageId, currentContent) {
             // Obtenha o UID do autor da mensagem para verificação de permissão
             const messageDocRef = doc(db, 'users', forumCreatorUid, 'forums', forumId, 'messages', messageId);
             const messageDoc = await getDoc(messageDocRef);
@@ -956,7 +951,7 @@
                         updatedAt: serverTimestamp()
                     });
                     await customAlert("Mensagem atualizada com sucesso!");
-                    loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
+                    window.loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
                 } catch (error) {
                     console.error("Erro ao atualizar mensagem:", error);
                     await customAlert("Erro ao atualizar mensagem: " + error.message);
@@ -966,7 +961,7 @@
             }
         }
 
-        async function deleteMessage(forumCreatorUid, forumId, messageId) {
+        window.deleteMessage = async function(forumCreatorUid, forumId, messageId) {
             // Obtenha o UID do autor da mensagem para verificação de permissão
             const messageDocRef = doc(db, 'users', forumCreatorUid, 'forums', forumId, 'messages', messageId);
             const messageDoc = await getDoc(messageDocRef);
@@ -986,7 +981,7 @@
                 try {
                     await deleteDoc(messageDocRef);
                     await customAlert("Mensagem removida com sucesso!");
-                    loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
+                    window.loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
                 } catch (error) {
                     console.error("Erro ao remover mensagem:", error);
                     await customAlert("Erro ao remover mensagem: " + error.message);
@@ -1021,7 +1016,7 @@
 
                 newMessageQuill.setContents([]); // Limpa o conteúdo do editor Quill
                 // Recarrega as mensagens para exibir a nova
-                loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', ''));
+                window.loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', ''));
             } catch (error) {
                 console.error("Erro ao enviar mensagem:", error);
                 await customAlert("Ocorreu um erro ao enviar sua mensagem: " + error.message);
@@ -1038,7 +1033,7 @@
                 createForumSection.style.display = 'none';
                 loginPromptSection.style.display = 'block';
             }
-            displayForums(); // Recarrega a lista de fóruns
+            window.displayForums(); // Recarrega a lista de fóruns
         });
 
         // Chamada inicial para carregar os fóruns
