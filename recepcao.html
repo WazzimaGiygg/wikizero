@@ -869,7 +869,7 @@
                     await customAlert("Erro ao remover fórum: " + error.message);
                 }
             }
-        }
+        } // This was the problematic line, it was '});' instead of '}'
 
         window.loadForumMessages = async function(forumCreatorUid, forumId, forumSubject) {
             currentLoadedForumId = forumId;
@@ -987,7 +987,7 @@
                     await customAlert("Erro ao remover mensagem: " + error.message);
                 }
             }
-        });
+        }
 
         document.getElementById('sendMessageBtn').addEventListener('click', async () => {
             if (!currentUser) {
