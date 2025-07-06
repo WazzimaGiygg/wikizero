@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -7,6 +6,7 @@
     <title>Fórum da Wiki Zone Zero Mod</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
              /* Variáveis de Cores (Opcional, mas útil para consistência) */
         :root {
@@ -28,228 +28,227 @@
         body {
             font-family: 'Roboto', Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             background-color: var(--background-light);
             color: var(--text-color-primary);
-            line-height: 1.6; /* Melhorar legibilidade */
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 1000px; /* Um pouco mais largo para acomodar conteúdo */
+            max-width: 960px;
             margin: 20px auto;
-            padding: 20px 30px; /* Mais padding nas laterais */
-            background-color: white;
+            padding: 30px;
+            background-color: #fff;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* Sombra mais pronunciada */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        h1, h2, h3 {
+        h1 {
             color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: var(--primary-dark-color);
             margin-top: 25px;
             margin-bottom: 15px;
-            font-weight: 500; /* Levemente mais leve para títulos */
+            font-size: 1.8em;
+            font-weight: 400;
         }
 
-        h1 { font-size: 2.2em; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; }
-        h2 { font-size: 1.8em; }
-        h3 { font-size: 1.4em; }
+        h3 {
+            color: var(--text-color-primary);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+            font-weight: 400;
+        }
 
         hr {
             border: none;
             border-top: 1px solid var(--border-color);
-            margin: 30px 0;
+            margin: 20px 0;
         }
 
-        /* Formulários */
+        /* Form Elements */
         input[type="text"],
         textarea {
-            width: calc(100% - 22px); /* Ajusta para padding e borda */
-            padding: 10px;
-            margin-bottom: 12px; /* Mais espaço */
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 12px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
             box-sizing: border-box;
             font-size: 1em;
-            transition: border-color 0.3s ease;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
+
         input[type="text"]:focus,
         textarea:focus {
             border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
             outline: none;
-            box-shadow: 0 0 5px rgba(63, 81, 181, 0.2); /* Sombra ao focar */
         }
+
         textarea {
-            min-height: 80px;
+            min-height: 100px;
             resize: vertical;
         }
 
-        /* Botões */
+        /* Buttons */
         button {
             padding: 10px 20px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            margin-right: 8px; /* Menos espaço entre botões */
-            font-size: 0.95em;
+            margin-right: 10px;
+            font-size: 1em;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         button:hover {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        button#createForumBtn,
-        button#sendMessageBtn {
+        .createForumBtn, .sendMessageBtn {
             background-color: var(--success-color);
-            color: white;
-        }
-        button#createForumBtn:hover,
-        button#sendMessageBtn:hover {
-            background-color: #45a049;
+            color: #fff;
         }
 
-        button.delete-btn {
+        .delete-btn {
             background-color: var(--danger-color);
-            color: white;
-        }
-        button.delete-btn:hover {
-            background-color: #d32f2f;
+            color: #fff;
         }
 
-        button.edit-btn {
+        .edit-btn {
             background-color: var(--warning-color);
-            color: white;
-        }
-        button.edit-btn:hover {
-            background-color: #f57c00;
+            color: #fff;
         }
 
-        button#backToForumsBtn {
+        .backToForumsBtn {
             background-color: var(--info-color);
-            color: white;
-        }
-        button#backToForumsBtn:hover {
-            background-color: #1976d2;
+            color: #fff;
         }
 
-        /* Mensagens de Aviso/Login */
+        /* Login Prompt */
         #loginPromptSection {
-            background-color: #ffe0b2; /* Laranja claro */
-            color: #e65100; /* Laranja escuro */
-            border: 1px solid #ffcc80;
-            border-radius: 5px;
-            padding: 15px;
             text-align: center;
-            font-weight: bold;
+            padding: 20px;
+            background-color: var(--background-dark);
+            border-radius: 8px;
             margin-bottom: 20px;
+            font-size: 1.1em;
+            color: var(--text-color-secondary);
         }
 
-        /* Lista de Fóruns */
+        /* Forum List */
         ul#forumList {
             list-style: none;
             padding: 0;
-            margin-top: 20px;
         }
 
         ul#forumList li {
-            background-color: #e8f0fe; /* Azul muito claro */
-            margin-bottom: 7px; /* Menos espaço para densidade */
-            padding: 12px 20px;
+            background-color: var(--background-light);
+            margin-bottom: 10px;
+            padding: 15px 20px;
             border-radius: 6px;
             display: flex;
-            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            border: 1px solid #d0e0ff; /* Borda sutil */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         ul#forumList li:hover {
-            background-color: #d0e0ff; /* Azul ligeiramente mais escuro ao hover */
-            transform: translateY(-2px); /* Efeito de elevação */
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         ul#forumList li a {
-            text-decoration: none;
-            color: var(--primary-dark-color); /* Um tom mais escuro do azul primário */
-            font-weight: bold;
-            font-size: 1.1em; /* Um pouco maior */
             flex-grow: 1;
-            margin-right: 15px;
-            white-space: nowrap; /* Evita quebra de linha no título */
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.2em;
+            white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; /* Adiciona reticências se o texto for muito longo */
+            text-overflow: ellipsis;
+            margin-right: 15px;
         }
 
         ul#forumList li span.forum-date {
-            font-size: 0.85em;
             color: var(--text-color-secondary);
-            margin-left: 10px;
-            flex-shrink: 0; /* Impede que a data encolha muito */
+            font-size: 0.9em;
+            margin-left: 15px;
         }
 
         .forum-actions {
             display: flex;
-            gap: 8px; /* Espaço entre os botões de ação */
-            flex-shrink: 0;
-        }
-        .forum-actions .mdl-button {
-            min-width: 0; /* Remove a largura mínima padrão do MDL para botões pequenos */
-            padding: 0 8px; /* Ajusta o padding para botões menores */
-            height: 30px; /* Altura menor */
-            line-height: 30px;
-        }
-        .forum-actions .mdl-button i {
-            font-size: 18px; /* Ícones menores */
+            gap: 5px; /* Espaço entre os botões de ação */
         }
 
-        /* Detalhe do Fórum (Mensagens) */
+        .forum-actions .mdl-button {
+            min-width: 36px; /* Ajusta o tamanho dos botões de ícone */
+            height: 36px;
+            padding: 0;
+        }
+
+        /* Message Container */
         #messagesContainer {
             margin-top: 20px;
-            padding: 15px;
-            background-color: #fcfcfc; /* Fundo leve para o container de mensagens */
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
         }
 
         #messagesContainer .message-item {
-            background-color: #fdfdfd; /* Quase branco para mensagens */
-            padding: 12px 18px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            font-size: 0.9em; /* Texto da mensagem um pouco menor */
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            border: 1px solid #f0f0f0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-        #messagesContainer .message-item:last-child {
-            margin-bottom: 0; /* Remove margem da última mensagem */
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: relative; /* Para posicionar botões de ação */
         }
 
         #messagesContainer .message-item strong {
-            color: var(--primary-dark-color); /* Nome do usuário mais visível */
-            font-size: 0.95em;
-            margin-bottom: 3px;
+            color: var(--primary-dark-color);
+            font-size: 1.1em;
         }
 
         #messagesContainer .message-item .timestamp {
-            font-size: 0.75em;
+            font-size: 0.85em;
             color: var(--text-color-secondary);
             margin-left: 8px;
-            float: right; /* Alinha a data à direita do nome */
         }
 
-        .message-content {
-            margin-top: 8px;
+        #messagesContainer .message-item .message-content {
+            margin-top: 10px;
+            margin-bottom: 10px;
             color: var(--text-color-primary);
-            word-wrap: break-word; /* Garante que textos longos quebrem a linha */
+            line-height: 1.8; /* Melhorar legibilidade para HTML formatado */
+        }
+
+        /* Estilos para o Quill Editor */
+        .ql-toolbar.ql-snow + .ql-container.ql-snow {
+            border-top: 0px;
+            height: auto; /* Permite que o editor cresça */
+            min-height: 100px; /* Altura mínima */
+        }
+        .ql-container {
+            border: 1px solid var(--border-color) !important; /* Sobrescreve a borda padrão do Quill */
+            border-radius: 4px;
+            font-size: 1em;
+            line-height: 1.6;
+        }
+        .ql-editor {
+            min-height: 100px;
         }
 
         .message-actions {
@@ -259,105 +258,110 @@
             display: flex;
             gap: 5px;
         }
+
         .message-actions .mdl-button {
-            min-width: 0;
-            padding: 0 6px; /* Ajusta padding para ícones */
-            height: 28px; /* Altura menor */
-            line-height: 28px;
-        }
-        .message-actions .mdl-button i {
-            font-size: 16px; /* Ícones menores para ações de mensagem */
+            min-width: 30px;
+            height: 30px;
+            padding: 0;
         }
 
-
-        /* Cabeçalho do Detalhe do Fórum */
         .forum-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
+            justify-content: space-between;
+            margin-bottom: 20px;
         }
 
         #forumDetailSubject {
-            margin: 0; /* Remove margem padrão do h2 */
+            color: var(--primary-dark-color);
             flex-grow: 1;
-            font-size: 2em; /* Título do fórum um pouco maior */
+            margin: 0;
+            font-size: 2em;
+            font-weight: 500;
+        }
+
+
+        /* Esconder seções inicialmente */
+        #createForumSection,
+        #forumDetailSection {
+            display: none;
         }
 
         /* Responsive Adjustments */
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
             .container {
-                margin: 10px auto;
-                padding: 15px;
+                margin: 10px;
+                padding: 20px;
             }
-            h1 { font-size: 1.8em; }
-            h2 { font-size: 1.5em; }
-            h3 { font-size: 1.2em; }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
 
             ul#forumList li {
                 flex-direction: column;
                 align-items: flex-start;
                 padding: 10px 15px;
             }
+
             ul#forumList li a {
+                font-size: 1.1em;
                 margin-right: 0;
                 margin-bottom: 5px;
-                font-size: 1em;
             }
+
             ul#forumList li span.forum-date {
+                font-size: 0.8em;
                 margin-left: 0;
-                margin-bottom: 10px;
             }
+
             .forum-actions {
                 width: 100%;
                 justify-content: flex-end;
                 margin-top: 10px;
             }
-            #messagesContainer .message-item {
-                padding: 10px 15px;
-            }
+
             .message-actions {
-                position: static; /* Botões abaixo do texto em telas menores */
+                position: static;
                 margin-top: 10px;
                 justify-content: flex-end;
+                width: 100%;
             }
+
             #forumDetailSubject {
                 font-size: 1.5em;
+                margin-bottom: 10px;
             }
             .forum-header {
                 flex-direction: column;
                 align-items: flex-start;
             }
-            #backToForumsBtn {
-                margin-top: 15px;
-                width: 100%;
-            }
         }
     </style>
 </head>
 <body>
-
     <div class="container">
         <h1>Fórum</h1>
 
-        <div id="loginPromptSection" style="display: none; text-align: center; padding: 20px; border: 1px dashed #ccc; border-radius: 5px;">
-            <p>Faça login para criar novos fóruns e participar das discussões.</p>
-            <p>Você pode fazer login na página principal da Wiki Zone Zero Mod.</p>
+        <div id="loginPromptSection">
+            <p>Por favor, faça login para criar fóruns e participar das discussões.</p>
         </div>
 
-        <div id="createForumSection" style="display: none;">
+        <div id="createForumSection">
             <h2>Criar Novo Fórum</h2>
-            <input type="text" id="forumSubject" placeholder="Assunto do Fórum">
-            <textarea id="firstMessageContent" placeholder="Primeira mensagem do fórum"></textarea>
-            <button id="createForumBtn">Criar Fórum</button>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%;">
+                <input class="mdl-textfield__input" type="text" id="forumSubject">
+                <label class="mdl-textfield__label" for="forumSubject">Assunto do Fórum</label>
+            </div>
+            <label for="firstMessageEditor">Primeira mensagem do fórum:</label>
+            <div id="firstMessageEditor" style="height: 150px; margin-bottom: 12px;"></div>
+            <button class="mdl-button mdl-js-button mdl-button--raised createForumBtn" id="createForumBtn">Criar Fórum</button>
+            <hr>
         </div>
-
-        <hr>
 
         <div id="listForumsSection">
             <h2>Fóruns Disponíveis</h2>
@@ -366,194 +370,283 @@
             </ul>
         </div>
 
-        <hr>
-
-        <div id="forumDetailSection" style="display: none;">
+        <div id="forumDetailSection">
             <div class="forum-header">
                 <h2 id="forumDetailSubject"></h2>
-                <button id="backToForumsBtn">Voltar para a Lista</button>
+                <button class="mdl-button mdl-js-button mdl-button--raised backToForumsBtn" id="backToForumsBtn">Voltar para a Lista</button>
             </div>
             <div id="messagesContainer">
                 </div>
-            <h3>Adicionar Nova Mensagem</h3>
-            <textarea id="newMessageContent" placeholder="Sua mensagem"></textarea>
-            <button id="sendMessageBtn">Enviar Mensagem</button>
+            <h3>Sua Mensagem:</h3>
+            <label for="newMessageEditor">Sua mensagem:</label>
+            <div id="newMessageEditor" style="height: 150px; margin-bottom: 12px;"></div>
+            <button class="mdl-button mdl-js-button mdl-button--raised sendMessageBtn" id="sendMessageBtn">Enviar Mensagem</button>
         </div>
     </div>
 
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
     <script>
-        // Use a mesma configuração do Firebase do seu index.html
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
-            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
-            authDomain: "wzzm-ce3fc.firebaseapp.com",
-            projectId: "wzzm-ce3fc",
-            storageBucket: "wzzm-ce3fc.appspot.com",
-            messagingSenderId: "249427877153",
-            appId: "1:249427877153:web:0e4297294794a5aadeb260",
-            measurementId: "G-PLKNZNFCQ8"
+            apiKey: "YOUR_API_KEY", // Substitua pela sua chave de API
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
         };
 
-        // Inicialize o Firebase no forum.html também
+        // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
+
         const db = firebase.firestore();
         const auth = firebase.auth();
+        const storage = firebase.storage(); // Inicializa o Firebase Storage
 
-        let currentUser = null; // Variável global para o usuário autenticado
-        let currentUserIsAdmin = false; // Variável para rastrear o status de admin
-        let currentLoadedForumId = null; // ID do fórum atualmente visualizado
-        let currentLoadedForumUserId = null; // ID do criador do fórum atualmente visualizado (necessário para a estrutura do Firestore)
+        let currentUser = null;
+        let currentUserIsAdmin = false; // Exemplo: Suponha que admins têm um campo 'isAdmin: true' no documento do usuário
+        let currentLoadedForumId = null;
+        let currentLoadedForumUserId = null; // Para fóruns criados sob IDs de usuário específicos
 
-        // --- Lógica de Autenticação para o forum.html ---
-        auth.onAuthStateChanged(async (user) => {
-            currentUser = user;
-            if (user) {
-                // Carrega o perfil do usuário para verificar se é admin
-                try {
-                    const userDoc = await db.collection('users').doc(user.uid).get();
-                    currentUserIsAdmin = userDoc.exists && userDoc.data().isAdmin === true;
-                } catch (error) {
-                    console.error("Erro ao carregar perfil do usuário:", error);
-                    currentUserIsAdmin = false; // Em caso de erro, não assume ser admin
+        // Variáveis para os editores Quill
+        let firstMessageQuill;
+        let newMessageQuill;
+
+        // Manipulador de upload de imagem para Quill
+        async function imageHandler(quillInstance) {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.click();
+
+            input.onchange = async () => {
+                const file = input.files[0];
+                if (file) {
+                    const range = quillInstance.getSelection(true); // Obtenha a seleção atual do cursor
+
+                    // Opcional: Mostrar um loader ou texto enquanto carrega
+                    quillInstance.clipboard.dangerouslyPasteHTML(range.index, '<p>Carregando imagem...</p>');
+
+                    const storageRef = storage.ref();
+                    const imagesRef = storageRef.child(`forum_images/${Date.now()}-${file.name}`);
+
+                    try {
+                        const snapshot = await imagesRef.put(file);
+                        const downloadURL = await snapshot.ref.getDownloadURL();
+
+                        // Remove o texto de carregamento e insere a imagem
+                        const currentContent = quillInstance.root.innerHTML;
+                        const newContent = currentContent.replace('<p>Carregando imagem...</p>', '');
+                        quillInstance.root.innerHTML = newContent;
+                        quillInstance.insertEmbed(range.index, 'image', downloadURL);
+                        quillInstance.setSelection(range.index + 1); // Move o cursor após a imagem
+                    } catch (error) {
+                        console.error("Erro ao fazer upload da imagem:", error);
+                        alert("Erro ao fazer upload da imagem: " + error.message);
+                        // Remover o texto de carregamento em caso de erro
+                        const currentContent = quillInstance.root.innerHTML;
+                        const newContent = currentContent.replace('<p>Carregando imagem...</p>', '');
+                        quillInstance.root.innerHTML = newContent;
+                    }
                 }
+            };
+        }
 
-                // Se o usuário está logado, mostra a seção de criação
-                document.getElementById('createForumSection').style.display = 'block';
-                document.getElementById('loginPromptSection').style.display = 'none';
-                displayForums(); // Carrega os fóruns, considerando o status de admin
-            } else {
-                // Se não está logado, oculta a seção de criação e mostra o aviso
-                document.getElementById('createForumSection').style.display = 'none';
-                document.getElementById('loginPromptSection').style.display = 'block';
-                document.getElementById('forumList').innerHTML = '<li>Faça login para ver os fóruns disponíveis.</li>';
-                currentUserIsAdmin = false; // Garante que o status de admin seja falso
-                displayForums(); // Ainda chamamos para o caso de querer mostrar fóruns públicos (adaptável)
-            }
+
+        // Inicializa Quill editors quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', () => {
+            firstMessageQuill = new Quill('#firstMessageEditor', {
+                theme: 'snow',
+                placeholder: 'Primeira mensagem do fórum...',
+                modules: {
+                    toolbar: {
+                        container: [
+                            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+                            ['blockquote', 'code-block'],
+                            [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+                            [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+                            [{ 'direction': 'rtl' }],                         // text direction
+                            [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                            [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+                            [{ 'font': [] }],
+                            [{ 'align': [] }],
+                            ['link', 'image', 'video'], // Link, imagem e vídeo
+                            ['clean']                                         // remove formatting button
+                        ],
+                        handlers: {
+                            'image': function() {
+                                imageHandler(this.quill);
+                            }
+                        }
+                    }
+                }
+            });
+
+            newMessageQuill = new Quill('#newMessageEditor', {
+                theme: 'snow',
+                placeholder: 'Sua mensagem...',
+                modules: {
+                    toolbar: {
+                        container: [
+                            ['bold', 'italic', 'underline', 'strike'],
+                            ['blockquote', 'code-block'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link', 'image', 'video'],
+                            ['clean']
+                        ],
+                        handlers: {
+                            'image': function() {
+                                imageHandler(this.quill);
+                            }
+                        }
+                    }
+                }
+            });
         });
 
-        // --- Lógica de Criação de Fórum ---
+
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            currentUserIsAdmin = false; // Reset admin status
+            if (user) {
+                // Try to fetch user's profile to check for admin status
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        currentUserIsAdmin = userDoc.data().isAdmin || false;
+                    }
+                } catch (error) {
+                    console.error("Erro ao carregar perfil do usuário:", error);
+                }
+
+                document.getElementById('createForumSection').style.display = 'block';
+                document.getElementById('loginPromptSection').style.display = 'none';
+            } else {
+                document.getElementById('createForumSection').style.display = 'none';
+                document.getElementById('loginPromptSection').style.display = 'block';
+            }
+            displayForums(); // Always display forums, but adjust visibility/actions based on auth
+        });
+
         document.getElementById('createForumBtn').addEventListener('click', async () => {
             if (!currentUser) {
-                alert("Você precisa estar logado para criar um fórum!");
+                alert("Você precisa estar logado para criar um fórum.");
                 return;
             }
 
             const subject = document.getElementById('forumSubject').value.trim();
-            const firstContent = document.getElementById('firstMessageContent').value.trim();
+            const firstContent = firstMessageQuill.root.innerHTML.trim(); // Pega o HTML do editor Quill
 
-            if (!subject || !firstContent) {
-                alert("Por favor, preencha o assunto e o conteúdo da primeira mensagem.");
+            if (!subject) {
+                alert("Por favor, preencha o assunto do fórum.");
+                return;
+            }
+            // Verifica se o conteúdo do editor Quill está vazio (<p><br></p> é o HTML padrão para vazio)
+            if (firstContent === '<p><br></p>' || !firstContent) {
+                alert("Por favor, preencha o conteúdo da primeira mensagem.");
                 return;
             }
 
             try {
-                // 1. Crie um novo documento de fórum dentro do userId do usuário logado
-                const newForumRef = await db.collection('users')
-                                            .doc(currentUser.uid)
-                                            .collection('forums')
-                                            .add({
-                                                subject: subject,
-                                                authorUid: currentUser.uid, // Salva o UID do criador
-                                                authorName: currentUser.displayName || currentUser.email, // Salva o nome do criador
-                                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                                            });
+                // Criar o documento do fórum na subcoleção do usuário logado
+                const newForumRef = await db.collection('users').doc(currentUser.uid).collection('forums').add({
+                    subject: subject,
+                    authorUid: currentUser.uid,
+                    authorName: currentUser.displayName || currentUser.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
 
-                // 2. Adicione a primeira mensagem a este fórum
+                // Adicionar a primeira mensagem como uma subcoleção do fórum recém-criado
                 await newForumRef.collection('messages').add({
-                    content: firstContent,
-                    userId: currentUser.uid, // ID do usuário que enviou a mensagem
-                    userName: currentUser.displayName || currentUser.email, // Nome do usuário
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    content: firstContent, // Salva o HTML
+                    authorUid: currentUser.uid,
+                    authorName: currentUser.displayName || currentUser.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
                 alert("Fórum criado com sucesso!");
                 document.getElementById('forumSubject').value = '';
-                document.getElementById('firstMessageContent').value = '';
-                displayForums(); // Atualiza a lista de fóruns
+                firstMessageQuill.setContents([]); // Limpa o conteúdo do editor Quill
+                displayForums(); // Recarrega a lista de fóruns
             } catch (error) {
                 console.error("Erro ao criar fórum:", error);
-                alert("Ocorreu um erro ao criar o fórum: " + error.message);
+                alert("Erro ao criar fórum: " + error.message);
             }
         });
 
-        // --- Lógica de Listagem de Fóruns (Modificada para Admins) ---
         async function displayForums() {
             const forumListElement = document.getElementById('forumList');
-            forumListElement.innerHTML = '<li>Carregando fóruns...</li>'; // Limpa e mostra carregando
+            forumListElement.innerHTML = '<li>Carregando fóruns...</li>';
 
-            let forumsQuery;
-
+            let query;
             if (currentUserIsAdmin) {
-                // Se for admin, usa collectionGroup para obter todos os fóruns de todos os usuários
-                forumsQuery = db.collectionGroup('forums');
+                // Admins podem ver todos os fóruns através de uma collectionGroup query
+                query = db.collectionGroup('forums').orderBy('createdAt', 'desc');
             } else if (currentUser) {
-                // Se for usuário normal logado, mostra apenas os seus fóruns
-                forumsQuery = db.collection('users').doc(currentUser.uid).collection('forums');
+                // Usuários logados veem apenas seus próprios fóruns
+                query = db.collection('users').doc(currentUser.uid).collection('forums').orderBy('createdAt', 'desc');
             } else {
-                // Se não está logado, não pode ver os fóruns (pela sua estrutura e regras)
-                forumListElement.innerHTML = '<li>Faça login para ver e criar fóruns.</li>';
+                // Não logado: nenhum fórum para exibir
+                forumListElement.innerHTML = '<li>Faça login para visualizar seus fóruns.</li>';
                 return;
             }
 
             try {
-                const querySnapshot = await forumsQuery.orderBy('createdAt', 'desc').get();
-
-                if (querySnapshot.empty) {
+                const snapshot = await query.get();
+                if (snapshot.empty) {
                     forumListElement.innerHTML = '<li>Nenhum fórum encontrado.</li>';
                     return;
                 }
 
-                forumListElement.innerHTML = ''; // Limpa "Carregando..."
-                querySnapshot.forEach(doc => {
+                forumListElement.innerHTML = '';
+                snapshot.forEach(doc => {
                     const forum = doc.data();
                     const forumId = doc.id;
-                    // Para o collectionGroup, o caminho completo do documento é necessário para acessar a subcoleção de mensagens.
-                    // Isso é capturado pelo doc.ref.parent.parent.id, que é o userId do criador do fórum.
-                    const forumCreatorUid = doc.ref.parent.parent.id; // Isso obtém o userId pai do fórum
+                    // Para collectionGroup, o UID do criador é o parent do documento 'forums'
+                    const forumCreatorUid = doc.ref.parent.parent.id; // Navega para o UID do usuário
 
-                    const listItem = document.createElement('li');
-                    const forumDate = forum.createdAt ? new Date(forum.createdAt.toDate()).toLocaleString() : 'Data desconhecida';
-                    
-                    let forumInfoHtml = `<a href="#" data-forum-id="${forumId}" data-forum-creator-uid="${forumCreatorUid}">${forum.subject}</a><span class="forum-date">${forumDate}</span>`;
-                    
-                    if (currentUserIsAdmin || (currentUser && forum.authorUid === currentUser.uid)) {
-                        forumInfoHtml += `
-                            <div class="forum-actions">
-                                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent edit-btn" onclick="editForum('${forumCreatorUid}', '${forumId}', '${forum.subject.replace(/'/g, "\\'")}')">Editar</button>
-                                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored delete-btn" onclick="deleteForum('${forumCreatorUid}', '${forumId}')">Remover</button>
-                            </div>
-                        `;
-                    }
-                    listItem.innerHTML = forumInfoHtml;
-                    
-                    listItem.querySelector('a').addEventListener('click', (e) => {
-                        e.preventDefault();
-                        // Ao clicar, carregamos as mensagens do fórum, passando o ID do criador
-                        loadForumMessages(forumCreatorUid, forumId, forum.subject);
-                    });
-                    forumListElement.appendChild(listItem);
+                    const li = document.createElement('li');
+                    const date = forum.createdAt ? new Date(forum.createdAt.toDate()).toLocaleString() : 'Data desconhecida';
+
+                    li.innerHTML = `
+                        <a href="#" onclick="loadForumMessages('${forumCreatorUid}', '${forumId}', '${forum.subject}')">${forum.subject}</a>
+                        <span class="forum-date">${date}</span>
+                        <div class="forum-actions">
+                            ${(currentUser && (currentUser.uid === forumCreatorUid || currentUserIsAdmin)) ? `
+                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="editForum('${forumCreatorUid}', '${forumId}', '${forum.subject}')" title="Editar">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="mdl-button mdl-js-button mdl-button--icon delete-btn" onclick="deleteForum('${forumCreatorUid}', '${forumId}')" title="Remover">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                    forumListElement.appendChild(li);
                 });
-                // Garante que o MDL atualize os botões após a injeção
-                if (window.componentHandler) {
-                    window.componentHandler.upgradeElements(forumListElement);
-                }
-
+                // Garante que os componentes MDL sejam atualizados após adicionar novos elementos
+                window.componentHandler.upgradeElements(forumListElement);
             } catch (error) {
                 console.error("Erro ao carregar fóruns:", error);
                 forumListElement.innerHTML = '<li>Erro ao carregar fóruns.</li>';
             }
         }
 
-        // --- Função para Editar Fórum (Apenas Admin ou Proprietário) ---
         async function editForum(forumCreatorUid, forumId, currentSubject) {
-            if (!currentUser || (!currentUserIsAdmin && currentUser.uid !== forumCreatorUid)) {
+            if (!currentUser || (currentUser.uid !== forumCreatorUid && !currentUserIsAdmin)) {
                 alert("Você não tem permissão para editar este fórum.");
                 return;
             }
@@ -562,166 +655,137 @@
             if (newSubject && newSubject.trim() !== '') {
                 try {
                     await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).update({
-                        subject: newSubject.trim(),
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        subject: newSubject.trim()
                     });
                     alert("Fórum atualizado com sucesso!");
-                    displayForums(); // Recarrega a lista para mostrar a mudança
+                    displayForums(); // Recarrega a lista de fóruns
                 } catch (error) {
                     console.error("Erro ao atualizar fórum:", error);
                     alert("Erro ao atualizar fórum: " + error.message);
                 }
+            } else if (newSubject !== null) { // Permite cancelar o prompt
+                alert("O assunto não pode estar vazio.");
             }
         }
 
-        // --- Função para Deletar Fórum (Apenas Admin ou Proprietário) ---
         async function deleteForum(forumCreatorUid, forumId) {
-            if (!currentUser || (!currentUserIsAdmin && currentUser.uid !== forumCreatorUid)) {
+            if (!currentUser || (currentUser.uid !== forumCreatorUid && !currentUserIsAdmin)) {
                 alert("Você não tem permissão para remover este fórum.");
                 return;
             }
 
-            if (!confirm('Tem certeza que deseja remover este fórum e TODAS as suas mensagens? Esta ação é irreversível!')) {
-                return;
-            }
-
-            try {
-                // Para deletar as mensagens da subcoleção primeiro
-                const messagesRef = db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages');
-                const messagesSnapshot = await messagesRef.get();
-                const batch = db.batch();
-
-                if (!messagesSnapshot.empty) {
-                    messagesSnapshot.docs.forEach((msgDoc) => {
-                        batch.delete(msgDoc.ref);
+            if (confirm("Tem certeza que deseja remover este fórum e todas as suas mensagens?")) {
+                try {
+                    // Excluir todas as mensagens na subcoleção 'messages'
+                    const messagesRef = db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages');
+                    const messagesSnapshot = await messagesRef.get();
+                    const batch = db.batch();
+                    messagesSnapshot.docs.forEach(doc => {
+                        batch.delete(doc.ref);
                     });
                     await batch.commit();
-                    console.log('Todas as mensagens do fórum foram removidas.');
+
+                    // Excluir o documento do fórum
+                    await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).delete();
+
+                    alert("Fórum removido com sucesso!");
+                    displayForums(); // Recarrega a lista de fóruns
+                } catch (error) {
+                    console.error("Erro ao remover fórum:", error);
+                    alert("Erro ao remover fórum: " + error.message);
                 }
-                
-                // Agora, deleta o documento do fórum
-                await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).delete();
-                
-                alert("Fórum removido com sucesso!");
-                displayForums(); // Recarrega a lista de fóruns
-            } catch (error) {
-                console.error("Erro ao remover fórum:", error);
-                alert("Erro ao remover fórum: " + error.message);
             }
         }
 
-        // --- Lógica de Exibição e Envio de Mensagens ---
-        async function loadForumMessages(userId, forumId, subject) {
+        async function loadForumMessages(forumCreatorUid, forumId, forumSubject) {
             currentLoadedForumId = forumId;
-            currentLoadedForumUserId = userId; // Salva o ID do criador do fórum
-
+            currentLoadedForumUserId = forumCreatorUid;
             document.getElementById('listForumsSection').style.display = 'none';
-            document.getElementById('createForumSection').style.display = 'none';
-            document.getElementById('loginPromptSection').style.display = 'none';
+            document.getElementById('createForumSection').style.display = 'none'; // Esconde a seção de criação
+            document.getElementById('loginPromptSection').style.display = 'none'; // Esconde o prompt de login
             document.getElementById('forumDetailSection').style.display = 'block';
+            document.getElementById('forumDetailSubject').innerText = 'Fórum: ' + forumSubject;
 
-            document.getElementById('forumDetailSubject').innerText = `Fórum: ${subject}`;
             const messagesContainer = document.getElementById('messagesContainer');
             messagesContainer.innerHTML = 'Carregando mensagens...';
 
             try {
-                // Obtém as mensagens do fórum específico
-                const messagesSnapshot = await db.collection('users')
-                                                    .doc(userId)
-                                                    .collection('forums')
-                                                    .doc(forumId)
-                                                    .collection('messages')
-                                                    .orderBy('timestamp', 'asc')
-                                                    .get();
+                const querySnapshot = await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').orderBy('createdAt').get();
 
-                if (messagesSnapshot.empty) {
+                if (querySnapshot.empty) {
                     messagesContainer.innerHTML = '<p>Nenhuma mensagem ainda neste fórum.</p>';
                     return;
                 }
 
-                messagesContainer.innerHTML = ''; // Limpa "Carregando..."
-                messagesSnapshot.forEach(msgDoc => {
-                    const message = msgDoc.data();
-                    const messageId = msgDoc.id;
-                    const messageElement = document.createElement('div'); // Mudado para div para melhor layout dos botões
-                    messageElement.classList.add('message-item');
-                    const date = message.timestamp ? new Date(message.timestamp.toDate()).toLocaleString() : 'Data desconhecida';
-                    const senderName = message.userName || 'Usuário Desconhecido';
-                    
+                messagesContainer.innerHTML = '';
+                querySnapshot.forEach(doc => {
+                    const message = doc.data();
+                    const messageId = doc.id;
+                    const date = message.createdAt ? new Date(message.createdAt.toDate()).toLocaleString() : 'Data desconhecida';
+                    const senderName = message.authorName || 'Anônimo';
+
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message-item';
                     messageElement.innerHTML = `
                         <strong>${senderName}</strong> <span class="timestamp">(${date})</span>
-                        <div class="message-content">${message.content}</div>
+                        <div class="message-content">${message.content}</div> <div class="message-actions">
+                            ${(currentUser && (currentUser.uid === message.authorUid || currentUserIsAdmin)) ? `
+                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="editMessage('${forumCreatorUid}', '${forumId}', '${messageId}', \`${message.content.replace(/`/g, '\\`')}\`)" title="Editar Mensagem">
+                                    <i class="material-icons">edit</i>
+                                </button>
+                                <button class="mdl-button mdl-js-button mdl-button--icon delete-btn" onclick="deleteMessage('${forumCreatorUid}', '${forumId}', '${messageId}')" title="Remover Mensagem">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            ` : ''}
+                        </div>
                     `;
-
-                    // Adiciona botões de editar/remover mensagem se for admin ou o próprio usuário
-                    if (currentUser && (currentUserIsAdmin || message.userId === currentUser.uid)) {
-                        const messageActions = document.createElement('div');
-                        messageActions.classList.add('message-actions');
-
-                        const editBtn = document.createElement('button');
-                        editBtn.classList.add('mdl-button', 'mdl-js-button', 'mdl-button--icon', 'edit-btn');
-                        editBtn.innerHTML = '<i class="material-icons">edit</i>';
-                        editBtn.title = "Editar Mensagem";
-                        editBtn.onclick = () => editMessage(userId, forumId, messageId, message.content);
-                        messageActions.appendChild(editBtn);
-
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.classList.add('mdl-button', 'mdl-js-button', 'mdl-button--icon', 'delete-btn');
-                        deleteBtn.innerHTML = '<i class="material-icons">delete</i>';
-                        deleteBtn.title = "Remover Mensagem";
-                        deleteBtn.onclick = () => deleteMessage(userId, forumId, messageId);
-                        messageActions.appendChild(deleteBtn);
-
-                        messageElement.appendChild(messageActions);
-                    }
                     messagesContainer.appendChild(messageElement);
                 });
-                // Garante que o MDL atualize os botões após a injeção
-                if (window.componentHandler) {
-                    window.componentHandler.upgradeElements(messagesContainer);
-                }
-
+                window.componentHandler.upgradeElements(messagesContainer);
             } catch (error) {
                 console.error("Erro ao carregar mensagens:", error);
                 messagesContainer.innerHTML = '<p>Erro ao carregar mensagens.</p>';
             }
         }
 
-        // --- Função para Editar Mensagem (Apenas Admin ou Proprietário da Mensagem) ---
         async function editMessage(forumCreatorUid, forumId, messageId, currentContent) {
-            if (!currentUser || (!currentUserIsAdmin && currentUser.uid !== currentLoadedForumUserId)) { // Verifica o criador do fórum
+            if (!currentUser || (currentUser.uid !== (await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).get()).data().authorUid && !currentUserIsAdmin)) {
                 alert("Você não tem permissão para editar esta mensagem.");
                 return;
             }
 
-            const newContent = prompt("Editar mensagem:", currentContent);
-            if (newContent && newContent.trim() !== '') {
+            // ATENÇÃO: Usar 'prompt' para editar HTML Rich Text não é ideal para UX, pois mostra o código bruto.
+            // O ideal seria abrir um modal com um editor Quill pré-preenchido com 'currentContent'.
+            const newContent = prompt("Editar mensagem (cuidado: isto mostrará o HTML bruto da mensagem):", currentContent);
+
+            if (newContent && newContent.trim() !== '' && newContent.trim() !== '<p><br></p>') {
                 try {
                     await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).update({
-                        content: newContent.trim(),
+                        content: newContent.trim(), // Salva o HTML editado
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     alert("Mensagem atualizada com sucesso!");
-                    loadForumMessages(forumCreatorUid, forumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
+                    loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
                 } catch (error) {
                     console.error("Erro ao atualizar mensagem:", error);
                     alert("Erro ao atualizar mensagem: " + error.message);
                 }
+            } else if (newContent !== null) { // Permite cancelar o prompt
+                alert("A mensagem não pode estar vazia.");
             }
         }
 
-        // --- Função para Deletar Mensagem (Apenas Admin ou Proprietário da Mensagem) ---
         async function deleteMessage(forumCreatorUid, forumId, messageId) {
-            if (!currentUser || (!currentUserIsAdmin && currentUser.uid !== currentLoadedForumUserId)) { // Verifica o criador do fórum
+            if (!currentUser || (currentUser.uid !== (await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).get()).data().authorUid && !currentUserIsAdmin)) {
                 alert("Você não tem permissão para remover esta mensagem.");
                 return;
             }
 
-            if (confirm('Tem certeza que deseja remover esta mensagem?')) {
+            if (confirm("Tem certeza que deseja remover esta mensagem?")) {
                 try {
                     await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).delete();
                     alert("Mensagem removida com sucesso!");
-                    loadForumMessages(forumCreatorUid, forumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
+                    loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
                 } catch (error) {
                     console.error("Erro ao remover mensagem:", error);
                     alert("Erro ao remover mensagem: " + error.message);
@@ -730,32 +794,31 @@
         }
 
         document.getElementById('sendMessageBtn').addEventListener('click', async () => {
-            if (!currentUser || !currentLoadedForumId || !currentLoadedForumUserId) {
-                alert("Você precisa estar logado para enviar mensagens ou um fórum não foi selecionado corretamente.");
+            if (!currentUser) {
+                alert("Você precisa estar logado para enviar mensagens.");
+                return;
+            }
+            if (!currentLoadedForumId || !currentLoadedForumUserId) {
+                alert("Nenhum fórum selecionado.");
                 return;
             }
 
-            const newMessageContent = document.getElementById('newMessageContent').value.trim();
+            const newMessageContent = newMessageQuill.root.innerHTML.trim(); // Pega o HTML do editor Quill
 
-            if (!newMessageContent) {
+            if (newMessageContent === '<p><br></p>' || !newMessageContent) {
                 alert("Por favor, digite sua mensagem.");
                 return;
             }
 
             try {
-                await db.collection('users')
-                                .doc(currentLoadedForumUserId) // Use o ID do usuário que criou o fórum
-                                .collection('forums')
-                                .doc(currentLoadedForumId)
-                                .collection('messages')
-                                .add({
-                                    content: newMessageContent,
-                                    userId: currentUser.uid, // ID do usuário que está enviando a mensagem
-                                    userName: currentUser.displayName || currentUser.email, // Nome do usuário
-                                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                                });
+                await db.collection('users').doc(currentLoadedForumUserId).collection('forums').doc(currentLoadedForumId).collection('messages').add({
+                    content: newMessageContent, // Salva o HTML
+                    authorUid: currentUser.uid,
+                    authorName: currentUser.displayName || currentUser.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
 
-                document.getElementById('newMessageContent').value = '';
+                newMessageQuill.setContents([]); // Limpa o conteúdo do editor Quill
                 // Recarrega as mensagens para exibir a nova
                 loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', ''));
             } catch (error) {
