@@ -805,7 +805,7 @@ async function displayForums() {
                         <strong>${senderName}</strong> <span class="timestamp">(${date})</span>
                         <div class="message-content">${message.content}</div> <div class="message-actions">
                             ${(currentUser && (currentUser.uid === message.authorUid || currentUserIsAdmin)) ? `
-                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="editMessage('${forumCreatorUid}', '${forumId}', '${messageId}', \`${message.content.replace(/`/g, '\\`')}\`)" title="Editar Mensagem">
+                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="editMessage onclick="editMessage('${forumCreatorUid}', '${forumId}', '${messageId}')">
                                     <i class="material-icons">edit</i>
                                 </button>
                                 <button class="mdl-button mdl-js-button mdl-button--icon delete-btn" onclick="deleteMessage('${forumCreatorUid}', '${forumId}', '${messageId}')" title="Remover Mensagem">
