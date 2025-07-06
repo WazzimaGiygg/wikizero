@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
-             /* Variáveis de Cores (Opcional, mas útil para consistência) */
+        /* Variáveis de Cores (Opcional, mas útil para consistência) */
         :root {
             --primary-color: #3f51b5; /* Azul Índigo do MDL */
             --primary-dark-color: #303f9f;
@@ -359,6 +359,54 @@
                 align-items: flex-start;
             }
         }
+
+        /* Custom Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 80%; /* Could be more or less, depending on screen size */
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            animation-name: animatetop;
+            animation-duration: 0.4s
+        }
+
+        @keyframes animatetop {
+            from {top: -300px; opacity: 0}
+            to {top: 0; opacity: 1}
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: var(--primary-dark-color);
+        }
+
+        .modal-buttons {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -409,34 +457,50 @@
         </div>
     </div>
 
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+    <!-- Custom Modal Structure -->
+    <div id="customModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3 id="modalTitle"></h3>
+            <p id="modalMessage"></p>
+            <div class="modal-buttons">
+                <button class="mdl-button mdl-js-button mdl-button--raised" id="modalOkBtn">OK</button>
+                <button class="mdl-button mdl-js-button mdl-button--raised" id="modalCancelBtn" style="display: none;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
-    <script>
-        // Your web app's Firebase configuration
-        // Para Firebase JS SDK v7.20.0 e posterior, measurementId é opcional
+    <script type="module">
+        // Importa as funções necessárias do Firebase SDK v11
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, deleteDoc, query, orderBy, collectionGroup, writeBatch, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+        // Variáveis globais fornecidas pelo ambiente Canvas (se aplicável)
+        // Se você estiver executando isso fora do ambiente Canvas, pode precisar definir essas variáveis.
+        // const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { /* Sua config padrão aqui */ };
+        // const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Sua configuração do Firebase (mantida do arquivo original)
         const firebaseConfig = {
-            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0", // Use sua própria chave! /* cite: 79 */
-            authDomain: "wzzm-ce3fc.firebaseapp.com", /* cite: 79 */
-            projectId: "wzzm-ce3fc", /* cite: 79 */
-            storageBucket: "wzzm-ce3fc.appspot.com", /* cite: 79 */
-            messagingSenderId: "249427877153", /* cite: 79 */
-            appId: "1:249427877153:web:0e4297294794a5aadeb260", /* cite: 79 */
-            measurementId: "G-PLKNZNFCQ8" /* cite: 79 */
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0", // Use sua própria chave!
+            authDomain: "wzzm-ce3fc.firebaseapp.com",
+            projectId: "wzzm-ce3fc",
+            storageBucket: "wzzm-ce3fc.appspot.com",
+            messagingSenderId: "249427877153",
+            appId: "1:249427877153:web:0e4297294794a5aadeb260",
+            measurementId: "G-PLKNZNFCQ8"
         };
 
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        const storage = firebase.storage(); // Inicializa o Firebase Storage
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
 
         let currentUser = null;
         let currentUserIsAdmin = false;
@@ -454,6 +518,45 @@
         let firstMessageQuill;
         let newMessageQuill;
 
+        // --- Funções do Modal Personalizado ---
+        const customModal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalOkBtn = document.getElementById('modalOkBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+
+        function showModal(title, message, type = 'alert') {
+            modalTitle.innerText = title;
+            modalMessage.innerText = message;
+            customModal.style.display = 'flex'; // Use flex para centralizar
+
+            return new Promise((resolve) => {
+                modalOkBtn.onclick = () => {
+                    customModal.style.display = 'none';
+                    resolve(true);
+                };
+
+                if (type === 'confirm') {
+                    modalCancelBtn.style.display = 'inline-block';
+                    modalCancelBtn.onclick = () => {
+                        customModal.style.display = 'none';
+                        resolve(false);
+                    };
+                } else {
+                    modalCancelBtn.style.display = 'none';
+                }
+            });
+        }
+
+        async function customAlert(message) {
+            await showModal('Aviso', message, 'alert');
+        }
+
+        async function customConfirm(message) {
+            return await showModal('Confirmação', message, 'confirm');
+        }
+        // --- Fim das Funções do Modal Personalizado ---
+
         // Manipulador de upload de imagem para Quill
         async function imageHandler(quillInstance) {
             const input = document.createElement('input');
@@ -469,12 +572,12 @@
                     // Opcional: Mostrar um loader ou texto enquanto carrega
                     quillInstance.clipboard.dangerouslyPasteHTML(range.index, '<p>Carregando imagem...</p>');
 
-                    const storageRef = storage.ref();
-                    const imagesRef = storageRef.child(`forum_images/${Date.now()}-${file.name}`);
+                    // Cria uma referência para o arquivo no Storage
+                    const imagesRef = ref(storage, `forum_images/${Date.now()}-${file.name}`);
 
                     try {
-                        const snapshot = await imagesRef.put(file);
-                        const downloadURL = await snapshot.ref.getDownloadURL();
+                        const snapshot = await uploadBytes(imagesRef, file);
+                        const downloadURL = await getDownloadURL(snapshot.ref);
 
                         // Remove o texto de carregamento e insere a imagem
                         const currentContent = quillInstance.root.innerHTML;
@@ -484,7 +587,7 @@
                         quillInstance.setSelection(range.index + 1); // Move o cursor após a imagem
                     } catch (error) {
                         console.error("Erro ao fazer upload da imagem:", error);
-                        alert("Erro ao fazer upload da imagem: " + error.message);
+                        customAlert("Erro ao fazer upload da imagem: " + error.message);
                         // Remover o texto de carregamento em caso de erro
                         const currentContent = quillInstance.root.innerHTML;
                         const newContent = currentContent.replace('<p>Carregando imagem...</p>', '');
@@ -550,31 +653,31 @@
         });
 
         // Configuração do provedor de autenticação Google
-        const provider = new firebase.auth.GoogleAuthProvider();
+        const provider = new GoogleAuthProvider();
 
         // Event listener para o botão de login com Google
         googleSignInBtn.addEventListener('click', async () => {
             try {
-                await auth.signInWithPopup(provider);
-                // auth.onAuthStateChanged irá lidar com o resto
+                await signInWithPopup(auth, provider);
+                // onAuthStateChanged irá lidar com o resto
             } catch (error) {
                 console.error("Erro ao fazer login com Google:", error);
-                alert("Erro ao fazer login com Google: " + error.message);
+                customAlert("Erro ao fazer login com Google: " + error.message);
             }
         });
 
         // Event listener para o botão de logout
         signOutBtn.addEventListener('click', async () => {
             try {
-                await auth.signOut();
+                await signOut(auth);
             } catch (error) {
                 console.error("Erro ao fazer logout:", error);
-                alert("Erro ao fazer logout: " + error.message);
+                customAlert("Erro ao fazer logout: " + error.message);
             }
         });
 
 
-        auth.onAuthStateChanged(async (user) => {
+        onAuthStateChanged(auth, async (user) => {
             currentUser = user;
             currentUserIsAdmin = false; // Reset admin status
 
@@ -586,19 +689,19 @@
 
                 // Verifica/cria o perfil do usuário no Firestore e define o status de admin
                 try {
-                    const userDocRef = db.collection('users').doc(user.uid);
-                    const userDoc = await userDocRef.get();
+                    const userDocRef = doc(db, 'users', user.uid);
+                    const userDoc = await getDoc(userDocRef);
 
                     if (userDoc.exists) {
                         currentUserIsAdmin = userDoc.data().isAdmin || false;
                     } else {
                         // Novo usuário, cria um documento básico para ele
-                        await userDocRef.set({
+                        await setDoc(userDocRef, {
                             uid: user.uid,
                             displayName: user.displayName || 'Usuário Sem Nome',
                             email: user.email,
                             isAdmin: false, // Por padrão, não é admin. Admin status deve ser definido manualmente no Firestore.
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            createdAt: serverTimestamp()
                         });
                         console.log("Novo perfil de usuário criado no Firestore.");
                         currentUserIsAdmin = false; // Garante que o novo usuário não seja admin
@@ -622,7 +725,7 @@
 
         document.getElementById('createForumBtn').addEventListener('click', async () => {
             if (!currentUser) {
-                alert("Você precisa estar logado para criar um fórum.");
+                await customAlert("Você precisa estar logado para criar um fórum.");
                 return;
             }
 
@@ -630,39 +733,39 @@
             const firstContent = firstMessageQuill.root.innerHTML.trim(); // Pega o HTML do editor Quill
 
             if (!subject) {
-                alert("Por favor, preencha o assunto do fórum.");
+                await customAlert("Por favor, preencha o assunto do fórum.");
                 return;
             }
             // Verifica se o conteúdo do editor Quill está vazio (<p><br></p> é o HTML padrão para vazio)
             if (firstContent === '<p><br></p>' || !firstContent) {
-                alert("Por favor, preencha o conteúdo da primeira mensagem.");
+                await customAlert("Por favor, preencha o conteúdo da primeira mensagem.");
                 return;
             }
 
             try {
                 // Criar o documento do fórum na subcoleção do usuário logado
-                const newForumRef = await db.collection('users').doc(currentUser.uid).collection('forums').add({
+                const newForumRef = await addDoc(collection(db, 'users', currentUser.uid, 'forums'), {
                     subject: subject,
                     authorUid: currentUser.uid,
                     authorName: currentUser.displayName || currentUser.email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: serverTimestamp()
                 });
 
                 // Adicionar a primeira mensagem como uma subcoleção do fórum recém-criado
-                await newForumRef.collection('messages').add({
+                await addDoc(collection(newForumRef, 'messages'), {
                     content: firstContent, // Salva o HTML
                     authorUid: currentUser.uid,
                     authorName: currentUser.displayName || currentUser.email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: serverTimestamp()
                 });
 
-                alert("Fórum criado com sucesso!");
+                await customAlert("Fórum criado com sucesso!");
                 document.getElementById('forumSubject').value = '';
                 firstMessageQuill.setContents([]); // Limpa o conteúdo do editor Quill
                 displayForums(); // Recarrega a lista de fóruns
             } catch (error) {
                 console.error("Erro ao criar fórum:", error);
-                alert("Erro ao criar fórum: " + error.message);
+                await customAlert("Erro ao criar fórum: " + error.message);
             }
         });
 
@@ -670,44 +773,38 @@
             const forumListElement = document.getElementById('forumList');
             forumListElement.innerHTML = '<li>Carregando fóruns...</li>';
 
-            let query;
-            if (currentUserIsAdmin) {
-                // Admins podem ver todos os fóruns através de uma collectionGroup query
-                query = db.collectionGroup('forums').orderBy('createdAt', 'desc');
-            } else if (currentUser) {
-                // Usuários logados veem apenas seus próprios fóruns
-                // Isso pode ser ajustado se você quiser que usuários logados vejam TUDO
-                // Por exemplo: query = db.collectionGroup('forums').orderBy('createdAt', 'desc');
-                query = db.collection('users').doc(currentUser.uid).collection('forums').orderBy('createdAt', 'desc');
-            } else {
-                // Não logado: nenhum fórum para exibir
-                forumListElement.innerHTML = '<li>Faça login para visualizar seus fóruns.</li>';
-                return;
-            }
-
             try {
-                const snapshot = await query.get();
-                if (snapshot.empty) {
+                // Query todos os fóruns usando collectionGroup, para que todos possam vê-los
+                // A ordenação por 'createdAt' requer um índice no Firestore.
+                // Se você tiver problemas, crie um índice para 'forums' collectionGroup no campo 'createdAt'.
+                const q = query(collectionGroup(db, 'forums'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
                     forumListElement.innerHTML = '<li>Nenhum fórum encontrado.</li>';
                     return;
                 }
 
                 forumListElement.innerHTML = '';
-                snapshot.forEach(doc => {
+                querySnapshot.forEach(doc => {
                     const forum = doc.data();
                     const forumId = doc.id;
                     // Para collectionGroup, o UID do criador é o parent do documento 'forums'
-                    const forumCreatorUid = doc.ref.parent.parent ? doc.ref.parent.parent.id : currentUser.uid; // Garante que o UID do criador seja correto
+                    // O caminho é 'users/{userId}/forums/{forumId}'
+                    const forumCreatorUid = doc.ref.parent.parent.id; // Obtém o userId do caminho
 
                     const li = document.createElement('li');
                     const date = forum.createdAt ? new Date(forum.createdAt.toDate()).toLocaleString() : 'Data desconhecida';
 
+                    // Escapa aspas simples no assunto para o onclick
+                    const escapedSubject = forum.subject.replace(/'/g, "\\'");
+
                     li.innerHTML = `
-                        <a href="#" onclick="loadForumMessages('${forumCreatorUid}', '${forumId}', '${forum.subject}')">${forum.subject}</a>
+                        <a href="#" onclick="loadForumMessages('${forumCreatorUid}', '${forumId}', '${escapedSubject}')">${forum.subject}</a>
                         <span class="forum-date">${date}</span>
                         <div class="forum-actions">
                             ${(currentUser && (currentUser.uid === forumCreatorUid || currentUserIsAdmin)) ? `
-                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="editForum('${forumCreatorUid}', '${forumId}', '${forum.subject}')" title="Editar">
+                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="editForum('${forumCreatorUid}', '${forumId}', '${escapedSubject}')" title="Editar">
                                     <i class="material-icons">edit</i>
                                 </button>
                                 <button class="mdl-button mdl-js-button mdl-button--icon delete-btn" onclick="deleteForum('${forumCreatorUid}', '${forumId}')" title="Remover">
@@ -728,52 +825,53 @@
 
         async function editForum(forumCreatorUid, forumId, currentSubject) {
             if (!currentUser || (currentUser.uid !== forumCreatorUid && !currentUserIsAdmin)) {
-                alert("Você não tem permissão para editar este fórum.");
+                await customAlert("Você não tem permissão para editar este fórum.");
                 return;
             }
 
-            const newSubject = prompt("Editar assunto do fórum:", currentSubject);
-            if (newSubject && newSubject.trim() !== '') {
+            const newSubject = prompt("Editar assunto do fórum:", currentSubject); // Manter prompt por simplicidade para edição de texto simples
+            if (newSubject !== null && newSubject.trim() !== '') {
                 try {
-                    await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).update({
+                    await updateDoc(doc(db, 'users', forumCreatorUid, 'forums', forumId), {
                         subject: newSubject.trim()
                     });
-                    alert("Fórum atualizado com sucesso!");
+                    await customAlert("Fórum atualizado com sucesso!");
                     displayForums(); // Recarrega a lista de fóruns
                 } catch (error) {
                     console.error("Erro ao atualizar fórum:", error);
-                    alert("Erro ao atualizar fórum: " + error.message);
+                    await customAlert("Erro ao atualizar fórum: " + error.message);
                 }
             } else if (newSubject !== null) { // Permite cancelar o prompt
-                alert("O assunto não pode estar vazio.");
+                await customAlert("O assunto não pode estar vazio.");
             }
         }
 
         async function deleteForum(forumCreatorUid, forumId) {
             if (!currentUser || (currentUser.uid !== forumCreatorUid && !currentUserIsAdmin)) {
-                alert("Você não tem permissão para remover este fórum.");
+                await customAlert("Você não tem permissão para remover este fórum.");
                 return;
             }
 
-            if (confirm("Tem certeza que deseja remover este fórum e todas as suas mensagens?")) {
+            const confirmed = await customConfirm("Tem certeza que deseja remover este fórum e todas as suas mensagens?");
+            if (confirmed) {
                 try {
                     // Excluir todas as mensagens na subcoleção 'messages'
-                    const messagesRef = db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages');
-                    const messagesSnapshot = await messagesRef.get();
-                    const batch = db.batch();
+                    const messagesRef = collection(db, 'users', forumCreatorUid, 'forums', forumId, 'messages');
+                    const messagesSnapshot = await getDocs(messagesRef);
+                    const batch = writeBatch(db);
                     messagesSnapshot.docs.forEach(doc => {
                         batch.delete(doc.ref);
                     });
                     await batch.commit();
 
                     // Excluir o documento do fórum
-                    await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).delete();
+                    await deleteDoc(doc(db, 'users', forumCreatorUid, 'forums', forumId));
 
-                    alert("Fórum removido com sucesso!");
+                    await customAlert("Fórum removido com sucesso!");
                     displayForums(); // Recarrega a lista de fóruns
                 } catch (error) {
                     console.error("Erro ao remover fórum:", error);
-                    alert("Erro ao remover fórum: " + error.message);
+                    await customAlert("Erro ao remover fórum: " + error.message);
                 }
             }
         }
@@ -783,7 +881,6 @@
             currentLoadedForumUserId = forumCreatorUid;
             document.getElementById('listForumsSection').style.display = 'none';
             createForumSection.style.display = 'none';
-            //loginPromptSection.style.display = 'none'; // Não esconda completamente, pois contém sair/info
             document.getElementById('forumDetailSection').style.display = 'block';
             document.getElementById('forumDetailSubject').innerText = 'Fórum: ' + forumSubject;
 
@@ -791,7 +888,8 @@
             messagesContainer.innerHTML = 'Carregando mensagens...';
 
             try {
-                const querySnapshot = await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').orderBy('createdAt').get();
+                const q = query(collection(db, 'users', forumCreatorUid, 'forums', forumId, 'messages'), orderBy('createdAt'));
+                const querySnapshot = await getDocs(q);
 
                 if (querySnapshot.empty) {
                     messagesContainer.innerHTML = '<p>Nenhuma mensagem ainda neste fórum.</p>';
@@ -807,11 +905,14 @@
 
                     const messageElement = document.createElement('div');
                     messageElement.className = 'message-item';
+                    // Escapa aspas simples no conteúdo da mensagem para o onclick
+                    const escapedContent = message.content.replace(/`/g, '\\`').replace(/'/g, "\\'");
+
                     messageElement.innerHTML = `
                         <strong>${senderName}</strong> <span class="timestamp">(${date})</span>
                         <div class="message-content">${message.content}</div> <div class="message-actions">
                             ${(currentUser && (currentUser.uid === message.authorUid || currentUserIsAdmin)) ? `
-                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="editMessage('${forumCreatorUid}', '${forumId}', '${messageId}', \`${message.content.replace(/`/g, '\\`')}\`)" title="Editar Mensagem">
+                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="editMessage('${forumCreatorUid}', '${forumId}', '${messageId}', \`${escapedContent}\`)" title="Editar Mensagem">
                                     <i class="material-icons">edit</i>
                                 </button>
                                 <button class="mdl-button mdl-js-button mdl-button--icon delete-btn" onclick="deleteMessage('${forumCreatorUid}', '${forumId}', '${messageId}')" title="Remover Mensagem">
@@ -831,15 +932,16 @@
 
         async function editMessage(forumCreatorUid, forumId, messageId, currentContent) {
             // Obtenha o UID do autor da mensagem para verificação de permissão
-            const messageDoc = await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).get();
+            const messageDocRef = doc(db, 'users', forumCreatorUid, 'forums', forumId, 'messages', messageId);
+            const messageDoc = await getDoc(messageDocRef);
             if (!messageDoc.exists) {
-                alert("Mensagem não encontrada.");
+                await customAlert("Mensagem não encontrada.");
                 return;
             }
             const messageAuthorUid = messageDoc.data().authorUid;
 
             if (!currentUser || (currentUser.uid !== messageAuthorUid && !currentUserIsAdmin)) {
-                alert("Você não tem permissão para editar esta mensagem.");
+                await customAlert("Você não tem permissão para editar esta mensagem.");
                 return;
             }
 
@@ -847,72 +949,74 @@
             // O ideal seria abrir um modal com um editor Quill pré-preenchido com 'currentContent'.
             const newContent = prompt("Editar mensagem (cuidado: isto mostrará o HTML bruto da mensagem):", currentContent);
 
-            if (newContent && newContent.trim() !== '' && newContent.trim() !== '<p><br></p>') {
+            if (newContent !== null && newContent.trim() !== '' && newContent.trim() !== '<p><br></p>') {
                 try {
-                    await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).update({
+                    await updateDoc(messageDocRef, {
                         content: newContent.trim(), // Salva o HTML editado
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        updatedAt: serverTimestamp()
                     });
-                    alert("Mensagem atualizada com sucesso!");
+                    await customAlert("Mensagem atualizada com sucesso!");
                     loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
                 } catch (error) {
                     console.error("Erro ao atualizar mensagem:", error);
-                    alert("Erro ao atualizar mensagem: " + error.message);
+                    await customAlert("Erro ao atualizar mensagem: " + error.message);
                 }
             } else if (newContent !== null) { // Permite cancelar o prompt
-                alert("A mensagem não pode estar vazia.");
+                await customAlert("A mensagem não pode estar vazia.");
             }
         }
 
         async function deleteMessage(forumCreatorUid, forumId, messageId) {
             // Obtenha o UID do autor da mensagem para verificação de permissão
-            const messageDoc = await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).get();
+            const messageDocRef = doc(db, 'users', forumCreatorUid, 'forums', forumId, 'messages', messageId);
+            const messageDoc = await getDoc(messageDocRef);
             if (!messageDoc.exists) {
-                alert("Mensagem não encontrada.");
+                await customAlert("Mensagem não encontrada.");
                 return;
             }
             const messageAuthorUid = messageDoc.data().authorUid;
 
             if (!currentUser || (currentUser.uid !== messageAuthorUid && !currentUserIsAdmin)) {
-                alert("Você não tem permissão para remover esta mensagem.");
+                await customAlert("Você não tem permissão para remover esta mensagem.");
                 return;
             }
 
-            if (confirm("Tem certeza que deseja remover esta mensagem?")) {
+            const confirmed = await customConfirm("Tem certeza que deseja remover esta mensagem?");
+            if (confirmed) {
                 try {
-                    await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).delete();
-                    alert("Mensagem removida com sucesso!");
+                    await deleteDoc(messageDocRef);
+                    await customAlert("Mensagem removida com sucesso!");
                     loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
                 } catch (error) {
                     console.error("Erro ao remover mensagem:", error);
-                    alert("Erro ao remover mensagem: " + error.message);
+                    await customAlert("Erro ao remover mensagem: " + error.message);
                 }
             }
         }
 
         document.getElementById('sendMessageBtn').addEventListener('click', async () => {
             if (!currentUser) {
-                alert("Você precisa estar logado para enviar mensagens.");
+                await customAlert("Você precisa estar logado para enviar mensagens.");
                 return;
             }
             if (!currentLoadedForumId || !currentLoadedForumUserId) {
-                alert("Nenhum fórum selecionado.");
+                await customAlert("Nenhum fórum selecionado.");
                 return;
             }
 
             const newMessageContent = newMessageQuill.root.innerHTML.trim(); // Pega o HTML do editor Quill
 
             if (newMessageContent === '<p><br></p>' || !newMessageContent) {
-                alert("Por favor, digite sua mensagem.");
+                await customAlert("Por favor, digite sua mensagem.");
                 return;
             }
 
             try {
-                await db.collection('users').doc(currentLoadedForumUserId).collection('forums').doc(currentLoadedForumId).collection('messages').add({
+                await addDoc(collection(db, 'users', currentLoadedForumUserId, 'forums', currentLoadedForumId, 'messages'), {
                     content: newMessageContent, // Salva o HTML
                     authorUid: currentUser.uid,
                     authorName: currentUser.displayName || currentUser.email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: serverTimestamp()
                 });
 
                 newMessageQuill.setContents([]); // Limpa o conteúdo do editor Quill
@@ -920,7 +1024,7 @@
                 loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', ''));
             } catch (error) {
                 console.error("Erro ao enviar mensagem:", error);
-                alert("Ocorreu um erro ao enviar sua mensagem: " + error.message);
+                await customAlert("Ocorreu um erro ao enviar sua mensagem: " + error.message);
             }
         });
 
