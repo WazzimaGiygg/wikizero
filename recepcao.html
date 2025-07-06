@@ -823,14 +823,17 @@ async function displayForums() {
             }
         }
 
-        async function editMessage(forumCreatorUid, forumId, messageId, currentContent) {
-            // Obtenha o UID do autor da mensagem para verificação de permissão
-            const messageDoc = await db.collection('users').doc(forumCreatorUid).collection('forums').doc(forumId).collection('messages').doc(messageId).get();
-            if (!messageDoc.exists) {
-                alert("Mensagem não encontrada.");
-                return;
-            }
-            const messageAuthorUid = messageDoc.data().authorUid;
+async function editMessage(forumCreatorUid, forumId, messageId) {
+    // Busque o conteúdo real no banco
+    const messageDoc = await db.collection('users').doc(forumCreatorUid)
+        .collection('forums').doc(forumId)
+        .collection('messages').doc(messageId).get();
+
+    if (!messageDoc.exists) {
+        alert("Mensagem não encontrada.");
+        return;
+    }
+    const currentContent = messageDoc.data().content;
 
             if (!currentUser || (currentUser.uid !== messageAuthorUid && !currentUserIsAdmin)) {
                 alert("Você não tem permissão para editar esta mensagem.");
@@ -839,7 +842,7 @@ async function displayForums() {
 
             // ATENÇÃO: Usar 'prompt' para editar HTML Rich Text não é ideal para UX, pois mostra o código bruto.
             // O ideal seria abrir um modal com um editor Quill pré-preenchido com 'currentContent'.
-            const newContent = prompt("Editar mensagem (cuidado: isto mostrará o HTML bruto da mensagem):", currentContent);
+             const newContent = prompt("Editar mensagem (HTML bruto):", currentContent);
 
             if (newContent && newContent.trim() !== '' && newContent.trim() !== '<p><br></p>') {
                 try {
