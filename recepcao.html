@@ -48,7 +48,7 @@
             text-align: center;
             margin-bottom: 20px;
             font-weight: 500;
-            border-bottom: 2px solid var(--primary-color);
+            border-bottom: 2dpx solid var(--primary-color);
             padding-bottom: 10px;
         }
 
@@ -987,7 +987,7 @@
                     await customAlert("Erro ao remover mensagem: " + error.message);
                 }
             }
-        }
+        });
 
         document.getElementById('sendMessageBtn').addEventListener('click', async () => {
             if (!currentUser) {
