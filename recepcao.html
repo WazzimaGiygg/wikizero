@@ -3,485 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fórum da Wiki Zone Zero Mod</title>
+    <title>Transparência Financeira - WZZM</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
-        /* Variáveis de Cores (Opcional, mas útil para consistência) */
-        :root {
-            --primary-color: #3f51b5; /* Azul Índigo do MDL */
-            --primary-dark-color: #303f9f;
-            --accent-color: #ff4081; /* Rosa do MDL */
-            --background-light: #f5f5f5;
-            --background-dark: #e0e0e0;
-            --text-color-primary: #333;
-            --text-color-secondary: #666;
-            --border-color: #ddd;
-            --success-color: #4CAF50;
-            --danger-color: #f44336;
-            --warning-color: #ff9800;
-            --info-color: #2196f3;
-        }
-
-        /* Base */
         body {
-            font-family: 'Roboto', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--background-light);
-            color: var(--text-color-primary);
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 960px;
-            margin: 20px auto;
-            padding: 30px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            color: var(--primary-color);
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: 500;
-            border-bottom: 2dpx solid var(--primary-color);
-            padding-bottom: 10px;
-        }
-
-        h2 {
-            color: var(--primary-dark-color);
-            margin-top: 25px;
-            margin-bottom: 15px;
-            font-size: 1.8em;
-            font-weight: 400;
-        }
-
-        h3 {
-            color: var(--text-color-primary);
-            margin-top: 20px;
-            margin-bottom: 10px;
-            font-size: 1.4em;
-            font-weight: 400;
-        }
-
-        hr {
-            border: none;
-            border-top: 1px solid var(--border-color);
-            margin: 20px 0;
-        }
-
-        /* Form Elements */
-        input[type="text"],
-        textarea {
-            width: calc(100% - 24px);
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 1em;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        input[type="text"]:focus,
-        textarea:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
-            outline: none;
-        }
-
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        /* Buttons */
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-            font-size: 1em;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        button:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .createForumBtn, .sendMessageBtn {
-            background-color: var(--success-color);
-            color: #fff;
-        }
-
-        .delete-btn {
-            background-color: var(--danger-color);
-            color: #fff;
-        }
-
-        .edit-btn {
-            background-color: var(--warning-color);
-            color: #fff;
-        }
-
-        .backToForumsBtn {
-            background-color: var(--info-color);
-            color: #fff;
-        }
-
-        #google-sign-in-btn {
-            background-color: #4285f4; /* Cor do Google */
-            color: white;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 8px;
-            margin: 15px auto;
-            width: fit-content;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
         }
-        #google-sign-in-btn:hover {
-            background-color: #357ae8;
+        .mdl-card {
+            width: 100%;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
         }
-        #google-sign-in-btn .material-icons {
-            font-size: 20px; /* Tamanho do ícone do Google */
+        .mdl-list {
+            padding: 0;
         }
-
-
-        /* Login Prompt */
-        #loginPromptSection {
+        .mdl-list__item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+            justify-content: space-between;
+        }
+        .mdl-list__item-primary-content {
+            font-weight: bold;
+        }
+        .mdl-list__item-secondary-action {
+            color: #3f51b5;
+        }
+        .summary-card {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e8eaf6;
+            color: #3f51b5;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .summary-card.positive {
+            background-color: #e0f2f1;
+            color: #00796b;
+        }
+        .summary-card.negative {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        .donation-section {
+            margin-top: 20px;
             text-align: center;
             padding: 20px;
-            background-color: var(--background-dark);
+            border: 1px dashed #ccc;
             border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 1.1em;
-            color: var(--text-color-secondary);
+            background-color: #fff;
+        }
+        .progress-container {
+            margin-top: 20px;
+        }
+        .progress-bar-wrapper {
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            height: 25px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #4CAF50; /* Verde para contribuições */
+            width: 0%;
+            text-align: center;
+            color: white;
+            line-height: 25px;
+            font-weight: bold;
+            transition: width 0.5s ease-in-out;
+            position: absolute;
+        }
+        .cost-bar {
+            background-color: #f44336; /* Vermelho para custos */
+            width: 0%;
+            text-align: right;
+            padding-right: 5px;
+            line-height: 25px;
+            font-weight: bold;
+            color: white;
+            transition: width 0.5s ease-in-out;
+            position: absolute;
+            right: 0;
+            z-index: 1;
+        }
+        .bar-label {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 25px;
+            color: #333;
+            z-index: 2;
+            font-weight: bold;
         }
 
-        /* Forum List */
-        ul#forumList {
+        /* Tabela de Notas Fiscais */
+        .mdl-data-table {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .mdl-data-table th, .mdl-data-table td {
+            text-align: left;
+        }
+        .mdl-data-table th:nth-child(4), .mdl-data-table td:nth-child(4) {
+             text-align: right;
+        }
+        .mdl-data-table__cell--non-numeric {
+            white-space: normal;
+        }
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #fff3cd; /* Amarelo claro para alerta */
+            color: #856404;
+            border: 1px solid #ffeeba;
+            text-align: center;
+            font-weight: bold;
+        }
+        .connected-services {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #555;
+            text-align: center;
+        }
+        .connected-services ul {
             list-style: none;
             padding: 0;
+            margin: 5px 0;
+            display: inline-block;
         }
-
-        ul#forumList li {
-            background-color: var(--background-light);
-            margin-bottom: 10px;
-            padding: 15px 20px;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        ul#forumList li:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        ul#forumList li a {
-            flex-grow: 1;
-            text-decoration: none;
-            color: var(--primary-color);
-            font-weight: bold;
-            font-size: 1.2em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-right: 15px;
-        }
-
-        ul#forumList li span.forum-date {
-            color: var(--text-color-secondary);
-            font-size: 0.9em;
-            margin-left: 15px;
-        }
-
-        .forum-actions {
-            display: flex;
-            gap: 5px; /* Espaço entre os botões de ação */
-        }
-
-        .forum-actions .mdl-button {
-            min-width: 36px; /* Ajusta o tamanho dos botões de ícone */
-            height: 36px;
-            padding: 0;
-        }
-
-        /* Message Container */
-        #messagesContainer {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        #messagesContainer .message-item {
-            background-color: #fff;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            position: relative; /* Para posicionar botões de ação */
-        }
-
-        #messagesContainer .message-item strong {
-            color: var(--primary-dark-color);
-            font-size: 1.1em;
-        }
-
-        #messagesContainer .message-item .timestamp {
-            font-size: 0.85em;
-            color: var(--text-color-secondary);
-            margin-left: 8px;
-        }
-
-        #messagesContainer .message-item .message-content {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            color: var(--text-color-primary);
-            line-height: 1.8; /* Melhorar legibilidade para HTML formatado */
-        }
-
-        /* Estilos para o Quill Editor */
-        .ql-toolbar.ql-snow + .ql-container.ql-snow {
-            border-top: 0px;
-            height: auto; /* Permite que o editor cresça */
-            min-height: 100px; /* Altura mínima */
-        }
-        .ql-container {
-            border: 1px solid var(--border-color) !important; /* Sobrescreve a borda padrão do Quill */
-            border-radius: 4px;
-            font-size: 1em;
-            line-height: 1.6;
-        }
-        .ql-editor {
-            min-height: 100px;
-        }
-
-        .message-actions {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 5px;
-        }
-
-        .message-actions .mdl-button {
-            min-width: 30px;
-            height: 30px;
-            padding: 0;
-        }
-
-        .forum-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        #forumDetailSubject {
-            color: var(--primary-dark-color);
-            flex-grow: 1;
-            margin: 0;
-            font-size: 2em;
-            font-weight: 500;
-        }
-
-
-        /* Esconder seções inicialmente */
-        #createForumSection,
-        #forumDetailSection {
-            display: none;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 1.8em;
-            }
-
-            h2 {
-                font-size: 1.5em;
-            }
-
-            ul#forumList li {
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 10px 15px;
-            }
-
-            ul#forumList li a {
-                font-size: 1.1em;
-                margin-right: 0;
-                margin-bottom: 5px;
-            }
-
-            ul#forumList li span.forum-date {
-                font-size: 0.8em;
-                margin-left: 0;
-            }
-
-            .forum-actions {
-                width: 100%;
-                justify-content: flex-end;
-                margin-top: 10px;
-            }
-
-            .message-actions {
-                position: static;
-                margin-top: 10px;
-                justify-content: flex-end;
-                width: 100%;
-            }
-
-            #forumDetailSubject {
-                font-size: 1.5em;
-                margin-bottom: 10px;
-            }
-            .forum-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-
-        /* Custom Modal Styles */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #888;
-            border-radius: 8px;
-            width: 80%; /* Could be more or less, depending on screen size */
-            max-width: 500px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            animation-name: animatetop;
-            animation-duration: 0.4s
-        }
-
-        @keyframes animatetop {
-            from {top: -300px; opacity: 0}
-            to {top: 0; opacity: 1}
-        }
-
-        .modal-content h3 {
-            margin-top: 0;
-            color: var(--primary-dark-color);
-        }
-
-        .modal-buttons {
-            text-align: right;
-            margin-top: 20px;
-        }
-
-        .modal-buttons button {
-            margin-left: 10px;
+        .connected-services li {
+            display: inline-block;
+            margin: 0 5px;
+            background-color: #e0e0e0;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Fórum</h1>
 
-        <div id="loginPromptSection">
-            <p>Por favor, faça login para criar fóruns e participar das discussões.</p>
-            <button class="mdl-button mdl-js-button mdl-button--raised" id="google-sign-in-btn">
-                <i class="material-icons">account_circle</i> Entrar com Google
-            </button>
-            <p>
-                <button class="mdl-button mdl-js-button mdl-button--raised" id="sign-out-btn" style="display: none;">Sair</button>
-            </p>
-            <p id="user-info" style="display: none;"></p>
+    <div class="mdl-card mdl-shadow--2dp">
+        <div class="mdl-card__title mdl-card--expand">
+            <h2 class="mdl-card__title-text">Transparência Financeira WZZM</h2>
         </div>
+        <div class="mdl-card__supporting-text">
+            <p>O projeto WZZM opera sem fins lucrativos e depende de doações para cobrir seus custos de infraestrutura, como Firebase e Google Workspace. Agradecemos imensamente seu apoio!</p>
 
-        <div id="createForumSection">
-            <h2>Criar Novo Fórum</h2>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 100%;">
-                <input class="mdl-textfield__input" type="text" id="forumSubject">
-                <label class="mdl-textfield__label" for="forumSubject">Assunto do Fórum</label>
-            </div>
-            <label for="firstMessageEditor">Primeira mensagem do fórum:</label>
-            <div id="firstMessageEditor" style="height: 150px; margin-bottom: 12px;"></div>
-            <button class="mdl-button mdl-js-button mdl-button--raised createForumBtn" id="createForumBtn">Criar Fórum</button>
-            <hr>
-        </div>
-
-        <div id="listForumsSection">
-            <h2>Fóruns Disponíveis</h2>
-            <ul id="forumList">
-                <li>Carregando fóruns...</li>
-            </ul>
-        </div>
-
-        <div id="forumDetailSection">
-            <div class="forum-header">
-                <h2 id="forumDetailSubject"></h2>
-                <button class="mdl-button mdl-js-button mdl-button--raised backToForumsBtn" id="backToForumsBtn">Voltar para a Lista</button>
-            </div>
-            <div id="messagesContainer">
+            <div id="statusMessage" class="status-message" style="display: none;">
                 </div>
-            <h3>Sua Mensagem:</h3>
-            <label for="newMessageEditor">Sua mensagem:</label>
-            <div id="newMessageEditor" style="height: 150px; margin-bottom: 12px;"></div>
-            <button class="mdl-button mdl-js-button mdl-button--raised sendMessageBtn" id="sendMessageBtn">Enviar Mensagem</button>
-        </div>
-    </div>
 
-    <!-- Custom Modal Structure -->
-    <div id="customModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h3 id="modalTitle"></h3>
-            <p id="modalMessage"></p>
-            <div class="modal-buttons">
-                <button class="mdl-button mdl-js-button mdl-button--raised" id="modalOkBtn">OK</button>
-                <button class="mdl-button mdl-js-button mdl-button--raised" id="modalCancelBtn" style="display: none;">Cancelar</button>
+            <h3 style="margin-top: 20px;">Resumo Mensal (<span id="currentMonthYear"></span>)</h3>
+            <ul class="mdl-list">
+                <li class="mdl-list__item">
+                    <span class="mdl-list__item-primary-content">Doações Recebidas:</span>
+                    <span class="mdl-list__item-secondary-action" id="totalDonations">R$ 0,00</span>
+                </li>
+                <li class="mdl-list__item">
+                    <span class="mdl-list__item-primary-content">Custo Firebase (Previsão):</span>
+                    <span class="mdl-list__item-secondary-action" id="costFirebase">R$ 0,00</span>
+                </li>
+                <li class="mdl-list__item">
+                    <span class="mdl-list__item-primary-content">Custo Google Workspace (Previsão):</span>
+                    <span class="mdl-list__item-secondary-action" id="costWorkspace">R$ 0,00</span>
+                </li>
+            </ul>
+
+            <div id="balanceCard" class="summary-card">
+                Saldo Atual: <span id="currentBalance">R$ 0,00</span>
             </div>
+            
+            <div id="connectedServicesDiv" class="connected-services">
+                <strong>Serviços Conectados (Este mês):</strong>
+                <ul id="servicesList">
+                    </ul>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 0.9em; color: #555;">
+                *Os valores de custo são estimativas e podem variar ligeiramente de acordo com o uso e o ciclo de faturamento.
+                As informações são atualizadas periodicamente para garantir a maior transparência possível.
+            </p>
+
+            <div class="progress-container">
+                <h4>Status de Cobertura de Custos</h4>
+                <div class="progress-bar-wrapper">
+                    <div id="contributionsBar" class="progress-bar"></div>
+                    <div id="costsBar" class="cost-bar"></div>
+                    <div class="bar-label" id="barLabel">Carregando...</div>
+                </div>
+                <p style="text-align: center; font-size: 0.9em; color: #555;">
+                    Verde: Contribuições Recebidas | Vermelho: Custos Mensais
+                </p>
+            </div>
+
+
+            <div class="donation-section">
+                <h4>Apoie o Projeto WZZM!</h4>
+                <p>Sua doação ajuda a manter a plataforma funcionando e crescendo.</p>
+                <p style="font-weight: bold; color: #3f51b5;">Funcionalidade de Doação: Ainda a ser implementada.</p>
+                </div>
+
+            <h3 style="margin-top: 30px;">Notas Fiscais de Custos</h3>
+            <p>Detalhes das notas fiscais dos serviços utilizados:</p>
+            <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th class="mdl-data-table__cell--non-numeric">Serviço</th>
+                        <th class="mdl-data-table__cell--non-numeric">Nº Nota Fiscal</th>
+                        <th class="mdl-data-table__cell--non-numeric">Data</th>
+                        <th>Valor (R$)</th>
+                        <th class="mdl-data-table__cell--non-numeric">Link</th>
+                    </tr>
+                </thead>
+                <tbody id="invoicesTableBody">
+                    <tr><td colspan="5" style="text-align: center;">Carregando notas fiscais...</td></tr>
+                </tbody>
+            </table>
+
         </div>
     </div>
 
-    <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-
-    <script type="module">
-        // Importa as funções necessárias do Firebase SDK v11
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, deleteDoc, query, orderBy, collectionGroup, writeBatch, serverTimestamp, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
-
-        // Sua configuração do Firebase (mantida do arquivo original)
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script>
+        // Sua configuração do Firebase (substitua com suas próprias chaves)
         const firebaseConfig = {
-            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0", // Use sua própria chave!
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
             authDomain: "wzzm-ce3fc.firebaseapp.com",
             projectId: "wzzm-ce3fc",
             storageBucket: "wzzm-ce3fc.appspot.com",
@@ -491,553 +252,165 @@
         };
 
         // Inicializa o Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const storage = getStorage(app);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const firestore = firebase.firestore();
 
-        let currentUser = null;
-        let currentUserIsAdmin = false;
-        let currentLoadedForumId = null;
-        let currentLoadedForumUserId = null;
+        // Elementos HTML
+        const totalDonationsEl = document.getElementById('totalDonations');
+        const costFirebaseEl = document.getElementById('costFirebase');
+        const costWorkspaceEl = document.getElementById('costWorkspace');
+        const currentBalanceEl = document.getElementById('currentBalance');
+        const balanceCardEl = document.getElementById('balanceCard');
+        const currentMonthYearEl = document.getElementById('currentMonthYear');
+        const contributionsBar = document.getElementById('contributionsBar');
+        const costsBar = document.getElementById('costsBar');
+        const barLabel = document.getElementById('barLabel');
+        const invoicesTableBody = document.getElementById('invoicesTableBody');
+        const statusMessageDiv = document.getElementById('statusMessage');
+        const servicesList = document.getElementById('servicesList');
 
-        // Elementos UI para autenticação
-        const googleSignInBtn = document.getElementById('google-sign-in-btn');
-        const signOutBtn = document.getElementById('sign-out-btn');
-        const userInfoSpan = document.getElementById('user-info');
-        const loginPromptSection = document.getElementById('loginPromptSection');
-        const createForumSection = document.getElementById('createForumSection');
+        // Função para formatar moeda
+        function formatCurrency(value) {
+            return `R$ ${value.toFixed(2).replace('.', ',')}`;
+        }
 
-        // Variáveis para os editores Quill
-        let firstMessageQuill;
-        let newMessageQuill;
+        // Função para carregar dados financeiros e de notas fiscais
+        async function loadFinancialData() {
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1; // getMonth() é 0-index
+            const currentYear = now.getFullYear();
+            const monthYearId = `${currentYear}-${String(currentMonth).padStart(2, '0')}`; // Ex: "2025-06"
+            
+            // Exibir o mês/ano atual no cabeçalho
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            currentMonthYearEl.textContent = `${monthNames[now.getMonth()]} de ${currentYear}`;
 
-        // --- Funções do Modal Personalizado ---
-        const customModal = document.getElementById('customModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalMessage = document.getElementById('modalMessage');
-        const modalOkBtn = document.getElementById('modalOkBtn');
-        const modalCancelBtn = document.getElementById('modalCancelBtn');
+            let totalDonations = 0;
+            let firebaseCost = 0;
+            let workspaceCost = 0;
+            let statusText = "";
+            let connectedServices = [];
 
-        function showModal(title, message, type = 'alert') {
-            modalTitle.innerText = title;
-            modalMessage.innerText = message;
-            customModal.style.display = 'flex'; // Use flex para centralizar
+            try {
+                // 1. Buscar dados financeiros do mês atual
+                const financialDocRef = firestore.collection('financialData').doc(monthYearId);
+                const financialDoc = await financialDocRef.get();
 
-            return new Promise((resolve) => {
-                modalOkBtn.onclick = () => {
-                    customModal.style.display = 'none';
-                    resolve(true);
-                };
-
-                if (type === 'confirm') {
-                    modalCancelBtn.style.display = 'inline-block';
-                    modalCancelBtn.onclick = () => {
-                        customModal.style.display = 'none';
-                        resolve(false);
-                    };
+                if (financialDoc.exists) {
+                    const data = financialDoc.data();
+                    totalDonations = data.totalDonations || 0;
+                    firebaseCost = data.firebaseCost || 0;
+                    workspaceCost = data.workspaceCost || 0;
+                    statusText = data.statusMessage || ""; // Obter mensagem de status
+                    connectedServices = data.connectedServices || []; // Obter lista de serviços
                 } else {
-                    modalCancelBtn.style.display = 'none';
+                    console.warn(`Dados financeiros para ${monthYearId} não encontrados no Firestore. Exibindo zeros.`);
+                    statusText = "Dados financeiros para este mês ainda não foram registrados.";
                 }
-            });
-        }
 
-        async function customAlert(message) {
-            await showModal('Aviso', message, 'alert');
-        }
-
-        async function customConfirm(message) {
-            return await showModal('Confirmação', message, 'confirm');
-        }
-        // --- Fim das Funções do Modal Personalizado ---
-
-        // Manipulador de upload de imagem para Quill
-        async function imageHandler(quillInstance) {
-            const input = document.createElement('input');
-            input.setAttribute('type', 'file');
-            input.setAttribute('accept', 'image/*');
-            input.click();
-
-            input.onchange = async () => {
-                const file = input.files[0];
-                if (file) {
-                    const range = quillInstance.getSelection(true); // Obtenha a seleção atual do cursor
-
-                    // Opcional: Mostrar um loader ou texto enquanto carrega
-                    quillInstance.clipboard.dangerouslyPasteHTML(range.index, '<p>Carregando imagem...</p>');
-
-                    // Cria uma referência para o arquivo no Storage
-                    const imagesRef = ref(storage, `forum_images/${Date.now()}-${file.name}`);
-
-                    try {
-                        const snapshot = await uploadBytes(imagesRef, file);
-                        const downloadURL = await getDownloadURL(snapshot.ref);
-
-                        // Remove o texto de carregamento e insere a imagem
-                        const currentContent = quillInstance.root.innerHTML;
-                        const newContent = currentContent.replace('<p>Carregando imagem...</p>', '');
-                        quillInstance.root.innerHTML = newContent;
-                        quillInstance.insertEmbed(range.index, 'image', downloadURL);
-                        quillInstance.setSelection(range.index + 1); // Move o cursor após a imagem
-                    } catch (error) {
-                        console.error("Erro ao fazer upload da imagem:", error);
-                        customAlert("Erro ao fazer upload da imagem: " + error.message);
-                        // Remover o texto de carregamento em caso de erro
-                        const currentContent = quillInstance.root.innerHTML;
-                        const newContent = currentContent.replace('<p>Carregando imagem...</p>', '');
-                        quillInstance.root.innerHTML = newContent;
-                    }
+                // Exibir mensagem de status
+                if (statusText) {
+                    statusMessageDiv.textContent = statusText;
+                    statusMessageDiv.style.display = 'block';
+                } else {
+                    statusMessageDiv.style.display = 'none';
                 }
-            };
-        }
 
+                // Exibir serviços conectados
+                servicesList.innerHTML = ''; // Limpa a lista existente
+                if (connectedServices.length > 0) {
+                    connectedServices.forEach(service => {
+                        const li = document.createElement('li');
+                        li.textContent = service;
+                        servicesList.appendChild(li);
+                    });
+                } else {
+                    servicesList.innerHTML = '<li>Nenhum serviço conectado listado.</li>';
+                }
 
-        // Inicializa Quill editors quando o DOM estiver carregado
-        document.addEventListener('DOMContentLoaded', () => {
-            firstMessageQuill = new Quill('#firstMessageEditor', {
-                theme: 'snow',
-                placeholder: 'Primeira mensagem do fórum...',
-                modules: {
-                    toolbar: {
-                        container: [
-                            ['bold', 'italic', 'underline', 'strike'],
-                            ['blockquote', 'code-block'],
-                            [{ 'header': 1 }, { 'header': 2 }],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            [{ 'script': 'sub'}, { 'script': 'super' }],
-                            [{ 'indent': '-1'}, { 'indent': '+1' }],
-                            [{ 'direction': 'rtl' }],
-                            [{ 'size': ['small', false, 'large', 'huge'] }],
-                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                            [{ 'color': [] }, { 'background': [] }],
-                            [{ 'font': [] }],
-                            [{ 'align': [] }],
-                            ['link', 'image', 'video'],
-                            ['clean']
-                        ],
-                        handlers: {
-                            'image': function() {
-                                imageHandler(this.quill);
-                            }
+                const totalCosts = firebaseCost + workspaceCost;
+                const balance = totalDonations - totalCosts;
+
+                totalDonationsEl.textContent = formatCurrency(totalDonations);
+                costFirebaseEl.textContent = formatCurrency(firebaseCost);
+                costWorkspaceEl.textContent = formatCurrency(workspaceCost);
+                currentBalanceEl.textContent = formatCurrency(balance);
+
+                if (balance >= 0) {
+                    balanceCardEl.classList.add('positive');
+                    balanceCardEl.classList.remove('negative');
+                } else {
+                    balanceCardEl.classList.add('negative');
+                    balanceCardEl.classList.remove('positive');
+                }
+
+                // --- Lógica das Barras de Progresso ---
+                const maxAmount = Math.max(totalDonations, totalCosts, 1);
+                let contributionsPercentage = (totalDonations / maxAmount) * 100;
+                let costsPercentage = (totalCosts / maxAmount) * 100;
+
+                // Para garantir que as barras não sejam maiores que 100% visivelmente
+                if (contributionsPercentage > 100) contributionsPercentage = 100;
+                if (costsPercentage > 100) costsPercentage = 100;
+
+                contributionsBar.style.width = `${contributionsPercentage}%`;
+                costsBar.style.width = `${costsPercentage}%`;
+
+                if (totalDonations > 0 || totalCosts > 0) {
+                    barLabel.textContent = `Doações: ${formatCurrency(totalDonations)} / Custos: ${formatCurrency(totalCosts)}`;
+                } else {
+                    barLabel.textContent = "Nenhum dado financeiro registrado ainda para este mês.";
+                }
+                
+                // 2. Buscar Notas Fiscais
+                invoicesTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Carregando notas fiscais...</td></tr>';
+                const invoicesSnapshot = await firestore.collection('invoices')
+                                                          .where('monthYear', '==', monthYearId)
+                                                          .orderBy('date', 'desc')
+                                                          .get();
+                
+                if (!invoicesSnapshot.empty) {
+                    invoicesTableBody.innerHTML = '';
+                    invoicesSnapshot.forEach(doc => {
+                        const invoice = doc.data();
+                        const row = invoicesTableBody.insertRow();
+                        row.insertCell(0).textContent = invoice.service || 'N/A';
+                        row.insertCell(1).textContent = invoice.invoiceNumber || 'N/A';
+                        row.insertCell(2).textContent = invoice.date ? new Date(invoice.date.seconds * 1000).toLocaleDateString() : 'N/A';
+                        row.insertCell(3).textContent = formatCurrency(invoice.amount || 0);
+                        const linkCell = row.insertCell(4);
+                        if (invoice.fileURL) {
+                            const link = document.createElement('a');
+                            link.href = invoice.fileURL;
+                            link.textContent = 'Ver Nota';
+                            link.target = '_blank';
+                            linkCell.appendChild(link);
+                        } else {
+                            linkCell.textContent = 'N/A';
                         }
-                    }
-                }
-            });
-
-            newMessageQuill = new Quill('#newMessageEditor', {
-                theme: 'snow',
-                placeholder: 'Sua mensagem...',
-                modules: {
-                    toolbar: {
-                        container: [
-                            ['bold', 'italic', 'underline', 'strike'],
-                            ['blockquote', 'code-block'],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            ['link', 'image', 'video'],
-                            ['clean']
-                        ],
-                        handlers: {
-                            'image': function() {
-                                imageHandler(this.quill);
-                            }
-                        }
-                    }
-                }
-            });
-        });
-
-        // Configuração do provedor de autenticação Google
-        const provider = new GoogleAuthProvider();
-
-        // Event listener para o botão de login com Google
-        googleSignInBtn.addEventListener('click', async () => {
-            try {
-                await signInWithPopup(auth, provider);
-                // onAuthStateChanged irá lidar com o resto
-            } catch (error) {
-                console.error("Erro ao fazer login com Google:", error);
-                customAlert("Erro ao fazer login com Google: " + error.message);
-            }
-        });
-
-        // Event listener para o botão de logout
-        signOutBtn.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-            } catch (error) {
-                console.error("Erro ao fazer logout:", error);
-                customAlert("Erro ao fazer logout: " + error.message);
-            }
-        });
-
-
-        onAuthStateChanged(auth, async (user) => {
-            currentUser = user;
-            currentUserIsAdmin = false; // Reset admin status
-
-            if (user) {
-                googleSignInBtn.style.display = 'none';
-                signOutBtn.style.display = 'inline-block';
-                userInfoSpan.style.display = 'block';
-                userInfoSpan.innerText = `Logado como: ${user.displayName || user.email}`;
-
-                // Verifica/cria o perfil do usuário no Firestore e define o status de admin
-                try {
-                    const userDocRef = doc(db, 'users', user.uid);
-                    const userDoc = await getDoc(userDocRef);
-
-                    if (userDoc.exists) {
-                        currentUserIsAdmin = userDoc.data().isAdmin || false;
-                    } else {
-                        // Novo usuário, cria um documento básico para ele
-                        await setDoc(userDocRef, {
-                            uid: user.uid,
-                            displayName: user.displayName || 'Usuário Sem Nome',
-                            email: user.email,
-                            isAdmin: false, // Por padrão, não é admin. Admin status deve ser definido manualmente no Firestore.
-                            createdAt: serverTimestamp()
-                        });
-                        console.log("Novo perfil de usuário criado no Firestore.");
-                        currentUserIsAdmin = false; // Garante que o novo usuário não seja admin
-                    }
-                } catch (error) {
-                    console.error("Erro ao carregar/criar perfil do usuário:", error);
-                }
-
-                createForumSection.style.display = 'block';
-                loginPromptSection.style.display = 'block'; // Mantenha visível para o botão de sair e info
-            } else {
-                googleSignInBtn.style.display = 'inline-block';
-                signOutBtn.style.display = 'none';
-                userInfoSpan.style.display = 'none';
-                userInfoSpan.innerText = '';
-                createForumSection.style.display = 'none';
-                loginPromptSection.style.display = 'block';
-            }
-            window.displayForums(); // Chamada global
-        });
-
-        document.getElementById('createForumBtn').addEventListener('click', async () => {
-            if (!currentUser) {
-                await customAlert("Você precisa estar logado para criar um fórum.");
-                return;
-            }
-
-            const subject = document.getElementById('forumSubject').value.trim();
-            const firstContent = firstMessageQuill.root.innerHTML.trim(); // Pega o HTML do editor Quill
-
-            if (!subject) {
-                await customAlert("Por favor, preencha o assunto do fórum.");
-                return;
-            }
-            // Verifica se o conteúdo do editor Quill está vazio (<p><br></p> é o HTML padrão para vazio)
-            if (firstContent === '<p><br></p>' || !firstContent) {
-                await customAlert("Por favor, preencha o conteúdo da primeira mensagem.");
-                return;
-            }
-
-            try {
-                // Criar o documento do fórum na subcoleção do usuário logado
-                const newForumRef = await addDoc(collection(db, 'users', currentUser.uid, 'forums'), {
-                    subject: subject,
-                    authorUid: currentUser.uid,
-                    authorName: currentUser.displayName || currentUser.email,
-                    createdAt: serverTimestamp()
-                });
-
-                // Adicionar a primeira mensagem como uma subcoleção do fórum recém-criado
-                await addDoc(collection(newForumRef, 'messages'), {
-                    content: firstContent, // Salva o HTML
-                    authorUid: currentUser.uid,
-                    authorName: currentUser.displayName || currentUser.email,
-                    createdAt: serverTimestamp()
-                });
-
-                await customAlert("Fórum criado com sucesso!");
-                document.getElementById('forumSubject').value = '';
-                firstMessageQuill.setContents([]); // Limpa o conteúdo do editor Quill
-                window.displayForums(); // Recarrega a lista de fóruns
-            } catch (error) {
-                console.error("Erro ao criar fórum:", error);
-                await customAlert("Erro ao criar fórum: " + error.message);
-            }
-        });
-
-        // Torna as funções acessíveis globalmente
-        window.displayForums = async function() {
-            const forumListElement = document.getElementById('forumList');
-            forumListElement.innerHTML = '<li>Carregando fóruns...</li>';
-
-            try {
-                // Query todos os fóruns usando collectionGroup, para que todos possam vê-los
-                // A ordenação por 'createdAt' requer um índice no Firestore.
-                // Se você tiver problemas, crie um índice para 'forums' collectionGroup no campo 'createdAt'.
-                const q = query(collectionGroup(db, 'forums'), orderBy('createdAt', 'desc'));
-                const querySnapshot = await getDocs(q);
-
-                if (querySnapshot.empty) {
-                    forumListElement.innerHTML = '<li>Nenhum fórum encontrado.</li>';
-                    return;
-                }
-
-                forumListElement.innerHTML = '';
-                querySnapshot.forEach(doc => {
-                    const forum = doc.data();
-                    const forumId = doc.id;
-                    // Para collectionGroup, o UID do criador é o parent do documento 'forums'
-                    // O caminho é 'users/{userId}/forums/{forumId}'
-                    const forumCreatorUid = doc.ref.parent.parent.id; // Obtém o userId do caminho
-
-                    const li = document.createElement('li');
-                    const date = forum.createdAt ? new Date(forum.createdAt.toDate()).toLocaleString() : 'Data desconhecida';
-
-                    // Escapa aspas simples no assunto para o onclick
-                    const escapedSubject = forum.subject.replace(/'/g, "\\'");
-
-                    li.innerHTML = `
-                        <a href="#" onclick="window.loadForumMessages('${forumCreatorUid}', '${forumId}', '${escapedSubject}')">${forum.subject}</a>
-                        <span class="forum-date">${date}</span>
-                        <div class="forum-actions">
-                            ${(currentUser && (currentUser.uid === forumCreatorUid || currentUserIsAdmin)) ? `
-                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="window.editForum('${forumCreatorUid}', '${forumId}', '${escapedSubject}')" title="Editar">
-                                    <i class="material-icons">edit</i>
-                                </button>
-                                <button class="mdl-button mdl-js-button mdl-button--icon delete-btn" onclick="window.deleteForum('${forumCreatorUid}', '${forumId}')" title="Remover">
-                                    <i class="material-icons">delete</i>
-                                </button>
-                            ` : ''}
-                        </div>
-                    `;
-                    forumListElement.appendChild(li);
-                });
-                // Garante que os componentes MDL sejam atualizados após adicionar novos elementos
-                window.componentHandler.upgradeElements(forumListElement);
-            } catch (error) {
-                console.error("Erro ao carregar fóruns:", error);
-                forumListElement.innerHTML = '<li>Erro ao carregar fóruns.</li>';
-            }
-        }
-
-        window.editForum = async function(forumCreatorUid, forumId, currentSubject) {
-            if (!currentUser || (currentUser.uid !== forumCreatorUid && !currentUserIsAdmin)) {
-                await customAlert("Você não tem permissão para editar este fórum.");
-                return;
-            }
-
-            const newSubject = prompt("Editar assunto do fórum:", currentSubject); // Manter prompt por simplicidade para edição de texto simples
-            if (newSubject !== null && newSubject.trim() !== '') {
-                try {
-                    await updateDoc(doc(db, 'users', forumCreatorUid, 'forums', forumId), {
-                        subject: newSubject.trim()
                     });
-                    await customAlert("Fórum atualizado com sucesso!");
-                    window.displayForums(); // Recarrega a lista de fóruns
-                } catch (error) {
-                    console.error("Erro ao atualizar fórum:", error);
-                    await customAlert("Erro ao atualizar fórum: " + error.message);
-                }
-            } else if (newSubject !== null) { // Permite cancelar o prompt
-                await customAlert("O assunto não pode estar vazio.");
-            }
-        }
-
-        window.deleteForum = async function(forumCreatorUid, forumId) {
-            if (!currentUser || (currentUser.uid !== forumCreatorUid && !currentUserIsAdmin)) {
-                await customAlert("Você não tem permissão para remover este fórum.");
-                return;
-            }
-
-            const confirmed = await customConfirm("Tem certeza que deseja remover este fórum e todas as suas mensagens?");
-            if (confirmed) {
-                try {
-                    // Excluir todas as mensagens na subcoleção 'messages'
-                    const messagesRef = collection(db, 'users', forumCreatorUid, 'forums', forumId, 'messages');
-                    const messagesSnapshot = await getDocs(messagesRef);
-                    const batch = writeBatch(db);
-                    messagesSnapshot.docs.forEach(doc => {
-                        batch.delete(doc.ref);
-                    });
-                    await batch.commit();
-
-                    // Excluir o documento do fórum
-                    await deleteDoc(doc(db, 'users', forumCreatorUid, 'forums', forumId));
-
-                    await customAlert("Fórum removido com sucesso!");
-                    window.displayForums(); // Recarrega a lista de fóruns
-                } catch (error) {
-                    console.error("Erro ao remover fórum:", error);
-                    await customAlert("Erro ao remover fórum: " + error.message);
-                }
-            }
-        } // This was the problematic line, it was '});' instead of '}'
-
-        window.loadForumMessages = async function(forumCreatorUid, forumId, forumSubject) {
-            currentLoadedForumId = forumId;
-            currentLoadedForumUserId = forumCreatorUid;
-            document.getElementById('listForumsSection').style.display = 'none';
-            createForumSection.style.display = 'none';
-            document.getElementById('forumDetailSection').style.display = 'block';
-            document.getElementById('forumDetailSubject').innerText = 'Fórum: ' + forumSubject;
-
-            const messagesContainer = document.getElementById('messagesContainer');
-            messagesContainer.innerHTML = 'Carregando mensagens...';
-
-            try {
-                const q = query(collection(db, 'users', forumCreatorUid, 'forums', forumId, 'messages'), orderBy('createdAt'));
-                const querySnapshot = await getDocs(q);
-
-                if (querySnapshot.empty) {
-                    messagesContainer.innerHTML = '<p>Nenhuma mensagem ainda neste fórum.</p>';
-                    return;
+                } else {
+                    invoicesTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhuma nota fiscal encontrada para este mês.</td></tr>';
                 }
 
-                messagesContainer.innerHTML = '';
-                querySnapshot.forEach(doc => {
-                    const message = doc.data();
-                    const messageId = doc.id;
-                    const date = message.createdAt ? new Date(message.createdAt.toDate()).toLocaleString() : 'Data desconhecida';
-                    const senderName = message.authorName || 'Anônimo';
-
-                    const messageElement = document.createElement('div');
-                    messageElement.className = 'message-item';
-                    // Escapa aspas simples no conteúdo da mensagem para o onclick
-                    const escapedContent = message.content.replace(/`/g, '\\`').replace(/'/g, "\\'");
-
-                    messageElement.innerHTML = `
-                        <strong>${senderName}</strong> <span class="timestamp">(${date})</span>
-                        <div class="message-content">${message.content}</div> <div class="message-actions">
-                            ${(currentUser && (currentUser.uid === message.authorUid || currentUserIsAdmin)) ? `
-                                <button class="mdl-button mdl-js-button mdl-button--icon edit-btn" onclick="window.editMessage('${forumCreatorUid}', '${forumId}', '${messageId}', \`${escapedContent}\`)" title="Editar Mensagem">
-                                    <i class="material-icons">edit</i>
-                                </button>
-                                <button class="mdl-button mdl-js-button mdl-button--icon delete-btn" onclick="window.deleteMessage('${forumCreatorUid}', '${forumId}', '${messageId}')" title="Remover Mensagem">
-                                    <i class="material-icons">delete</i>
-                                </button>
-                            ` : ''}
-                        </div>
-                    `;
-                    messagesContainer.appendChild(messageElement);
-                });
-                window.componentHandler.upgradeElements(messagesContainer);
             } catch (error) {
-                console.error("Erro ao carregar mensagens:", error);
-                messagesContainer.innerHTML = '<p>Erro ao carregar mensagens.</p>';
+                console.error("Erro ao carregar dados financeiros ou notas fiscais:", error);
+                totalDonationsEl.textContent = 'Erro!';
+                costFirebaseEl.textContent = 'Erro!';
+                costWorkspaceEl.textContent = 'Erro!';
+                currentBalanceEl.textContent = 'Erro!';
+                balanceCardEl.classList.remove('positive', 'negative');
+                barLabel.textContent = "Erro ao carregar dados.";
+                invoicesTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Erro ao carregar notas fiscais.</td></tr>';
+                statusMessageDiv.textContent = "Houve um erro ao carregar os dados de status. Por favor, tente novamente mais tarde.";
+                statusMessageDiv.style.display = 'block';
             }
         }
 
-        window.editMessage = async function(forumCreatorUid, forumId, messageId, currentContent) {
-            // Obtenha o UID do autor da mensagem para verificação de permissão
-            const messageDocRef = doc(db, 'users', forumCreatorUid, 'forums', forumId, 'messages', messageId);
-            const messageDoc = await getDoc(messageDocRef);
-            if (!messageDoc.exists) {
-                await customAlert("Mensagem não encontrada.");
-                return;
-            }
-            const messageAuthorUid = messageDoc.data().authorUid;
-
-            if (!currentUser || (currentUser.uid !== messageAuthorUid && !currentUserIsAdmin)) {
-                await customAlert("Você não tem permissão para editar esta mensagem.");
-                return;
-            }
-
-            // ATENÇÃO: Usar 'prompt' para editar HTML Rich Text não é ideal para UX, pois mostra o código bruto.
-            // O ideal seria abrir um modal com um editor Quill pré-preenchido com 'currentContent'.
-            const newContent = prompt("Editar mensagem (cuidado: isto mostrará o HTML bruto da mensagem):", currentContent);
-
-            if (newContent !== null && newContent.trim() !== '' && newContent.trim() !== '<p><br></p>') {
-                try {
-                    await updateDoc(messageDocRef, {
-                        content: newContent.trim(), // Salva o HTML editado
-                        updatedAt: serverTimestamp()
-                    });
-                    await customAlert("Mensagem atualizada com sucesso!");
-                    window.loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
-                } catch (error) {
-                    console.error("Erro ao atualizar mensagem:", error);
-                    await customAlert("Erro ao atualizar mensagem: " + error.message);
-                }
-            } else if (newContent !== null) { // Permite cancelar o prompt
-                await customAlert("A mensagem não pode estar vazia.");
-            }
-        }
-
-        window.deleteMessage = async function(forumCreatorUid, forumId, messageId) {
-            // Obtenha o UID do autor da mensagem para verificação de permissão
-            const messageDocRef = doc(db, 'users', forumCreatorUid, 'forums', forumId, 'messages', messageId);
-            const messageDoc = await getDoc(messageDocRef);
-            if (!messageDoc.exists) {
-                await customAlert("Mensagem não encontrada.");
-                return;
-            }
-            const messageAuthorUid = messageDoc.data().authorUid;
-
-            if (!currentUser || (currentUser.uid !== messageAuthorUid && !currentUserIsAdmin)) {
-                await customAlert("Você não tem permissão para remover esta mensagem.");
-                return;
-            }
-
-            const confirmed = await customConfirm("Tem certeza que deseja remover esta mensagem?");
-            if (confirmed) {
-                try {
-                    await deleteDoc(messageDocRef);
-                    await customAlert("Mensagem removida com sucesso!");
-                    window.loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', '')); // Recarrega mensagens
-                } catch (error) {
-                    console.error("Erro ao remover mensagem:", error);
-                    await customAlert("Erro ao remover mensagem: " + error.message);
-                }
-            }
-        }
-
-        document.getElementById('sendMessageBtn').addEventListener('click', async () => {
-            if (!currentUser) {
-                await customAlert("Você precisa estar logado para enviar mensagens.");
-                return;
-            }
-            if (!currentLoadedForumId || !currentLoadedForumUserId) {
-                await customAlert("Nenhum fórum selecionado.");
-                return;
-            }
-
-            const newMessageContent = newMessageQuill.root.innerHTML.trim(); // Pega o HTML do editor Quill
-
-            if (newMessageContent === '<p><br></p>' || !newMessageContent) {
-                await customAlert("Por favor, digite sua mensagem.");
-                return;
-            }
-
-            try {
-                await addDoc(collection(db, 'users', currentLoadedForumUserId, 'forums', currentLoadedForumId, 'messages'), {
-                    content: newMessageContent, // Salva o HTML
-                    authorUid: currentUser.uid,
-                    authorName: currentUser.displayName || currentUser.email,
-                    createdAt: serverTimestamp()
-                });
-
-                newMessageQuill.setContents([]); // Limpa o conteúdo do editor Quill
-                // Recarrega as mensagens para exibir a nova
-                window.loadForumMessages(currentLoadedForumUserId, currentLoadedForumId, document.getElementById('forumDetailSubject').innerText.replace('Fórum: ', ''));
-            } catch (error) {
-                console.error("Erro ao enviar mensagem:", error);
-                await customAlert("Ocorreu um erro ao enviar sua mensagem: " + error.message);
-            }
-        });
-
-        document.getElementById('backToForumsBtn').addEventListener('click', () => {
-            document.getElementById('forumDetailSection').style.display = 'none';
-            document.getElementById('listForumsSection').style.display = 'block';
-            if (currentUser) {
-                createForumSection.style.display = 'block';
-                loginPromptSection.style.display = 'block'; // Mantenha visível para o botão de sair e info
-            } else {
-                createForumSection.style.display = 'none';
-                loginPromptSection.style.display = 'block';
-            }
-            window.displayForums(); // Recarrega a lista de fóruns
-        });
-
-        // Chamada inicial para carregar os fóruns
-        // Isso será disparado pelo onAuthStateChanged quando o Firebase carregar o estado de autenticação
+        // Carregar dados ao carregar a página
+        document.addEventListener('DOMContentLoaded', loadFinancialData);
     </script>
 </body>
 </html>
