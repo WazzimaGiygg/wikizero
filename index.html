@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -228,6 +229,76 @@
         }
 
         /* Removidos estilos para Chat Popup */
+
+	    #window-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    overflow: visible;
+}
+
+.floating-window {
+    position: absolute;
+    top: 60px;
+    left: 60px;
+    width: 650px;
+    height: 450px;
+    min-width: 320px;
+    min-height: 200px;
+    background: #fff;
+    border: 2px solid #3f51b5;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.20);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    resize: both;
+}
+
+.window-header {
+    background: #3f51b5;
+    color: #fff;
+    cursor: move;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: bold;
+    user-select: none;
+}
+
+.window-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.window-controls button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    margin-left: 4px;
+    padding: 0 4px;
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+.window-controls button:hover {
+    background: rgba(255,255,255,0.18);
+}
+
+.window-body {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+}
+.window-body iframe {
+    border: none;
+    width: 100%;
+    height: 100%;
+}
     </style>
 </head>
 <body>
@@ -278,18 +349,22 @@
         <div class="mdl-layout__drawer">
             <span class="mdl-layout-title">Navegação</span>
             <nav class="mdl-navigation">
+
+<!-- Área dos Menus -->
+
                 <a class="mdl-navigation__link" href="#" onclick="loadPage('recepcao.html', false)">Página Inicial</a>
                 <a class="mdl-navigation__link" href="#" onclick="loadPage('./transparencia/', false)">Transparência</a>
                 <a class="mdl-navigation__link" href="#" onclick="loadPage('./games/', false)">Jogos Gratuitos</a>
+
             </nav>
         </div>
-        <main class="mdl-layout__content">
+        <div id="window-container"></div>
             <div id="access-denied-message" style="display:none;">
                 <p>Acesso negado. Por favor, faça login para ver este conteúdo.</p> </div>
             <div id="banned-message" style="display:none;">
                 <p>Sua conta foi banida. Você não pode acessar o conteúdo.</p> <p>Para mais informações, contate o suporte.</p>
             </div>
-            <iframe id="contentFrame" src="recepcao.html"></iframe>
+            
         </main>
     </div>
 
@@ -788,6 +863,125 @@
                 componentHandler.upgradeDom(); /* cite: 206 */
             }
         });
+
+	    // Utilitário para gerar IDs únicos
+function uniqueID() {
+    return 'win_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Função para criar uma nova janela flutuante
+function createFloatingWindow(src, title) {
+    const container = document.getElementById('window-container');
+    
+    // ADICIONE AQUI:
+    const existing = Array.from(document.querySelectorAll('.floating-window'))
+        .find(win => win.getAttribute('data-src') === src);
+    if (existing) {
+        bringWindowToFront(existing);
+        return;
+    }
+    const winId = uniqueID();
+
+    // Elemento da janela
+    const win = document.createElement('div');
+    win.className = 'floating-window';
+    win.setAttribute('data-winid', winId);
+
+    // Cabeçalho da janela
+    const header = document.createElement('div');
+    header.className = 'window-header';
+    header.innerHTML = `
+        <span>${title || src}</span>
+        <span class="window-controls">
+            <button title="Minimizar" onclick="minimizeWindow('winId_aqui')">_</button>
+            <button title="Fechar" onclick="closeWindow('${winId}')">&times;</button>
+        </span>
+    `;
+
+    // Corpo da janela com iframe
+    const body = document.createElement('div');
+    body.className = 'window-body';
+    const iframe = document.createElement('iframe');
+    iframe.src = src;
+    body.appendChild(iframe);
+
+    win.appendChild(header);
+    win.appendChild(body);
+    container.appendChild(win);
+
+    // Torna a janela arrastável
+    makeWindowDraggable(win, header);
+
+    // Foca a janela ao clicar
+    win.addEventListener('mousedown', () => {
+        bringWindowToFront(win);
+    });
+
+    // Coloca no topo ao criar
+    bringWindowToFront(win);
+}
+
+// Deixe a janela arrastável
+function makeWindowDraggable(win, handle) {
+    let offsetX = 0, offsetY = 0, dragging = false;
+
+    handle.addEventListener('mousedown', function (e) {
+        dragging = true;
+        offsetX = e.clientX - win.offsetLeft;
+        offsetY = e.clientY - win.offsetTop;
+        win.style.zIndex = getNextZIndex();
+        document.body.style.userSelect = 'none';
+    });
+
+    document.addEventListener('mousemove', function (e) {
+        if (dragging) {
+            win.style.left = (e.clientX - offsetX) + 'px';
+            win.style.top = (e.clientY - offsetY) + 'px';
+        }
+    });
+
+    document.addEventListener('mouseup', function () {
+        dragging = false;
+        document.body.style.userSelect = '';
+    });
+}
+
+// Função para minimizar janela
+function minimizeWindow(winId) {
+    const win = document.querySelector(`.floating-window[data-winid="${winId}"]`);
+    if (!win) return;
+    const body = win.querySelector('.window-body');
+    if (body.style.display === 'none') {
+        body.style.display = '';
+        win.style.height = win.dataset.originalHeight || '450px';
+    } else {
+        win.dataset.originalHeight = win.style.height;
+        body.style.display = 'none';
+        win.style.height = '';
+    }
+}
+
+// Função para fechar janela
+function closeWindow(winId) {
+    const win = document.querySelector(`.floating-window[data-winid="${winId}"]`);
+    if (win) win.remove();
+}
+
+// Z-Index para trazer para frente
+let topZ = 1000;
+function getNextZIndex() {
+    return ++topZ;
+}
+function bringWindowToFront(win) {
+    win.style.zIndex = getNextZIndex();
+}
+
+// Substitua a função loadPage
+function loadPage(src, requiresAuth = false) {
+    // Adapte regras de autenticação/banimento se necessário!
+    // Exemplo: se quiser impedir múltiplas janelas iguais, faça uma busca aqui
+    createFloatingWindow(src, src.split('/').pop());
+}
     </script>
 </body>
 </html>
