@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Criar Novo Fórum</title>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2em;
+      background: #f0f0f0;
+    }
+    h1 {
+      color: #333;
+    }
+    form {
+      background: white;
+      padding: 2em;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+    }
+    input, textarea {
+      width: 100%;
+      margin-bottom: 1em;
+      padding: 0.8em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background: #0066cc;
+      color: white;
+      padding: 0.8em 1.5em;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Criar Novo Fórum</h1>
+  <form id="forumForm">
+    <input type="text" id="subject" placeholder="Título do fórum" required>
+    <textarea id="description" placeholder="Descrição do fórum" required></textarea>
+    <button type="submit">Criar Fórum</button>
+  </form>
+  <p id="status"></p>
+
+  <script>
+        // --- Configuração do Firebase ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0", // Use sua própria chave! /* cite: 79 */
+            authDomain: "wzzm-ce3fc.firebaseapp.com", /* cite: 79 */
+            projectId: "wzzm-ce3fc", /* cite: 79 */
+            storageBucket: "wzzm-ce3fc.appspot.com", /* cite: 79 */
+            messagingSenderId: "249427877153", /* cite: 79 */
+            appId: "1:249427877153:web:0e4297294794a5aadeb260", /* cite: 79 */
+            measurementId: "G-PLKNZNFCQ8" /* cite: 79 */
+        };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const form = document.getElementById('forumForm');
+    const status = document.getElementById('status');
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        status.textContent = 'Você precisa estar logado para criar um fórum.';
+        form.style.display = 'none';
+      } else {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const subject = document.getElementById('subject').value.trim();
+          const description = document.getElementById('description').value.trim();
+
+          if (!subject || !description) {
+            status.textContent = 'Preencha todos os campos.';
+            return;
+          }
+
+          try {
+            const forumData = {
+              subject,
+              description,
+              authorUid: user.uid,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection('forums').add(forumData);
+            status.textContent = 'Fórum criado com sucesso!';
+            form.reset();
+          } catch (error) {
+            status.textContent = 'Erro ao criar fórum: ' + error.message;
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
