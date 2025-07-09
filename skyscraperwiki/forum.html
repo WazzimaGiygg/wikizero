@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Visualizar Fórum</title>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 2em;
+    }
+    h1 { color: #333; }
+    .topic {
+      background: white;
+      border-radius: 8px;
+      padding: 1em;
+      margin-bottom: 1em;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .reply {
+      margin-left: 1em;
+      padding-left: 1em;
+      border-left: 2px solid #ccc;
+      color: #555;
+    }
+    textarea, input {
+      width: 100%;
+      margin: 0.5em 0;
+      padding: 0.8em;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="forumTitle">Fórum</h1>
+  <div id="messages">Carregando mensagens...</div>
+
+  <h2>Responder</h2>
+  <form id="replyForm">
+    <textarea id="replyContent" placeholder="Escreva sua resposta..." required></textarea>
+    <button type="submit">Enviar</button>
+  </form>
+  <p id="status"></p>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_DOMINIO.firebaseapp.com",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_BUCKET.appspot.com",
+      messagingSenderId: "SEU_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const forumId = new URLSearchParams(window.location.search).get('id');
+    const forumTitle = document.getElementById('forumTitle');
+    const messagesDiv = document.getElementById('messages');
+    const replyForm = document.getElementById('replyForm');
+    const status = document.getElementById('status');
+
+    let currentUser = null;
+
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+    });
+
+    if (!forumId) {
+      forumTitle.textContent = 'Fórum não encontrado.';
+      messagesDiv.textContent = '';
+      replyForm.style.display = 'none';
+    } else {
+      db.collection('forums').doc(forumId).get()
+        .then(doc => {
+          if (doc.exists) {
+            forumTitle.textContent = doc.data().subject;
+          } else {
+            forumTitle.textContent = 'Fórum não encontrado';
+          }
+        });
+
+      db.collection("forums").doc(forumId).collection("messages")
+        .orderBy("createdAt", "asc")
+        .onSnapshot(snapshot => {
+          messagesDiv.innerHTML = '';
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const div = document.createElement('div');
+            div.className = 'topic';
+            div.innerHTML = `
+              <p><strong>${data.userId}</strong>:</p>
+              <div class="reply">${data.content}</div>
+            `;
+            messagesDiv.appendChild(div);
+          });
+        });
+    }
+
+    replyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser) {
+        status.textContent = 'Você precisa estar logado para responder.';
+        return;
+      }
+
+      const content = document.getElementById('replyContent').value.trim();
+      if (!content) {
+        status.textContent = 'Mensagem vazia.';
+        return;
+      }
+
+      try {
+        await db.collection("forums").doc(forumId).collection("messages").add({
+          content,
+          userId: currentUser.uid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById('replyContent').value = '';
+        status.textContent = 'Resposta enviada com sucesso!';
+      } catch (error) {
+        status.textContent = 'Erro ao enviar resposta: ' + error.message;
+      }
+    });
+  </script>
+</body>
+</html>
