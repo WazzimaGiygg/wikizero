@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Fóruns | Rede Alternativa</title>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      padding: 2em;
+    }
+    h1 { color: #333; }
+    .forum-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1em;
+      margin-bottom: 1em;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .forum-card h2 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fóruns Disponíveis</h1>
+  <div id="forumList">Carregando fóruns...</div>
+
+  <script>
+        // --- Configuração do Firebase ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0", // Use sua própria chave! /* cite: 79 */
+            authDomain: "wzzm-ce3fc.firebaseapp.com", /* cite: 79 */
+            projectId: "wzzm-ce3fc", /* cite: 79 */
+            storageBucket: "wzzm-ce3fc.appspot.com", /* cite: 79 */
+            messagingSenderId: "249427877153", /* cite: 79 */
+            appId: "1:249427877153:web:0e4297294794a5aadeb260", /* cite: 79 */
+            measurementId: "G-PLKNZNFCQ8" /* cite: 79 */
+        };
+
+    // Inicializa Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Carrega fóruns da coleção 'forums'
+    const forumList = document.getElementById("forumList");
+    db.collection("forums").orderBy("createdAt", "desc").get()
+      .then(snapshot => {
+        forumList.innerHTML = "";
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const forumDiv = document.createElement("div");
+          forumDiv.className = "forum-card";
+          forumDiv.innerHTML = `
+            <h2>${data.subject}</h2>
+            <p><strong>Autor:</strong> ${data.authorUid}</p>
+            <p>${data.description || "Sem descrição"}</p>
+            <a href="forum.html?id=${doc.id}">Ver Tópicos</a>
+          `;
+          forumList.appendChild(forumDiv);
+        });
+      })
+      .catch(error => {
+        forumList.innerHTML = "Erro ao carregar fóruns: " + error.message;
+      });
+  </script>
+</body>
+</html>
