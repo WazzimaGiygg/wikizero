@@ -1,0 +1,17 @@
+[
+    {
+        "label": "Página Inicial",
+        "href": "recepcao.html",
+        "requiresAuth": false
+    },
+    {
+        "label": "Transparência",
+        "href": "./transparencia/",
+        "requiresAuth": false
+    },
+    {
+        "label": "Jogos Gratuitos<",
+        "href": "./games/",
+        "requiresAuth": false
+    }
+]
