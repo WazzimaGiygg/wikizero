@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -59,63 +58,63 @@
         /* Estilo para a imagem de perfil */
         #user-profile-pic {
             width: 32px; /* cite: 26 */
-            height: 32px; /* cite: 26 */
+            height: 32px; /* cite: 27 */
             border-radius: 50%;
             margin-left: 8px;
             vertical-align: middle;
-            display: none; /* cite: 27 */
+            display: none; /* cite: 28 */
         }
 
         /* Estilos para o popup de apps */
         #google-apps-button {
-            display: none; /* cite: 28 */
+            display: none; /* cite: 29 */
         }
         #google-apps-popup {
-            display: none; /* cite: 29 */
-            position: absolute; /* cite: 29 */
+            display: none; /* cite: 30 */
+            position: absolute; /* cite: 31 */
             top: 48px; /* Altura do header */
-            right: 0; /* cite: 30 */
-            width: 300px; /* cite: 30 */
+            right: 0; /* cite: 32 */
+            width: 300px; /* cite: 33 */
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             z-index: 1000;
             padding: 10px;
-            box-sizing: border-box; /* cite: 31 */
+            box-sizing: border-box; /* cite: 36 */
         }
         #google-apps-popup h4 {
-            margin-top: 0; /* cite: 32 */
-            margin-bottom: 10px; /* cite: 32 */
+            margin-top: 0; /* cite: 37 */
+            margin-bottom: 10px; /* cite: 38 */
             color: #3f51b5;
-            text-align: center;
+            text-align: center; /* cite: 39 */
         }
         #app-grid {
-            display: grid; /* cite: 33 */
-            grid-template-columns: repeat(3, 1fr); /* cite: 33 */
+            display: grid; /* cite: 40 */
+            grid-template-columns: repeat(3, 1fr); /* cite: 41 */
             gap: 10px;
-            padding: 10px;
+            padding: 10px; /* cite: 42 */
         }
         .app-item {
-            display: flex; /* cite: 34 */
-            flex-direction: column; /* cite: 34 */
+            display: flex; /* cite: 43 */
+            flex-direction: column; /* cite: 44 */
             align-items: center;
-            text-align: center;
+            text-align: center; /* cite: 45 */
             cursor: pointer;
             padding: 8px;
             border-radius: 4px;
-            transition: background-color 0.3s; /* cite: 35 */
+            transition: background-color 0.3s; /* cite: 45 */
         }
         .app-item:hover {
-            background-color: #f0f0f0; /* cite: 36 */
+            background-color: #f0f0f0; /* cite: 46 */
         }
         .app-item img {
-            width: 48px; /* cite: 37 */
-            height: 48px; /* cite: 37 */
-            margin-bottom: 5px;
+            width: 48px; /* cite: 47 */
+            height: 48px; /* cite: 48 */
+            margin-bottom: 5px; /* cite: 49 */
         }
         .app-item span {
-            font-size: 0.8em; /* cite: 38 */
-            color: #555; /* cite: 38 */
+            font-size: 0.8em; /* cite: 50 */
+            color: #555; /* cite: 51 */
         }
 
         /* Removidos estilos para contador de notificações */
@@ -123,247 +122,251 @@
 
         /* Mensagens de acesso */
         #access-denied-message, #banned-message {
-            display: none; /* cite: 39 */
-            position: fixed; /* cite: 39 */
-            top: 50%; /* cite: 39 */
-            left: 50%; /* cite: 39 */
-            transform: translate(-50%, -50%); /* cite: 39 */
-            background-color: #ffe0b2; /* cite: 40 */
-            border: 1px solid #ffb74d; /* cite: 41 */
+            display: none; /* cite: 52 */
+            position: fixed; /* cite: 53 */
+            top: 50%; /* cite: 54 */
+            left: 50%; /* cite: 55 */
+            transform: translate(-50%, -50%); /* cite: 56 */
+            background-color: #ffe0b2; /* cite: 57 */
+            border: 1px solid #ffb74d; /* cite: 58 */
             padding: 20px;
-            border-radius: 8px; /* cite: 42 */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* cite: 42 */
+            border-radius: 8px; /* cite: 59 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* cite: 60 */
             text-align: center;
             color: #e65100; /* Laranja escuro */
-            font-weight: bold; /* cite: 43 */
-            z-index: 1001; /* cite: 43 */
+            font-weight: bold; /* cite: 62 */
+            z-index: 1001; /* cite: 63 */
         }
 
         /* --- ESTILOS PARA NOTÍCIAS (Botão e Popup) --- */
         #news-button {
-            margin-right: 8px; /* cite: 44 */
-            display: none; /* cite: 44 */
+            margin-right: 8px; /* cite: 64 */
+            display: none; /* cite: 65 */
         }
 
         #news-center-popup {
-            display: none; /* cite: 45 */
-            position: absolute; /* cite: 45 */
-            top: 48px; /* cite: 45 */
-            right: 0; /* cite: 45 */
+            display: none; /* cite: 66 */
+            position: absolute; /* cite: 67 */
+            top: 48px; /* cite: 68 */
+            right: 0; /* cite: 69 */
             width: 400px; /* Ajuste a largura conforme necessário */
-            max-height: 80vh; /* cite: 46 */
-            background-color: white; /* cite: 46 */
-            border-radius: 8px; /* cite: 46 */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* cite: 46 */
-            z-index: 998; /* cite: 46 */
-            flex-direction: column; /* cite: 46 */
-            overflow: hidden; /* cite: 47 */
+            max-height: 80vh; /* cite: 71 */
+            background-color: white; /* cite: 72 */
+            border-radius: 8px; /* cite: 73 */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* cite: 74 */
+            z-index: 998; /* cite: 75 */
+            flex-direction: column; /* cite: 76 */
+            overflow: hidden; /* cite: 77 */
         }
 
         #news-popup-header {
-            background-color: #3f51b5; /* cite: 48 */
-            color: white; /* cite: 48 */
-            padding: 10px 15px; /* cite: 48 */
-            border-top-left-radius: 8px; /* cite: 48 */
-            border-top-right-radius: 8px; /* cite: 48 */
-            display: flex; /* cite: 48 */
-            align-items: center; /* cite: 48 */
-            justify-content: space-between; /* cite: 48 */
-            font-weight: bold; /* cite: 48 */
-            font-size: 16px; /* cite: 49 */
+            background-color: #3f51b5; /* cite: 78 */
+            color: white; /* cite: 79 */
+            padding: 10px 15px; /* cite: 80 */
+            border-top-left-radius: 8px; /* cite: 81 */
+            border-top-right-radius: 8px; /* cite: 82 */
+            display: flex; /* cite: 83 */
+            align-items: center; /* cite: 84 */
+            justify-content: space-between; /* cite: 85 */
+            font-weight: bold; /* cite: 86 */
+            font-size: 16px; /* cite: 87 */
         }
 
         #news-popup-header .close-button {
-            background: none; /* cite: 50 */
-            border: none; /* cite: 50 */
-            color: white; /* cite: 50 */
-            font-size: 24px; /* cite: 50 */
-            cursor: pointer; /* cite: 50 */
-            padding: 0; /* cite: 51 */
+            background: none; /* cite: 88 */
+            border: none; /* cite: 89 */
+            color: white; /* cite: 90 */
+            font-size: 24px; /* cite: 91 */
+            cursor: pointer; /* cite: 92 */
+            padding: 0; /* cite: 93 */
         }
 
         #news-popup-content {
-            flex-grow: 1; /* cite: 52 */
-            overflow-y: auto; /* cite: 52 */
-            padding: 15px; /* cite: 52 */
+            flex-grow: 1; /* cite: 94 */
+            overflow-y: auto; /* cite: 95 */
+            padding: 15px; /* cite: 96 */
         }
 
         #news-popup-footer {
-            padding: 10px 15px; /* cite: 53 */
-            border-top: 1px solid #eee; /* cite: 53 */
-            text-align: center; /* cite: 53 */
+            padding: 10px 15px; /* cite: 97 */
+            border-top: 1px solid #eee; /* cite: 98 */
+            text-align: center; /* cite: 99 */
         }
 
         #news-popup-footer button {
-            width: 100%; /* cite: 54 */
+            width: 100%; /* cite: 100 */
         }
 
         /* Estilos para os itens de notícia dentro do popup (adaptados do seu código original) */
         .news-popup-item {
-            background-color: #f9f9f9; /* cite: 55 */
-            border: 1px solid #e0e0e0; /* cite: 55 */
-            border-radius: 4px; /* cite: 55 */
-            padding: 15px; /* cite: 55 */
-            margin-bottom: 15px; /* cite: 55 */
-            box-shadow: 0 1px 1px 0 rgba(0,0,0,.08); /* cite: 56 */
+            background-color: #f9f9f9; /* cite: 101 */
+            border: 1px solid #e0e0e0; /* cite: 102 */
+            border-radius: 4px; /* cite: 103 */
+            padding: 15px; /* cite: 104 */
+            margin-bottom: 15px; /* cite: 105 */
+            box-shadow: 0 1px 1px 0 rgba(0,0,0,.08); /* cite: 106 */
         }
         .news-popup-item h3 {
-            margin-top: 0; /* cite: 57 */
-            color: #5c6bc0; /* cite: 57 */
+            margin-top: 0; /* cite: 107 */
+            color: #5c6bc0; /* cite: 108 */
         }
         .news-popup-item p {
-            color: #555; /* cite: 58 */
-            line-height: 1.5; /* cite: 58 */
+            color: #555; /* cite: 109 */
+            line-height: 1.5; /* cite: 110 */
         }
         .news-popup-item small {
-            font-size: 0.8em; /* cite: 59 */
-            color: #888; /* cite: 59 */
-            display: block; /* cite: 59 */
-            margin-top: 10px; /* cite: 59 */
+            font-size: 0.8em; /* cite: 111 */
+            color: #888; /* cite: 112 */
+            display: block; /* cite: 113 */
+            margin-top: 10px; /* cite: 114 */
         }
         .news-popup-item img {
-            max-width: 100%; /* cite: 60 */
-            height: auto; /* cite: 60 */
-            margin-top: 10px; /* cite: 60 */
-            border-radius: 4px; /* cite: 60 */
+            max-width: 100%; /* cite: 115 */
+            height: auto; /* cite: 116 */
+            margin-top: 10px; /* cite: 117 */
+            border-radius: 4px; /* cite: 118 */
         }
 
         /* Removidos estilos para Chat Popup */
 
 	    #window-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    flex: 1;
-    overflow: visible;
-}
+            position: relative; /* cite: 119 */
+            width: 100%;
+            height: 100%;
+            flex: 1;
+            overflow: visible;
+        }
 
-.floating-window {
-    position: absolute;
-    top: 60px;
-    left: 60px;
-    width: 650px;
-    height: 450px;
-    min-width: 320px;
-    min-height: 200px;
-    background: #fff;
-    border: 2px solid #3f51b5;
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.20);
-    z-index: 999;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    resize: both;
-}
+        .floating-window {
+            position: absolute; /* cite: 120 */
+            top: 60px;
+            left: 60px;
+            width: 650px;
+            height: 450px;
+            min-width: 320px;
+            min-height: 200px;
+            background: #fff;
+            border: 2px solid #3f51b5;
+            border-radius: 8px; /* cite: 121 */
+            box-shadow: 0 8px 24px rgba(0,0,0,0.20);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            resize: both; /* cite: 122 */
+        }
 
-.window-header {
-    background: #3f51b5;
-    color: #fff;
-    cursor: move;
-    padding: 8px 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-weight: bold;
-    user-select: none;
-}
+        .window-header {
+            background: #3f51b5;
+            color: #fff;
+            cursor: move;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* cite: 123 */
+            font-weight: bold;
+            user-select: none;
+        }
 
-.window-controls {
-    display: flex;
-    gap: 4px;
-}
+        .window-controls {
+            display: flex;
+            gap: 4px; /* cite: 124 */
+        }
 
-.window-controls button {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 18px;
-    cursor: pointer;
-    margin-left: 4px;
-    padding: 0 4px;
-    border-radius: 3px;
-    transition: background 0.2s;
-}
-.window-controls button:hover {
-    background: rgba(255,255,255,0.18);
-}
+        .window-controls button {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            margin-left: 4px; /* cite: 125 */
+            padding: 0 4px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        .window-controls button:hover {
+            background: rgba(255,255,255,0.18); /* cite: 126 */
+        }
 
-.window-body {
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-}
-.window-body iframe {
-    border: none;
-    width: 100%;
-    height: 100%;
-}
+        .window-body {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+        }
+        .window-body iframe {
+            border: none; /* cite: 127 */
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
+
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
         <header class="mdl-layout__header">
             <div class="mdl-layout__header-row">
                 <span class="mdl-layout-title">Wiki Zone Zero Mod</span>
-		        <a href="http://www.wzzm.org/POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf" id="./wikinotpedia/"> 
+		        <a href="https://wikizero.wzzm.org/" id="./wikinotpedia/"> 
                 <img src="https://wzzm.org/wnp.png" alt="Logo Wiki Zone Zero Mod" style="height: 32px; vertical-align: middle; margin-right: 8px;"></a> <div class="mdl-layout-spacer"></div>
-                <nav class="mdl-navigation">
-                    <a class="mdl-navigation__link" href="#" onclick="loadPage('recepcao.html', false)">Início</a>
+                <nav class="mdl-navigation"> 
+		            <button class="mdl-button mdl-js-button mdl-button--icon" id="error-log-button" title="Ver Erros">
+ 		                <i class="material-icons">bug_report</i>
+		            </button>
+                    <a class="mdl-navigation__link" href="#" onclick="loadPage('recepcao.html', false)">Procurar Artigos</a>
+
+			
                     <div style="position: relative; display: flex; align-items: center;">
-                        <button class="mdl-button mdl-js-button mdl-button--icon" id="news-button" style="display: none;">
+                        <button class="mdl-button mdl-js-button mdl-button--icon" id="news-button" style="display: none;"> 
                             <i class="material-icons">article</i>
                         </button>
                         <div id="news-center-popup">
-                            <div id="news-popup-header">
+                            <div id="news-popup-header"> 
                                 <span>Últimas Notícias</span>
-                                <button class="close-button" id="close-news-popup-button">×</button>
+                                <button class="close-button" id="close-news-popup-button">×</button> 
                             </div>
                             <div id="news-popup-content">
                                 <p>Carregando últimas notícias...</p>
                             </div>
-                            <div id="news-popup-footer">
-                                <button id="view-all-news-button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+                            <div id="news-popup-footer"> 
+                                <button id="view-all-news-button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent"> 
                                     Ver todas as Notícias
                                 </button>
                             </div>
                         </div>
 
-                        <button class="mdl-button mdl-js-button mdl-button--icon" id="google-apps-button" style="display: none;">
+                        <button class="mdl-button mdl-js-button mdl-button--icon" id="google-apps-button" style="display: none;"> 
                             <i class="material-icons">widgets</i>
                         </button>
                         <div id="google-apps-popup">
                             <h4>Serviços WZZM</h4> 
                             <div id="app-grid">
-                                </div>
+                            </div> 
                         </div>
 
-                        <div id="user-info-container" style="display: none; align-items: center;"> <span id="user-info" style="margin-left: 8px; color: white;"></span> <img id="user-profile-pic" src="" alt="Profile Pic">
-                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="logout-button" style="margin-left: 10px; display: none;">Sair</button> </div>
+                        <div id="user-info-container" style="display: none; align-items: center;">
+                            <span id="user-info" style="margin-left: 8px; color: white;"></span> 
+                            <img id="user-profile-pic" src="" alt="Profile Pic">
+                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="logout-button" style="margin-left: 10px; display: none;">Sair</button> 
+                        </div>
                         <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="login-google">Login Google</button>
                         <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="login-github" style="margin-left: 10px;">Login GitHub</button>
                     </div>
-                </nav>
+                </nav> 
             </div>
         </header>
         <div class="mdl-layout__drawer">
             <span class="mdl-layout-title">Navegação</span>
-            <nav class="mdl-navigation">
-
-<!-- Área dos Menus -->
-
-                <a class="mdl-navigation__link" href="#" onclick="loadPage('recepcao.html', false)">Página Inicial</a>
-		<a class="mdl-navigation__link" href="#" onclick="loadPage('./skyscraperwiki/', false)">Fórum Not Skyscraper</a>
-                <a class="mdl-navigation__link" href="#" onclick="loadPage('./transparencia/', false)">Transparência</a>
-                <a class="mdl-navigation__link" href="#" onclick="loadPage('./games/', false)">Jogos Gratuitos</a>
-
+            <nav class="mdl-navigation" id="drawer-menu">
+	
             </nav>
         </div>
         <div id="window-container"></div>
             <div id="access-denied-message" style="display:none;">
-                <p>Acesso negado. Por favor, faça login para ver este conteúdo.</p> </div>
+                <p>Acesso negado. Por favor, faça login para ver este conteúdo.</p> 
+            </div>
             <div id="banned-message" style="display:none;">
-                <p>Sua conta foi banida. Você não pode acessar o conteúdo.</p> <p>Para mais informações, contate o suporte.</p>
+                <p>Sua conta foi banida. Você não pode acessar o conteúdo.</p> 
+                <p>Para mais informações, contate o suporte.</p>
             </div>
             
         </main>
@@ -376,119 +379,95 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
     <script>
         // --- Configuração do Firebase ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0", // Use sua própria chave! /* cite: 79 */
-            authDomain: "wzzm-ce3fc.firebaseapp.com", /* cite: 79 */
-            projectId: "wzzm-ce3fc", /* cite: 79 */
-            storageBucket: "wzzm-ce3fc.appspot.com", /* cite: 79 */
-            messagingSenderId: "249427877153", /* cite: 79 */
-            appId: "1:249427877153:web:0e4297294794a5aadeb260", /* cite: 79 */
-            measurementId: "G-PLKNZNFCQ8" /* cite: 79 */
-        };
+        const firebaseConfig = { /* cite: 143 */
+            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0", // Use sua própria chave! /* cite: 144 */
+            authDomain: "wzzm-ce3fc.firebaseapp.com", /* cite: 144 */
+            projectId: "wzzm-ce3fc", /* cite: 144 */
+            storageBucket: "wzzm-ce3fc.appspot.com", /* cite: 144 */
+            messagingSenderId: "249427877153", /* cite: 144 */
+            appId: "1:249427877153:web:0e4297294794a5aadeb260", /* cite: 144 */
+            measurementId: "G-PLKNZNFCQ8" /* cite: 145 */
+        }; /* cite: 146 */
         // Inicialize Firebase
-        const app = firebase.initializeApp(firebaseConfig); /* cite: 80 */
-        const auth = firebase.auth(); /* cite: 81 */
-        const firestore = firebase.firestore(); /* cite: 81 */
-        firebase.analytics(); /* cite: 81 */
+        const app = firebase.initializeApp(firebaseConfig); /* cite: 147 */
+        const auth = firebase.auth(); /* cite: 148 */
+        const firestore = firebase.firestore(); /* cite: 149 */
+        firebase.analytics(); /* cite: 150 */
 
         // Variáveis globais para estado do usuário
-        let currentUser = null; /* cite: 82 */
-        let isCurrentUserBanned = false; /* cite: 82 */
-        // let unsubscribeNotifications = null; // REMOVED
+        let currentUser = null; /* cite: 151 */
+        let isCurrentUserBanned = false; /* cite: 152 */
+        // let unsubscribeNotifications = null; // REMOVED /* cite: 153 */
 
-        // --- Funções Auxiliares ---
-        function loadPage(src, requiresAuth = false) {
-            const contentFrame = document.getElementById('contentFrame'); /* cite: 83 */
-            const accessDeniedMessage = document.getElementById('access-denied-message'); /* cite: 83 */
-            const bannedMessage = document.getElementById('banned-message'); /* cite: 83 */
-
-            // Verifica se o usuário está banido
-            if (isCurrentUserBanned && src !== 'recepcao.html' && src !== 'POLÍTICAS GERAIS DO WIKI ZONE ZERO MOD.pdf') { // Permite ver recepcao e políticas mesmo banido
-                contentFrame.style.display = 'none'; /* cite: 84 */
-                accessDeniedMessage.style.display = 'none'; /* cite: 84 */
-                bannedMessage.style.display = 'block'; /* cite: 84 */
-                return;
-            }
-
-            // Verifica se a página requer autenticação e o usuário não está logado
-            if (requiresAuth && !currentUser) {
-                contentFrame.style.display = 'none'; /* cite: 85 */
-                bannedMessage.style.display = 'none'; /* cite: 85 */
-                accessDeniedMessage.style.display = 'block'; /* cite: 85 */
-                return;
-            }
-
-            // Se não houver restrição, carrega a página
-            contentFrame.style.display = 'block'; /* cite: 86 */
-            accessDeniedMessage.style.display = 'none'; /* cite: 86 */
-            bannedMessage.style.display = 'none'; /* cite: 86 */
-            contentFrame.src = src; /* cite: 86 */
-        }
+        // --- Funções Auxiliares (Antiga loadPage foi substituída pela nova que cria janelas flutuantes) ---
+        // A função loadPage original que manipulava 'contentFrame' não é mais usada diretamente para links de navegação.
+        // Ela ainda é referenciada em outras partes do código para manipulação de mensagens de acesso/banimento,
+        // mas a navegação principal usará a nova createFloatingWindow.
 
         // Função para ativar/desativar links de navegação com base no status de login
         function setNavLinksEnabled(enabled) {
-            const navLinks = document.querySelectorAll('.mdl-navigation__link[data-requires-auth="true"]'); /* cite: 87 */
+            const navLinks = document.querySelectorAll('.mdl-navigation__link[data-requires-auth="true"]'); /* cite: 169 */
             navLinks.forEach(link => {
                 if (enabled) {
                     link.style.pointerEvents = 'auto';
                     link.style.color = '#424242'; // Cor padrão
-                } else {
-                    link.style.pointerEvents = 'none'; /* cite: 88 */
-                    link.style.color = '#9e9e9e'; /* cite: 88 */
+                } else { /* cite: 170 */
+                    link.style.pointerEvents = 'none'; /* cite: 170 */
+                    link.style.color = '#9e9e9e'; /* cite: 170 */
                 }
-            }); /* cite: 89 */
+            }); /* cite: 171 */
         }
 
         // Função para criar/atualizar o documento do perfil do usuário no Firestore
         async function createUserProfileDocument(user) {
-            if (!user) return; /* cite: 90 */
-            const userRef = firestore.doc(`users/${user.uid}`); /* cite: 90 */
-            const snapshot = await userRef.get(); /* cite: 90 */
+            if (!user) return; /* cite: 172 */
+            const userRef = firestore.doc(`users/${user.uid}`); /* cite: 173 */
+            const snapshot = await userRef.get(); /* cite: 174 */
 
             if (!snapshot.exists) {
-                const { displayName, email, photoURL } = user; /* cite: 91 */
-                const createdAt = new Date(); /* cite: 91 */
+                const { displayName, email, photoURL } = user; /* cite: 175 */
+                const createdAt = new Date(); /* cite: 176 */
 
                 try {
                     await userRef.set({
                         displayName,
                         email,
-                        photoURL,
-                        createdAt, /* cite: 92 */
+                        photoURL, /* cite: 177 */
+                        createdAt, /* cite: 177 */
                         isAdmin: false, // Define como false por padrão
-                        isBan: false // Define como false por padrão
-                    }); /* cite: 93 */
-                    console.log("Perfil do usuário criado no Firestore."); /* cite: 94 */
+                        isBan: false // Define como false por padrão /* cite: 178 */
+                    }); /* cite: 179 */
+                    console.log("Perfil do usuário criado no Firestore."); /* cite: 180 */
                 } catch (error) {
-                    console.error("Erro ao criar perfil do usuário:", error); /* cite: 95 */
+                    console.error("Erro ao criar perfil do usuário:", error); /* cite: 181 */
                 }
             }
         }
 
         // Função para carregar e aplicar CSS de aplicativos específicos do usuário
         async function loadAndApplyUserAppsCSS(userId) {
-            const customAppCssStyleTag = document.getElementById('custom-app-css'); /* cite: 96 */
-            if (!customAppCssStyleTag) return; /* cite: 96 */
+            const customAppCssStyleTag = document.getElementById('custom-app-css'); /* cite: 182 */
+            if (!customAppCssStyleTag) return; /* cite: 183 */
 
             try {
-                const userAppsSnapshot = await firestore.collection('userApps').doc(userId).get(); /* cite: 97 */
+                const userAppsSnapshot = await firestore.collection('userApps').doc(userId).get(); /* cite: 184 */
                 if (userAppsSnapshot.exists) {
-                    const appData = userAppsSnapshot.data(); /* cite: 98 */
-                    let cssContent = ''; /* cite: 98 */
+                    const appData = userAppsSnapshot.data(); /* cite: 185 */
+                    let cssContent = ''; /* cite: 186 */
                     if (appData && appData.apps) {
                         appData.apps.forEach(app => {
                             if (app.css) {
-                                cssContent += app.css + '\n'; /* cite: 99 */
+                                cssContent += app.css + '\n'; /* cite: 187 */
                             }
                         });
                     }
-                    customAppCssStyleTag.innerHTML = cssContent; /* cite: 100 */
+                    customAppCssStyleTag.innerHTML = cssContent; /* cite: 189 */
                 } else {
-                    customAppCssStyleTag.innerHTML = ''; /* cite: 101 */
+                    customAppCssStyleTag.innerHTML = ''; /* cite: 190 */
                 }
             } catch (error) {
-                console.error("Erro ao carregar CSS de aplicativos do usuário:", error); /* cite: 103 */
-                customAppCssStyleTag.innerHTML = ''; /* cite: 103 */
+                console.error("Erro ao carregar CSS de aplicativos do usuário:", error); /* cite: 191 */
+                customAppCssStyleTag.innerHTML = ''; /* cite: 192 */
             }
         }
 
@@ -496,67 +475,67 @@
 
         // --- FUNÇÕES PARA O POPUP DE NOTÍCIAS (MANTIDAS) ---
         function showNewsPopup() {
-            const newsCenterPopup = document.getElementById('news-center-popup'); /* cite: 104 */
+            const newsCenterPopup = document.getElementById('news-center-popup'); /* cite: 193 */
             if (newsCenterPopup) {
-                newsCenterPopup.style.display = 'flex'; /* cite: 105 */
-                fetchLatestNews(); // Fetch news when popup is shown
+                newsCenterPopup.style.display = 'flex'; /* cite: 194 */
+                fetchLatestNews(); // Fetch news when popup is shown /* cite: 195 */
             }
         }
 
         function hideNewsPopup() {
-            const newsCenterPopup = document.getElementById('news-center-popup'); /* cite: 106 */
+            const newsCenterPopup = document.getElementById('news-center-popup'); /* cite: 196 */
             if (newsCenterPopup) {
-                newsCenterPopup.style.display = 'none'; /* cite: 107 */
+                newsCenterPopup.style.display = 'none'; /* cite: 197 */
             }
         }
 
         // Função para buscar as últimas notícias e exibi-las no popup
         async function fetchLatestNews() {
-            const newsPopupContent = document.getElementById('news-popup-content'); /* cite: 108 */
-            newsPopupContent.innerHTML = '<p>Carregando últimas notícias...</p>'; /* cite: 108 */
+            const newsPopupContent = document.getElementById('news-popup-content'); /* cite: 198 */
+            newsPopupContent.innerHTML = '<p>Carregando últimas notícias...</p>'; /* cite: 199 */
             try {
                 const newsSnapshot = await firestore.collection('news')
                     .orderBy('createdAt', 'desc')
                     .limit(5) // Limita a 5 notícias para o popup
-                    .get(); /* cite: 109 */
+                    .get(); /* cite: 200 */
                 if (newsSnapshot.empty) {
-                    newsPopupContent.innerHTML = '<p>Nenhuma notícia encontrada.</p>'; /* cite: 110 */
-                    return;
+                    newsPopupContent.innerHTML = '<p>Nenhuma notícia encontrada.</p>'; /* cite: 201 */
+                    return; /* cite: 202 */
                 }
 
-                newsPopupContent.innerHTML = ''; /* cite: 111 */
+                newsPopupContent.innerHTML = ''; /* cite: 203 */
                 // Limpa o conteúdo existente
                 newsSnapshot.forEach(doc => {
                     const news = doc.data();
                     const newsItem = document.createElement('div');
-                    newsItem.classList.add('news-popup-item'); // Use uma classe específica para o popup
+                    newsItem.classList.add('news-popup-item'); // Use uma classe específica para o popup /* cite: 204 */
                     
-                    const timestampDate = news.createdAt ? news.createdAt.toDate() : new Date(); /* cite: 112 */
+                    const timestampDate = news.createdAt ? news.createdAt.toDate() : new Date(); /* cite: 204 */
                     const timeString = timestampDate.toLocaleString([], {
                         year: 'numeric', month: 'numeric', day: 'numeric',
-                        hour: '2-digit', minute: '2-digit' /* cite: 113 */
+                        hour: '2-digit', minute: '2-digit' /* cite: 205 */
                     });
 
                     newsItem.innerHTML = `
-                        <h3>${news.title}</h3>
+                        <h3>${news.title}</h3> /* cite: 206 */
                         <p>${news.description}</p>
                         <small>Categoria: ${news.category}</small><br> ${news.tags && news.tags.length > 0 ? `<small>Tags: ${news.tags.join(', ')}</small><br>` : ''}
-                        <small>Publicado em: ${timeString}</small>
-                        ${news.imageUrl ? `<img src="${news.imageUrl}" alt="Imagem da Notícia">` : ''} `;
-                    newsPopupContent.appendChild(newsItem); /* cite: 116 */
-                });
+                        <small>Publicado em: ${timeString}</small> /* cite: 207 */
+                        ${news.imageUrl ? `<img src="${news.imageUrl}" alt="Imagem da Notícia">` : ''} `; /* cite: 208 */
+                    newsPopupContent.appendChild(newsItem); /* cite: 208 */
+                }); /* cite: 209 */
 
             } catch (error) {
-                console.error("Erro ao buscar últimas notícias para o popup:", error); /* cite: 117 */
-                newsPopupContent.innerHTML = `<p style="color: red;">Erro ao carregar notícias: ${error.message}</p>`; /* cite: 117 */
+                console.error("Erro ao buscar últimas notícias para o popup:", error); /* cite: 210 */
+                newsPopupContent.innerHTML = `<p style="color: red;">Erro ao carregar notícias: ${error.message}</p>`; /* cite: 211 */
             }
         }
 
         // Removidas funções para o Chat Popup: showChatPopup, hideChatPopup, loadChatPopupContent
 
         // --- Funções de Autenticação (EXISTENTES) ---
-        const providerGoogle = new firebase.auth.GoogleAuthProvider(); /* cite: 118 */
-        const providerGitHub = new firebase.auth.GithubAuthProvider(); /* cite: 118 */
+        const providerGoogle = new firebase.auth.GoogleAuthProvider(); /* cite: 212 */
+        const providerGitHub = new firebase.auth.GithubAuthProvider(); /* cite: 213 */
 
         document.getElementById('login-google').addEventListener('click', () => {
             auth.signInWithPopup(providerGoogle)
@@ -564,22 +543,22 @@
                     console.error("Erro no login com Google:", error);
                 });
         });
-        document.getElementById('login-github').addEventListener('click', () => {
+        document.getElementById('login-github').addEventListener('click', () => { /* cite: 214 */
             auth.signInWithPopup(providerGitHub)
                 .catch(error => {
                     console.error("Erro no login com GitHub:", error);
                 });
-        }); /* cite: 119 */
+        }); /* cite: 215 */
         function handleLogout() {
             auth.signOut().then(() => {
                 console.log("Usuário deslogado.");
             }).catch((error) => {
                 console.error("Erro ao deslogar:", error);
-            }); /* cite: 121 */
+            }); /* cite: 216 */
         }
-        const logoutButton = document.getElementById('logout-button'); /* cite: 122 */
+        const logoutButton = document.getElementById('logout-button'); /* cite: 217 */
         if (logoutButton) {
-            logoutButton.addEventListener('click', handleLogout); /* cite: 123 */
+            logoutButton.addEventListener('click', handleLogout); /* cite: 218 */
         }
 
         // --- Gerenciamento de Estado de Autenticação ---
@@ -587,147 +566,173 @@
             currentUser = user; // Define o currentUser globalmente
             const userInfo = document.getElementById('user-info');
             const loginGoogleButton = document.getElementById('login-google');
-            const loginGitHubButton = document.getElementById('login-github');
-            const logoutButton = document.getElementById('logout-button'); /* cite: 124 */
-            const userProfilePic = document.getElementById('user-profile-pic'); /* cite: 124 */
-            const googleAppsButton = document.getElementById('google-apps-button'); /* cite: 124 */
-            const userInfoContainer = document.getElementById('user-info-container'); /* cite: 124 */
-            const googleAppsPopup = document.getElementById('google-apps-popup'); /* cite: 124 */
-            const customAppCssStyleTag = document.getElementById('custom-app-css'); /* cite: 124 */
-            const contentFrame = document.getElementById('contentFrame'); /* cite: 124 */
-            const accessDeniedMessage = document.getElementById('access-denied-message'); /* cite: 125 */
-            const bannedMessage = document.getElementById('banned-message'); /* cite: 125 */
-            // const notificationBellButton = document.getElementById('notification-bell-button'); // REMOVED /* cite: 126 */
-            const newsButton = document.getElementById('news-button'); /* cite: 127 */
-            const newsCenterPopup = document.getElementById('news-center-popup'); /* cite: 127 */
-            // const chatButton = document.getElementById('chat-button'); // REMOVED /* cite: 127 */
-            // const chatPopup = document.getElementById('chat-popup'); // REMOVED /* cite: 128 */
+            const loginGitHubButton = document.getElementById('login-github'); /* cite: 219 */
+            const logoutButton = document.getElementById('logout-button'); /* cite: 219 */
+            const userProfilePic = document.getElementById('user-profile-pic'); /* cite: 219 */
+            const googleAppsButton = document.getElementById('google-apps-button'); /* cite: 219 */
+            const userInfoContainer = document.getElementById('user-info-container'); /* cite: 219 */
+            const googleAppsPopup = document.getElementById('google-apps-popup'); /* cite: 219 */
+            const customAppCssStyleTag = document.getElementById('custom-app-css'); /* cite: 221 */
+            const contentFrame = document.getElementById('contentFrame'); /* cite: 222 */
+            const accessDeniedMessage = document.getElementById('access-denied-message'); /* cite: 223 */
+            const bannedMessage = document.getElementById('banned-message'); /* cite: 224 */
+            // const notificationBellButton = document.getElementById('notification-bell-button'); // REMOVED /* cite: 225 */
+            const newsButton = document.getElementById('news-button'); /* cite: 226 */
+            const newsCenterPopup = document.getElementById('news-center-popup'); /* cite: 227 */
+            // const chatButton = document.getElementById('chat-button'); // REMOVED /* cite: 228 */
+            // const chatPopup = document.getElementById('chat-popup'); // REMOVED /* cite: 229 */
 
 
             if (user) {
-                if (userInfo) userInfo.textContent = `Olá, ${user.displayName || user.email}!`; /* cite: 129 */
-                if (loginGoogleButton) loginGoogleButton.style.display = 'none'; /* cite: 129 */
-                if (loginGitHubButton) loginGitHubButton.style.display = 'none'; /* cite: 130 */
+                if (userInfo) userInfo.textContent = `Olá, ${user.displayName || user.email}!`; /* cite: 230 */
+                if (loginGoogleButton) loginGoogleButton.style.display = 'none'; /* cite: 231 */
+                if (loginGitHubButton) loginGitHubButton.style.display = 'none'; /* cite: 232 */
                 if (user.photoURL) {
                     if (userProfilePic) {
-                        userProfilePic.src = user.photoURL; /* cite: 131 */
-                        userProfilePic.style.display = 'inline-block'; /* cite: 131 */
+                        userProfilePic.src = user.photoURL; /* cite: 233 */
+                        userProfilePic.style.display = 'inline-block'; /* cite: 234 */
                     }
                 } else {
-                    if (userProfilePic) userProfilePic.style.display = 'none'; /* cite: 132 */
+                    if (userProfilePic) userProfilePic.style.display = 'none'; /* cite: 235 */
                 }
-                if (googleAppsButton) googleAppsButton.style.display = 'inline-block'; /* cite: 133 */
-                if (userInfoContainer) userInfoContainer.style.display = 'flex'; /* cite: 133 */
+                if (googleAppsButton) googleAppsButton.style.display = 'inline-block'; /* cite: 236 */
+                if (userInfoContainer) userInfoContainer.style.display = 'flex'; /* cite: 237 */
 
-                await createUserProfileDocument(user);
+                await createUserProfileDocument(user); /* cite: 238 */
 
-                let isUserBanned = false; /* cite: 134 */
+                let isUserBanned = false; /* cite: 238 */
                 try {
-                    const userProfileRef = firestore.collection('users').doc(user.uid); /* cite: 135 */
-                    const doc = await userProfileRef.get(); /* cite: 135 */
+                    const userProfileRef = firestore.collection('users').doc(user.uid); /* cite: 239 */
+                    const doc = await userProfileRef.get(); /* cite: 240 */
 
                     if (doc.exists && doc.data()) {
-                        isUserBanned = doc.data().isBan || false; /* cite: 136 */
+                        isUserBanned = doc.data().isBan || false; /* cite: 241 */
                     }
                 } catch (error) {
-                    console.error("Erro ao verificar perfil de usuário ou status de banimento:", error); /* cite: 137 */
-                    isUserBanned = false; /* cite: 137 */
+                    console.error("Erro ao verificar perfil de usuário ou status de banimento:", error); /* cite: 242 */
+                    isUserBanned = false; /* cite: 243 */
                 }
 
-                isCurrentUserBanned = isUserBanned; /* cite: 138 */
+                isCurrentUserBanned = isUserBanned; /* cite: 244 */
                 if (isUserBanned) {
-                    console.warn(`Usuário ${user.uid} está banido.`); /* cite: 139 */
-                    setNavLinksEnabled(false); /* cite: 139 */
+                    console.warn(`Usuário ${user.uid} está banido.`); /* cite: 245 */
+                    setNavLinksEnabled(false); /* cite: 246 */
                     if (logoutButton) {
-                        logoutButton.style.display = 'none'; /* cite: 140 */
-                        logoutButton.removeEventListener('click', handleLogout); /* cite: 140 */
+                        logoutButton.style.display = 'none'; /* cite: 247 */
+                        logoutButton.removeEventListener('click', handleLogout); /* cite: 248 */
                     }
-                    loadPage('recepcao.html', false); /* cite: 141 */
-                    if (bannedMessage) bannedMessage.style.display = 'block'; /* cite: 141 */
-                    if (contentFrame) contentFrame.style.display = 'none'; /* cite: 142 */
+                    // A loadPage original aqui é usada para gerenciar o display das mensagens de acesso.
+                    // Para o caso de banimento, vamos garantir que a página de recepção seja exibida sem janela.
+                    if (contentFrame) {
+                        contentFrame.style.display = 'none'; // Esconde o iframe principal
+                    }
+                    if (bannedMessage) bannedMessage.style.display = 'block'; /* cite: 250 */
+                    if (accessDeniedMessage) accessDeniedMessage.style.display = 'none';
+
+                    // Oculta quaisquer janelas flutuantes se o usuário estiver banido
+                    document.querySelectorAll('.floating-window').forEach(win => win.remove());
+
                     if (googleAppsButton) {
-                        googleAppsButton.style.pointerEvents = 'none'; /* cite: 143 */
-                        googleAppsButton.style.opacity = '0.6'; /* cite: 143 */
+                        googleAppsButton.style.pointerEvents = 'none'; /* cite: 252 */
+                        googleAppsButton.style.opacity = '0.6'; /* cite: 253 */
                     }
-                    if (googleAppsPopup) googleAppsPopup.style.display = 'none'; /* cite: 144 */
-                    if (newsButton) newsButton.style.display = 'none'; /* cite: 144 */
-                    if (newsCenterPopup) newsCenterPopup.style.display = 'none'; /* cite: 144 */
-                    // if (chatButton) chatButton.style.display = 'none'; // REMOVED /* cite: 145 */
-                    // if (chatPopup) chatPopup.style.display = 'none'; // REMOVED /* cite: 146 */
+                    if (googleAppsPopup) googleAppsPopup.style.display = 'none'; /* cite: 254 */
+                    if (newsButton) newsButton.style.display = 'none'; /* cite: 255 */
+                    if (newsCenterPopup) newsCenterPopup.style.display = 'none'; /* cite: 256 */
+                    // if (chatButton) chatButton.style.display = 'none'; // REMOVED /* cite: 257 */
+                    // if (chatPopup) chatPopup.style.display = 'none'; // REMOVED /* cite: 258 */
                 } else { // User is not banned
-                    if (logoutButton) logoutButton.style.display = 'inline-block'; /* cite: 147 */
-                    setNavLinksEnabled(true); // Enable all links if not banned /* cite: 147 */
-                    if (bannedMessage) bannedMessage.style.display = 'none'; /* cite: 147 */
-                    if (contentFrame) contentFrame.style.display = 'block'; /* cite: 148 */
-                    if (accessDeniedMessage) accessDeniedMessage.style.display = 'none'; /* cite: 149 */
+                    if (logoutButton) logoutButton.style.display = 'inline-block'; /* cite: 259 */
+                    setNavLinksEnabled(true); // Enable all links if not banned /* cite: 260 */
+                    if (bannedMessage) bannedMessage.style.display = 'none'; /* cite: 261 */
+                    if (accessDeniedMessage) accessDeniedMessage.style.display = 'none'; /* cite: 263 */
+                    // contentFrame.style.display deve ser gerenciado pela função createFloatingWindow agora.
+                    // Garantir que não haja mensagem de acesso negado ou banido se o usuário está logado e não banido.
+
                     if (googleAppsButton) {
-                        googleAppsButton.style.pointerEvents = 'auto'; /* cite: 150 */
-                        googleAppsButton.style.opacity = '1'; /* cite: 150 */
+                        googleAppsButton.style.pointerEvents = 'auto'; /* cite: 264 */
+                        googleAppsButton.style.opacity = '1'; /* cite: 265 */
                     }
-                    // if (notificationBellButton) notificationBellButton.style.display = 'inline-block'; // REMOVED /* cite: 151 */
-                    if (newsButton) newsButton.style.display = 'inline-block'; /* cite: 152 */
-                    // if (chatButton) chatButton.style.display = 'inline-block'; // REMOVED /* cite: 152 */
+                    // if (notificationBellButton) notificationBellButton.style.display = 'inline-block'; // REMOVED /* cite: 266 */
+                    if (newsButton) newsButton.style.display = 'inline-block'; /* cite: 267 */
+                    // if (chatButton) chatButton.style.display = 'inline-block'; // REMOVED /* cite: 268 */
 
-                    await loadAndApplyUserAppsCSS(user.uid); /* cite: 153 */
-                    // listenForNotifications(); // REMOVED /* cite: 153 */
+                    await loadAndApplyUserAppsCSS(user.uid); /* cite: 269 */
+                    // listenForNotifications(); // REMOVED /* cite: 270 */
 
+                    // Carregar a página inicial na primeira janela flutuante se não houver nenhuma
+                    if (!document.querySelector('.floating-window')) {
+                        createFloatingWindow('recepcao.html', 'Recepção', false);
+                    }
                 }
 
             } else { // Usuário deslogado
-                currentUser = null; /* cite: 154 */
-                if (userInfo) userInfo.textContent = ''; /* cite: 154 */
-                if (loginGoogleButton) loginGoogleButton.style.display = 'inline-block'; /* cite: 154 */
-                if (loginGitHubButton) loginGitHubButton.style.display = 'inline-block'; /* cite: 154 */
-                if (logoutButton) logoutButton.style.display = 'none'; /* cite: 155 */
-                isCurrentUserBanned = false; /* cite: 155 */
-                if (bannedMessage) bannedMessage.style.display = 'none'; /* cite: 155 */
-                setNavLinksEnabled(false); /* cite: 155 */
-                loadPage('recepcao.html', false); /* cite: 156 */
-                if (userProfilePic) {
-                    userProfilePic.style.display = 'none'; /* cite: 157 */
-                    userProfilePic.src = ''; /* cite: 157 */
+                currentUser = null; /* cite: 271 */
+                if (userInfo) userInfo.textContent = ''; /* cite: 272 */
+                if (loginGoogleButton) loginGoogleButton.style.display = 'inline-block'; /* cite: 273 */
+                if (loginGitHubButton) loginGitHubButton.style.display = 'inline-block'; /* cite: 274 */
+                if (logoutButton) logoutButton.style.display = 'none'; /* cite: 275 */
+                isCurrentUserBanned = false; /* cite: 276 */
+                if (bannedMessage) bannedMessage.style.display = 'none'; /* cite: 277 */
+                setNavLinksEnabled(false); /* cite: 278 */
+                
+                // Oculta quaisquer janelas flutuantes e exibe a página de recepção sem janela
+                document.querySelectorAll('.floating-window').forEach(win => win.remove());
+                // Remover o iframe principal que já não deveria existir no fluxo de janelas flutuantes.
+                // Aqui apenas garantimos que as mensagens de acesso sejam escondidas.
+                if (contentFrame) contentFrame.style.display = 'none'; 
+                if (accessDeniedMessage) accessDeniedMessage.style.display = 'none'; /* cite: 287 */
+                
+                // Reabre a recepcao em uma janela flutuante se não houver outra já aberta
+                if (!document.querySelector('.floating-window')) {
+                    createFloatingWindow('recepcao.html', 'Recepção', false);
                 }
-                if (googleAppsButton) googleAppsButton.style.display = 'none'; /* cite: 158 */
-                if (userInfoContainer) userInfoContainer.style.display = 'none'; /* cite: 158 */
-                if (googleAppsPopup) googleAppsPopup.style.display = 'none'; /* cite: 158 */
-                if (customAppCssStyleTag) customAppCssStyleTag.innerHTML = ''; /* cite: 158 */
-                if (contentFrame) contentFrame.style.display = 'block'; /* cite: 159 */
-                if (accessDeniedMessage) accessDeniedMessage.style.display = 'none'; /* cite: 159 */
-                // if (notificationBellButton) notificationBellButton.style.display = 'none'; // REMOVED /* cite: 160 */
-                if (newsButton) newsButton.style.display = 'none'; /* cite: 161 */
-                if (newsCenterPopup) newsCenterPopup.style.display = 'none'; /* cite: 161 */
-                // if (chatButton) chatButton.style.display = 'none'; // REMOVED /* cite: 162 */
-                // if (chatPopup) chatPopup.style.display = 'none'; // REMOVED /* cite: 163 */
-                // updateNotificationBadge(0); // REMOVED /* cite: 164 */
-                // if (unsubscribeNotifications) { // REMOVED /* cite: 165 */
-                //     unsubscribeNotifications(); /* cite: 165 */
-                //     unsubscribeNotifications = null; /* cite: 165 */
+
+                if (userProfilePic) {
+                    userProfilePic.style.display = 'none'; /* cite: 280 */
+                    userProfilePic.src = ''; /* cite: 281 */
+                }
+                if (googleAppsButton) googleAppsButton.style.display = 'none'; /* cite: 282 */
+                if (userInfoContainer) userInfoContainer.style.display = 'none'; /* cite: 283 */
+                if (googleAppsPopup) googleAppsPopup.style.display = 'none'; /* cite: 284 */
+                if (customAppCssStyleTag) customAppCssStyleTag.innerHTML = ''; /* cite: 285 */
+                if (contentFrame) contentFrame.style.display = 'block'; /* cite: 286 */
+                // if (notificationBellButton) notificationBellButton.style.display = 'none'; // REMOVED /* cite: 288 */
+                if (newsButton) newsButton.style.display = 'none'; /* cite: 289 */
+                if (newsCenterPopup) newsCenterPopup.style.display = 'none'; /* cite: 290 */
+                // if (chatButton) chatButton.style.display = 'none'; // REMOVED /* cite: 291 */
+                // if (chatPopup) chatPopup.style.display = 'none'; // REMOVED /* cite: 292 */
+                // updateNotificationBadge(0); // REMOVED /* cite: 293 */
+                // if (unsubscribeNotifications) { // REMOVED /* cite: 294 */
+                //     unsubscribeNotifications(); /* cite: 294 */
+                //     unsubscribeNotifications = null; /* cite: 295 */
                 // }
-                // hideNotificationsPopup(); // REMOVED /* cite: 166 */
-                hideNewsPopup(); /* cite: 166 */
-                // hideChatPopup(); // REMOVED /* cite: 167 */
+                // hideNotificationsPopup(); // REMOVED /* cite: 296 */
+                hideNewsPopup(); /* cite: 297 */
+                // hideChatPopup(); // REMOVED /* cite: 298 */
             }
             if (componentHandler) {
-                componentHandler.upgradeDom(); /* cite: 168 */
+                componentHandler.upgradeDom(); /* cite: 299 */
             }
-        });
+        }); /* cite: 300 */
 
         // --- Event Listeners DOMContentLoaded ---
         document.addEventListener('DOMContentLoaded', () => {
             // Re-obter referências aos elementos DOM dentro deste escopo
             const googleAppsButton = document.getElementById('google-apps-button');
             const googleAppsPopup = document.getElementById('google-apps-popup');
-            // const notificationBellButton = document.getElementById('notification-bell-button'); // REMOVED /* cite: 169 */
-            // const notificationsCenterPopup = document.getElementById('notifications-center-popup'); // REMOVED /* cite: 169 */
-            // const closeNotificationsPopupButton = document.getElementById('close-notifications-popup-button'); // REMOVED /* cite: 169 */
-            // const viewAllChatMessagesButton = document.getElementById('view-all-chat-messages-button'); // REMOVED /* cite: 169 */
+            // const notificationBellButton = document.getElementById('notification-bell-button'); // REMOVED /* cite: 301 */
+            
+            // const notificationsCenterPopup = document.getElementById('notifications-center-popup'); // REMOVED /* cite: 301 */
+            // const closeNotificationsPopupButton = document.getElementById('close-notifications-popup-button'); // REMOVED /* cite: 301 */
+            // const viewAllChatMessagesButton = document.getElementById('view-all-chat-messages-button'); // REMOVED /* cite: 301 */
             const navLinks = document.querySelectorAll('.mdl-navigation__link');
 
             // Get references for news popup elements (kept)
-            const newsButton = document.getElementById('news-button'); /* cite: 170 */
-            const newsCenterPopup = document.getElementById('news-center-popup'); /* cite: 170 */
-            const closeNewsPopupButton = document.getElementById('close-news-popup-button'); /* cite: 170 */
-            const viewAllNewsButton = document.getElementById('view-all-news-button'); /* cite: 171 */
+            const newsButton = document.getElementById('news-button'); /* cite: 302 */
+            const newsCenterPopup = document.getElementById('news-center-popup'); /* cite: 303 */
+            const closeNewsPopupButton = document.getElementById('close-news-popup-button'); /* cite: 304 */
+            const viewAllNewsButton = document.getElementById('view-all-news-button'); /* cite: 305 */
             // Removidas referências para chat popup elements
 
             // --- Adicionar Event Listeners ---
@@ -735,38 +740,37 @@
             // Botão Google Apps (mantido, mas modificado)
             if (googleAppsButton) {
                 googleAppsButton.addEventListener('click', (event) => {
-                    event.stopPropagation(); // Evita que o clique se propague para o document /* cite: 172 */
+                    event.stopPropagation(); // Evita que o clique se propague para o document /* cite: 306 */
                     if (googleAppsPopup.style.display === 'block') {
                         googleAppsPopup.style.display = 'none';
                     } else {
-                        googleAppsPopup.style.display = 'block'; /* cite: 173 */
+                        googleAppsPopup.style.display = 'block'; /* cite: 307 */
                         // Carregar apps dinamicamente (MODIFIED: hardcoded apps)
                         const appGrid = document.getElementById('app-grid');
-                        appGrid.innerHTML = ''; // Clear existing content
+                        appGrid.innerHTML = ''; // Clear existing content /* cite: 308 */
 
                         // MODIFIED: Hardcoded list of WZZM services
                         const wzzmServices = [
-                            { name: 'Office WZZM', url: 'https://office.wzzm.org', iconUrl: 'https://wzzm.org/iconmagic.png' },
+                            { name: 'Office WZZM', url: 'https://office.wzzm.org', iconUrl: 'https://wzzm.org/iconmagic.png' }, /* cite: 309 */
                             { name: 'Escolar WZZM', url: 'https://escolar.wzzm.org', iconUrl: 'https://wzzm.org/iconmagic.png' },
                             { name: 'Minha Persona WZZM', url: 'https://minhapersona.wzzm.org', iconUrl: 'https://wzzm.org/iconmagic.png' },
-                            { name: 'Wiki Zero', url: 'https://wikizero.wzzm.org/', iconUrl: 'https://wzzm.org/iconmagic.png' },
+                            { name: 'Wiki Zero', url: 'https://wikizero.wzzm.org/', iconUrl: 'https://wzzm.org/iconmagic.png' }, /* cite: 310 */
                             { name: 'UWG Wikidot', url: 'https://uwg.wikidot.com', iconUrl: 'https://wzzm.org/iconmagic.png' },
                             { name: 'Wiki Metro SP', url: 'https://wikimetrosp.miraheze.org', iconUrl: 'https://wzzm.org/wikimetrosp.png' }
-                        ];
-
-                        wzzmServices.forEach(app => {
+                        ]; /* cite: 311 */
+                        wzzmServices.forEach(app => { /* cite: 312 */
                             const appItem = document.createElement('div');
-                            appItem.classList.add('app-item'); /* cite: 177 */
+                            appItem.classList.add('app-item'); /* cite: 313 */
                             appItem.innerHTML = `
-                                <img src="${app.iconUrl}" alt="${app.name}"> <span>${app.name}</span> `;
+                                <img src="${app.iconUrl}" alt="${app.name}"> <span>${app.name}</span> `; /* cite: 313 */
                             appItem.addEventListener('click', () => {
-                                window.open(app.url, '_blank'); // Opens in a new tab for external services
+                                window.open(app.url, '_blank'); // Opens in a new tab for external services /* cite: 314 */
                                 googleAppsPopup.style.display = 'none'; // Close the popup
-                            }); /* cite: 180, 181 */
-                            appGrid.appendChild(appItem); /* cite: 182 */
-                        });
+                            }); /* cite: 314 */
+                            appGrid.appendChild(appItem); /* cite: 315 */
+                        }); /* cite: 316 */
                     }
-                }); /* cite: 187 */
+                }); /* cite: 317 */
             }
 
             // Removidos Event Listeners para Notificações (Sino e Popup)
@@ -774,215 +778,420 @@
 
             // Event Listeners for News Button and Popup (mantidos)
             if (newsButton) {
-                newsButton.addEventListener('click', (event) => {
-                    event.stopPropagation(); /* cite: 188 */
+                newsButton.addEventListener('click', (event) => { /* cite: 318 */
+                    event.stopPropagation(); /* cite: 318 */
                     if (newsCenterPopup.style.display === 'flex') {
                         hideNewsPopup();
-                    } else {
-                        // hideNotificationsPopup(); // REMOVED /* cite: 189 */
-                        // hideChatPopup(); // REMOVED /* cite: 189 */
-                        showNewsPopup(); /* cite: 189 */
+                    } else { /* cite: 319 */
+                        // hideNotificationsPopup(); // REMOVED /* cite: 319 */
+                        // hideChatPopup(); // REMOVED /* cite: 319 */
+                        showNewsPopup(); /* cite: 319 */
                     }
-                }); /* cite: 190 */
+                }); /* cite: 321 */
             }
 
             if (closeNewsPopupButton) {
                 closeNewsPopupButton.addEventListener('click', () => {
                     hideNewsPopup();
-                }); /* cite: 191 */
+                }); /* cite: 322 */
             }
 
             if (viewAllNewsButton) {
                 viewAllNewsButton.addEventListener('click', () => {
-                    loadPage('visualizarnoticias.html', false); // Load the full news page
-                    hideNewsPopup(); // Hide the popup
-                }); /* cite: 192 */
+                    createFloatingWindow('visualizarnoticias.html', 'Todas as Notícias'); // Carrega em nova janela /* MODIFIED */
+                    hideNewsPopup(); // Hide the popup /* cite: 323 */
+                }); /* cite: 324 */
             }
 
             // Listener global para fechar popups ao clicar fora (ajustado)
             document.addEventListener('click', (event) => {
                 // Fecha o popup de apps se clicar fora dele
                 if (googleAppsPopup && googleAppsPopup.style.display === 'block' &&
-                    !googleAppsButton.contains(event.target) && /* cite: 193 */
+                    !googleAppsButton.contains(event.target) && /* cite: 325 */
                     !googleAppsPopup.contains(event.target)) {
                     googleAppsPopup.style.display = 'none';
                 }
 
                 // Removida lógica para fechar popup de notificações
-                // Removida lógica para fechar popup do chat /* cite: 194 */
+                // Removida lógica para fechar popup do chat /* cite: 326 */
 
                 // Fecha o popup de notícias se clicar fora dele (mantido)
                 if (newsCenterPopup && newsCenterPopup.style.display === 'flex' &&
-                    !newsButton.contains(event.target) &&
-                    !newsCenterPopup.contains(event.target)) { /* cite: 195 */
-                    newsCenterPopup.style.display = 'none';
+                    !newsButton.contains(event.target) && /* cite: 327 */
+                    !newsCenterPopup.contains(event.target)) { /* cite: 327 */
+                    newsCenterPopup.style.display = 'none'; /* cite: 328 */
                 }
-            }); /* cite: 196 */
+            }); /* cite: 329 */
+
             // Adiciona event listener para links de navegação no drawer (ajustado)
             navLinks.forEach(link => {
                 link.addEventListener('click', function(event) {
                     const pageSrc = this.getAttribute('onclick'); // Get the raw onclick attribute
-                    let actualPageSrc = '';
-                    let requiresAuth = false; /* cite: 197 */
+                    let actualPageSrc = ''; /* cite: 330 */
+                    let requiresAuth = false; /* cite: 330 */
 
                     // Extract actual page source and requiresAuth
                     if (pageSrc && pageSrc.includes("loadPage(")) {
-                        const match = pageSrc.match(/loadPage\('([^']*)', (true|false)\)/);
-                        if (match) { /* cite: 198 */
-                            actualPageSrc = match[1]; /* cite: 198 */
-                            requiresAuth = match[2] === 'true'; /* cite: 198 */
+                        const match = pageSrc.match(/loadPage\('([^']*)', (true|false)\)/); /* cite: 331 */
+                        if (match) { /* cite: 331 */
+                            actualPageSrc = match[1]; /* cite: 332 */
+                            requiresAuth = match[2] === 'true'; /* cite: 332 */
                         }
                     }
                     // Removido o tratamento especial para chat popup no drawer
 
 
-                    if (isCurrentUserBanned && !actualPageSrc.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) {
-                        event.preventDefault(); /* cite: 200 */
-                        return;
+                    if (isCurrentUserBanned && !actualPageSrc.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) { /* cite: 333 */
+                        event.preventDefault(); /* cite: 334 */
+                        return; /* cite: 335 */
                     }
 
-                    if (this.classList.contains('disabled') && !actualPageSrc.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) {
-                        event.preventDefault(); /* cite: 201 */
-                        return;
+                    if (this.classList.contains('disabled') && !actualPageSrc.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) { /* cite: 335 */
+                        event.preventDefault(); /* cite: 336 */
+                        return; /* cite: 337 */
                     }
 
                     if (actualPageSrc.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) {
-                        return; /* cite: 202 */
+                        // Se for o link das políticas, abre em nova aba/janela do navegador para PDF
+                        window.open(actualPageSrc, '_blank');
+                        event.preventDefault(); // Previna o comportamento padrão para não carregar em janela flutuante
+                        return; /* cite: 338 */
                     }
 
-                    event.preventDefault(); /* cite: 203 */
-                    loadPage(actualPageSrc, requiresAuth); /* cite: 203 */
+                    event.preventDefault(); /* cite: 339 */
+                    createFloatingWindow(actualPageSrc, null, requiresAuth); // Usar createFloatingWindow /* MODIFIED */
                     // Fecha o drawer do MDL se estiver aberto
                     if (document.querySelector('.mdl-layout__drawer.is-visible')) {
-                        document.querySelector('.mdl-layout__obfuscator').classList.remove('is-visible'); /* cite: 204 */
-                        document.querySelector('.mdl-layout__drawer').classList.remove('is-visible'); /* cite: 204 */
+                        document.querySelector('.mdl-layout__obfuscator').classList.remove('is-visible'); /* cite: 341 */
+                        document.querySelector('.mdl-layout__drawer').classList.remove('is-visible'); /* cite: 342 */
                     }
-                });
-            }); /* cite: 205 */
+                }); /* cite: 343 */
+            }); /* cite: 344 */
             // Inicializa componentes MDL
             if (componentHandler) {
-                componentHandler.upgradeDom(); /* cite: 206 */
+                componentHandler.upgradeDom(); /* cite: 344 */
             }
-        });
+        }); /* cite: 345 */
 
-	    // Utilitário para gerar IDs únicos
-function uniqueID() {
-    return 'win_' + Math.random().toString(36).substr(2, 9);
-}
-
-// Função para criar uma nova janela flutuante
-function createFloatingWindow(src, title) {
-    const container = document.getElementById('window-container');
-    
-    // ADICIONE AQUI:
-    const existing = Array.from(document.querySelectorAll('.floating-window'))
-        .find(win => win.getAttribute('data-src') === src);
-    if (existing) {
-        bringWindowToFront(existing);
-        return;
-    }
-    const winId = uniqueID();
-
-    // Elemento da janela
-    const win = document.createElement('div');
-    win.className = 'floating-window';
-    win.setAttribute('data-winid', winId);
-
-    // Cabeçalho da janela
-    const header = document.createElement('div');
-    header.className = 'window-header';
-    header.innerHTML = `
-        <span>${title || src}</span>
-        <span class="window-controls">
-            <button title="Minimizar" onclick="minimizeWindow('winId_aqui')">_</button>
-            <button title="Fechar" onclick="closeWindow('${winId}')">&times;</button>
-        </span>
-    `;
-
-    // Corpo da janela com iframe
-    const body = document.createElement('div');
-    body.className = 'window-body';
-    const iframe = document.createElement('iframe');
-    iframe.src = src;
-    body.appendChild(iframe);
-
-    win.appendChild(header);
-    win.appendChild(body);
-    container.appendChild(win);
-
-    // Torna a janela arrastável
-    makeWindowDraggable(win, header);
-
-    // Foca a janela ao clicar
-    win.addEventListener('mousedown', () => {
-        bringWindowToFront(win);
-    });
-
-    // Coloca no topo ao criar
-    bringWindowToFront(win);
-}
-
-// Deixe a janela arrastável
-function makeWindowDraggable(win, handle) {
-    let offsetX = 0, offsetY = 0, dragging = false;
-
-    handle.addEventListener('mousedown', function (e) {
-        dragging = true;
-        offsetX = e.clientX - win.offsetLeft;
-        offsetY = e.clientY - win.offsetTop;
-        win.style.zIndex = getNextZIndex();
-        document.body.style.userSelect = 'none';
-    });
-
-    document.addEventListener('mousemove', function (e) {
-        if (dragging) {
-            win.style.left = (e.clientX - offsetX) + 'px';
-            win.style.top = (e.clientY - offsetY) + 'px';
+        // Utilitário para gerar IDs únicos
+        function uniqueID() {
+            return 'win_' + Math.random().toString(36).substr(2, 9); /* cite: 346 */
         }
-    });
 
-    document.addEventListener('mouseup', function () {
-        dragging = false;
-        document.body.style.userSelect = '';
-    });
-}
+        // Função para criar uma nova janela flutuante
+        // Adicionamos um histórico para cada iframe para os botões de navegação
+        const windowHistory = {}; // Armazena o histórico para cada janela (key: winId, value: array de URLs)
+        const windowHistoryIndex = {}; // Armazena o índice atual do histórico para cada janela
 
-// Função para minimizar janela
-function minimizeWindow(winId) {
-    const win = document.querySelector(`.floating-window[data-winid="${winId}"]`);
-    if (!win) return;
-    const body = win.querySelector('.window-body');
-    if (body.style.display === 'none') {
-        body.style.display = '';
-        win.style.height = win.dataset.originalHeight || '450px';
-    } else {
-        win.dataset.originalHeight = win.style.height;
-        body.style.display = 'none';
-        win.style.height = '';
-    }
-}
+        function createFloatingWindow(src, customTitle = null, requiresAuth = false) {
+            const container = document.getElementById('window-container'); /* cite: 347 */
+            
+            // Verifica as regras de acesso antes de criar a janela
+            if (isCurrentUserBanned && src !== 'recepcao.html' && src !== 'POLÍTICAS GERAIS DO WIKI ZONE ZERO MOD.pdf') {
+                document.getElementById('banned-message').style.display = 'block';
+                return;
+            }
+            if (requiresAuth && !currentUser) {
+                document.getElementById('access-denied-message').style.display = 'block';
+                return;
+            }
+            
+            // ADICIONE AQUI:
+            const existing = Array.from(document.querySelectorAll('.floating-window'))
+                .find(win => win.getAttribute('data-src') === src); /* cite: 348 */
+            if (existing) {
+                bringWindowToFront(existing);
+                return;
+            }
 
-// Função para fechar janela
-function closeWindow(winId) {
-    const win = document.querySelector(`.floating-window[data-winid="${winId}"]`);
-    if (win) win.remove();
-}
+            const winId = uniqueID(); /* cite: 349 */
+            windowHistory[winId] = [];
+            windowHistoryIndex[winId] = -1;
 
-// Z-Index para trazer para frente
-let topZ = 1000;
-function getNextZIndex() {
-    return ++topZ;
-}
-function bringWindowToFront(win) {
-    win.style.zIndex = getNextZIndex();
-}
+            // Elemento da janela
+            const win = document.createElement('div');
+            win.className = 'floating-window';
+            win.setAttribute('data-winid', winId);
+            win.setAttribute('data-src', src); // Armazena o SRC original para verificação de existência
 
-// Substitua a função loadPage
-function loadPage(src, requiresAuth = false) {
-    // Adapte regras de autenticação/banimento se necessário!
-    // Exemplo: se quiser impedir múltiplas janelas iguais, faça uma busca aqui
-    createFloatingWindow(src, src.split('/').pop());
-}
+            // Cabeçalho da janela
+            const header = document.createElement('div');
+            header.className = 'window-header';
+            
+            // Função para extrair o nome do arquivo da URL para o título
+            function getFileNameFromUrl(url) {
+                try {
+                    const urlObj = new URL(url, window.location.origin);
+                    let path = urlObj.pathname.split('/').pop();
+                    if (path.includes('.')) {
+                        path = path.split('.')[0]; // Remove a extensão
+                    }
+                    path = path.replace(/%20/g, ' '); // Decodifica espaços
+                    return path || 'Nova Janela'; // Retorna o nome do arquivo ou "Nova Janela" se vazio
+                } catch (e) {
+                    return url; // Em caso de erro (URL inválida), retorna a URL completa
+                }
+            }
+            
+            const titleText = customTitle || getFileNameFromUrl(src);
+
+            header.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <button title="Voltar" onclick="historyBack('${winId}')" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored window-nav-back">
+                        <i class="material-icons">arrow_back</i>
+                    </button>
+                    <button title="Avançar" onclick="historyForward('${winId}')" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored window-nav-forward">
+                        <i class="material-icons">arrow_forward</i>
+                    </button>
+                    <span style="margin-left: 8px;">${titleText}</span>
+                </div>
+                <span class="window-controls">
+                    <button title="Fechar" onclick="closeWindow('${winId}')">&times;</button>
+                </span>
+            `; /* MODIFIED */
+
+            // Corpo da janela com iframe
+            const body = document.createElement('div');
+            body.className = 'window-body';
+            const iframe = document.createElement('iframe'); /* cite: 354 */
+            iframe.src = src;
+            iframe.setAttribute('data-winid', winId); // Adiciona o winId ao iframe
+            body.appendChild(iframe);
+
+            win.appendChild(header);
+            win.appendChild(body);
+            container.appendChild(win);
+
+            // Torna a janela arrastável
+            makeWindowDraggable(win, header); /* cite: 355 */
+            // Foca a janela ao clicar
+            win.addEventListener('mousedown', () => {
+                bringWindowToFront(win); /* cite: 356 */
+            });
+            // Coloca no topo ao criar
+            bringWindowToFront(win); /* cite: 357 */
+
+            // Adiciona a URL inicial ao histórico da nova janela
+            addToWindowHistory(winId, src);
+
+            // Adiciona listener para atualizações de URL dentro do iframe
+            // Isso é um pouco mais complexo, pois iframes de diferentes origens são restritos (Same-Origin Policy).
+            // Para iframes de mesma origem, você pode escutar o evento 'load' ou 'hashchange'.
+            // Para iframes de outras origens, você precisaria de postMessage para comunicação.
+            iframe.addEventListener('load', function() {
+                try {
+                    // Para mesma origem, atualiza o histórico e o título
+                    if (iframe.contentWindow.location.origin === window.location.origin) {
+                        const currentIframeSrc = iframe.contentWindow.location.href;
+                        if (windowHistory[winId][windowHistoryIndex[winId]] !== currentIframeSrc) {
+                            addToWindowHistory(winId, currentIframeSrc);
+                            const newTitle = getFileNameFromUrl(currentIframeSrc);
+                            win.querySelector('.window-header span:last-of-type').textContent = newTitle; // Atualiza o texto do título
+                        }
+                    }
+                } catch (e) {
+                    // Ignora erros de Same-Origin Policy
+                    console.warn("Same-Origin Policy previne acesso ao conteúdo do iframe para atualização do histórico.", e);
+                }
+                updateNavigationButtons(winId); // Atualiza o estado dos botões Voltar/Avançar
+            });
+        }
+
+        // Função para adicionar URL ao histórico da janela
+        function addToWindowHistory(winId, url) {
+            if (!windowHistory[winId]) {
+                windowHistory[winId] = [];
+                windowHistoryIndex[winId] = -1;
+            }
+
+            // Remove URLs à frente do índice atual se navegarmos para trás e depois para uma nova página
+            if (windowHistoryIndex[winId] < windowHistory[winId].length - 1) {
+                windowHistory[winId] = windowHistory[winId].slice(0, windowHistoryIndex[winId] + 1);
+            }
+
+            windowHistory[winId].push(url);
+            windowHistoryIndex[winId]++;
+            updateNavigationButtons(winId);
+        }
+
+        // Função para navegar para trás no histórico da janela
+        function historyBack(winId) {
+            if (windowHistory[winId] && windowHistoryIndex[winId] > 0) {
+                windowHistoryIndex[winId]--;
+                const iframe = document.querySelector(`.floating-window[data-winid="${winId}"] iframe`);
+                if (iframe) {
+                    iframe.src = windowHistory[winId][windowHistoryIndex[winId]];
+                    const newTitle = getFileNameFromUrl(iframe.src);
+                    iframe.closest('.floating-window').querySelector('.window-header span:last-of-type').textContent = newTitle; // Atualiza o título
+                }
+                updateNavigationButtons(winId);
+            }
+        }
+
+        // Função para navegar para frente no histórico da janela
+        function historyForward(winId) {
+            if (windowHistory[winId] && windowHistoryIndex[winId] < windowHistory[winId].length - 1) {
+                windowHistoryIndex[winId]++;
+                const iframe = document.querySelector(`.floating-window[data-winid="${winId}"] iframe`);
+                if (iframe) {
+                    iframe.src = windowHistory[winId][windowHistoryIndex[winId]];
+                    const newTitle = getFileNameFromUrl(iframe.src);
+                    iframe.closest('.floating-window').querySelector('.window-header span:last-of-type').textContent = newTitle; // Atualiza o título
+                }
+                updateNavigationButtons(winId);
+            }
+        }
+
+        // Função para atualizar o estado (disabled) dos botões de navegação
+        function updateNavigationButtons(winId) {
+            const win = document.querySelector(`.floating-window[data-winid="${winId}"]`);
+            if (!win) return;
+            const backButton = win.querySelector('.window-nav-back');
+            const forwardButton = win.querySelector('.window-nav-forward');
+
+            if (backButton) {
+                backButton.disabled = !(windowHistory[winId] && windowHistoryIndex[winId] > 0);
+                backButton.style.opacity = backButton.disabled ? '0.5' : '1';
+                backButton.style.cursor = backButton.disabled ? 'not-allowed' : 'pointer';
+            }
+            if (forwardButton) {
+                forwardButton.disabled = !(windowHistory[winId] && windowHistoryIndex[winId] < windowHistory[winId].length - 1);
+                forwardButton.style.opacity = forwardButton.disabled ? '0.5' : '1';
+                forwardButton.style.cursor = forwardButton.disabled ? 'not-allowed' : 'pointer';
+            }
+        }
+
+        // Deixe a janela arrastável
+        function makeWindowDraggable(win, handle) {
+            let offsetX = 0, offsetY = 0, dragging = false; /* cite: 358 */
+            handle.addEventListener('mousedown', function (e) {
+                dragging = true;
+                offsetX = e.clientX - win.offsetLeft;
+                offsetY = e.clientY - win.offsetTop;
+                win.style.zIndex = getNextZIndex();
+                document.body.style.userSelect = 'none';
+            }); /* cite: 359 */
+            document.addEventListener('mousemove', function (e) {
+                if (dragging) {
+                    win.style.left = (e.clientX - offsetX) + 'px';
+                    win.style.top = (e.clientY - offsetY) + 'px';
+                }
+            }); /* cite: 360 */
+            document.addEventListener('mouseup', function () {
+                dragging = false;
+                document.body.style.userSelect = '';
+            }); /* cite: 361 */
+        }
+
+        // Função para fechar janela
+        function closeWindow(winId) {
+            const win = document.querySelector(`.floating-window[data-winid="${winId}"]`); /* cite: 365 */
+            if (win) {
+                delete windowHistory[winId]; // Limpa o histórico associado
+                delete windowHistoryIndex[winId]; // Limpa o índice associado
+                win.remove();
+            }
+        }
+
+        // Z-Index para trazer para frente
+        let topZ = 1000;
+        function getNextZIndex() {
+            return ++topZ; /* cite: 366 */
+        }
+        function bringWindowToFront(win) {
+            win.style.zIndex = getNextZIndex(); /* cite: 366 */
+        }
+
+        // Substitua a função loadPage para usar createFloatingWindow
+        function loadPage(src, requiresAuth = false) {
+            // Adapte regras de autenticação/banimento se necessário! /* cite: 367 */
+            // Exemplo: se quiser impedir múltiplas janelas iguais, faça uma busca aqui
+            createFloatingWindow(src, null, requiresAuth); // Passa null para customTitle para usar o nome do arquivo
+        }
+
+        // ========== CAPTURA E EXIBE ERROS DO CONSOLE ==========
+        // Array para armazenar os erros capturados
+        window._wzzmErrorLog = []; /* cite: 369 */
+        // Captura erros globais de JavaScript
+        window.addEventListener('error', function(e) {
+            window._wzzmErrorLog.push(`[${new Date().toLocaleTimeString()}] ${e.message} (${e.filename}:${e.lineno})`); /* cite: 370 */
+        });
+        // Captura rejeições de Promise não tratadas
+        window.addEventListener('unhandledrejection', function(e) {
+            window._wzzmErrorLog.push(`[${new Date().toLocaleTimeString()}] Unhandled Promise: ${e.reason}`); /* cite: 371 */
+        });
+        // Intercepta console.error e armazena as mensagens
+        (function() {
+            const originalError = console.error;
+            console.error = function(...args) {
+                window._wzzmErrorLog.push(`[${new Date().toLocaleTimeString()}] console.error: ${args.join(' ')}`); /* cite: 372 */
+                originalError.apply(console, args);
+            };
+        })();
+        // Mostra o popup com a lista de erros ao clicar no botão
+        document.addEventListener('DOMContentLoaded', function() {
+            var btn = document.getElementById('error-log-button');
+            if (!btn) return;
+            btn.addEventListener('click', function() {
+                var logList = document.getElementById('error-log-list');
+                logList.innerHTML = '';
+                if (window._wzzmErrorLog.length === 0) {
+                    logList.innerHTML = '<li style="color:green;">Nenhum erro registrado nesta sessão.</li>';
+                } else {
+                    window._wzzmErrorLog.slice(-100).forEach(function(msg) {
+                        var li = document.createElement('li');
+                        li.textContent = msg;
+                        logList.appendChild(li); /* cite: 373 */
+                    });
+                }
+                document.getElementById('error-log-popup').style.display = 'block';
+            });
+        }); /* cite: 374 */
+
+	    document.addEventListener('DOMContentLoaded', function () {
+    fetch('menu.json')
+        .then(response => response.json())
+        .then(menuItems => {
+            const drawerMenu = document.getElementById('drawer-menu');
+            if (!drawerMenu) return;
+            drawerMenu.innerHTML = ''; // Limpa itens antigos, se houver
+
+            menuItems.forEach(item => {
+                const a = document.createElement('a');
+                a.className = 'mdl-navigation__link';
+                a.href = '#'; // A navegação será controlada pelo onclick
+                a.setAttribute('onclick', `loadPage('${item.href}', ${item.requiresAuth})`);
+                if (item.requiresAuth) {
+                    a.setAttribute('data-requires-auth', 'true');
+                }
+                a.textContent = item.label;
+                drawerMenu.appendChild(a);
+            });
+        })
+        .catch(err => {
+            console.error('Erro ao carregar menu.json:', err);
+        });
+});
     </script>
+    <div id="error-log-popup" style="
+        display: none;
+        position: fixed;
+        top: 60px;
+        right: 30px;
+        width: 400px;
+        max-height: 60vh;
+        overflow-y: auto;
+        background: #fff;
+        border: 2px solid #e53935;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        z-index: 2000;
+        padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: bold; color: #e53935;">Erros do Console</span>
+            <button onclick="document.getElementById('error-log-popup').style.display='none'" style="background:none;border:none;font-size:22px;color:#e53935;cursor:pointer;">×</button>
+        </div>
+        <ul id="error-log-list" style="margin-top: 12px; color: #b71c1c; font-size: 0.97em;"></ul>
+    </div>
 </body>
 </html>
