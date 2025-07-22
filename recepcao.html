@@ -1,246 +1,134 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transparência Financeira - WZZM</title>
+    <title>Pesquisar custos - WZZM Admin</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Roboto', 'Helvetica', Arial, sans-serif;
             background-color: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            margin: 0;
             padding: 20px;
-            box-sizing: border-box;
         }
-        .mdl-card {
-            width: 100%;
+        .container {
             max-width: 900px;
             margin: 20px auto;
-            padding: 20px;
-        }
-        .mdl-list {
-            padding: 0;
-        }
-        .mdl-list__item {
-            border-bottom: 1px solid #eee;
-            padding: 10px 0;
-            justify-content: space-between;
-        }
-        .mdl-list__item-primary-content {
-            font-weight: bold;
-        }
-        .mdl-list__item-secondary-action {
-            color: #3f51b5;
-        }
-        .summary-card {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #e8eaf6;
-            color: #3f51b5;
-            font-size: 1.2em;
-            font-weight: bold;
-            text-align: center;
-            border-radius: 4px;
-        }
-        .summary-card.positive {
-            background-color: #e0f2f1;
-            color: #00796b;
-        }
-        .summary-card.negative {
-            background-color: #ffebee;
-            color: #d32f2f;
-        }
-        .donation-section {
-            margin-top: 20px;
-            text-align: center;
-            padding: 20px;
-            border: 1px dashed #ccc;
-            border-radius: 8px;
             background-color: #fff;
-        }
-        .progress-container {
-            margin-top: 20px;
-        }
-        .progress-bar-wrapper {
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            height: 25px;
-            margin-bottom: 10px;
-            overflow: hidden;
-            position: relative;
-        }
-        .progress-bar {
-            height: 100%;
-            background-color: #4CAF50; /* Verde para contribuições */
-            width: 0%;
-            text-align: center;
-            color: white;
-            line-height: 25px;
-            font-weight: bold;
-            transition: width 0.5s ease-in-out;
-            position: absolute;
-        }
-        .cost-bar {
-            background-color: #f44336; /* Vermelho para custos */
-            width: 0%;
-            text-align: right;
-            padding-right: 5px;
-            line-height: 25px;
-            font-weight: bold;
-            color: white;
-            transition: width 0.5s ease-in-out;
-            position: absolute;
-            right: 0;
-            z-index: 1;
-        }
-        .bar-label {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            line-height: 25px;
-            color: #333;
-            z-index: 2;
-            font-weight: bold;
-        }
-
-        /* Tabela de Notas Fiscais */
-        .mdl-data-table {
-            width: 100%;
-            margin-top: 20px;
-        }
-        .mdl-data-table th, .mdl-data-table td {
-            text-align: left;
-        }
-        .mdl-data-table th:nth-child(4), .mdl-data-table td:nth-child(4) {
-             text-align: right;
-        }
-        .mdl-data-table__cell--non-numeric {
-            white-space: normal;
-        }
-        .status-message {
-            margin-top: 20px;
-            padding: 15px;
+            padding: 30px;
             border-radius: 8px;
-            background-color: #fff3cd; /* Amarelo claro para alerta */
-            color: #856404;
-            border: 1px solid #ffeeba;
-            text-align: center;
-            font-weight: bold;
+            box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
         }
-        .connected-services {
-            margin-top: 15px;
-            font-size: 0.9em;
+        h1 {
+            color: #3f51b5;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .mdl-textfield {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        #article-results {
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .article-card {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .article-card:hover {
+            background-color: #e8eaf6; /* Light indigo */
+        }
+        .article-card h3 {
+            color: #3f51b5;
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+        .article-card p {
             color: #555;
-            text-align: center;
+            font-size: 0.9em;
+            margin-bottom: 5px;
         }
-        .connected-services ul {
-            list-style: none;
-            padding: 0;
-            margin: 5px 0;
-            display: inline-block;
-        }
-        .connected-services li {
-            display: inline-block;
-            margin: 0 5px;
-            background-color: #e0e0e0;
-            padding: 3px 8px;
-            border-radius: 12px;
+        .article-card small {
+            color: #888;
             font-size: 0.8em;
+            display: block; /* Para que cada small fique em sua própria linha */
+        }
+        .no-results {
+            text-align: center;
+            color: #888;
+            margin-top: 20px;
+        }
+        .error-message {
+            text-align: center;
+            padding: 15px;
+            color: #d32f2f;
+            background-color: #ffebee;
+            border: 1px solid #d32f2f;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
+        }
+        /* Estilos para o conteúdo formatado */
+        .formatted-content-display {
+            max-height: 8em; /* Limita a altura para evitar cards muito longos */
+            overflow: hidden; /* Esconde o conteúdo que excede a altura */
+            text-overflow: ellipsis; /* Adiciona '...' se o texto for cortado */
+            white-space: normal; /* Permite quebras de linha */
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #3f51b5; /* Linha decorativa para o conteúdo */
+            padding-left: 10px;
+            background-color: #eef; /* Fundo leve para destacar */
+        }
+        /* Estilos para o link no formattedContent, se houver */
+        .formatted-content-display a {
+            color: #3f51b5;
+            text-decoration: none;
+        }
+        .formatted-content-display a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 
-    <div class="mdl-card mdl-shadow--2dp">
-        <div class="mdl-card__title mdl-card--expand">
-            <h2 class="mdl-card__title-text">Transparência Financeira WZZM</h2>
+    <div class="container">
+        <h1>Pesquisar custos para Edição</h1>
+
+        <div id="error-display" class="error-message"></div>
+
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="text" id="search-input">
+            <label class="mdl-textfield__label" for="search-input">Pesquisar por Título ou UID...</label>
         </div>
-        <div class="mdl-card__supporting-text">
-            <p>O projeto WZZM opera sem fins lucrativos e depende de doações para cobrir seus custos de infraestrutura, como Firebase e Google Workspace. Agradecemos imensamente seu apoio!</p>
+        <div class="actions">
+            <button id="search-button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                <i class="material-icons">search</i> Pesquisar
+            </button>
+            <button id="show-all-button" class="mdl-button mdl-js-button mdl-button--raised">
+                Mostrar Todos
+            </button>
+        </div>
 
-            <div id="statusMessage" class="status-message" style="display: none;">
-                </div>
-
-            <h3 style="margin-top: 20px;">Resumo Mensal (<span id="currentMonthYear"></span>)</h3>
-            <ul class="mdl-list">
-                <li class="mdl-list__item">
-                    <span class="mdl-list__item-primary-content">Doações Recebidas:</span>
-                    <span class="mdl-list__item-secondary-action" id="totalDonations">R$ 0,00</span>
-                </li>
-                <li class="mdl-list__item">
-                    <span class="mdl-list__item-primary-content">Custo Firebase (Previsão):</span>
-                    <span class="mdl-list__item-secondary-action" id="costFirebase">R$ 0,00</span>
-                </li>
-                <li class="mdl-list__item">
-                    <span class="mdl-list__item-primary-content">Custo Google Workspace (Previsão):</span>
-                    <span class="mdl-list__item-secondary-action" id="costWorkspace">R$ 0,00</span>
-                </li>
-            </ul>
-
-            <div id="balanceCard" class="summary-card">
-                Saldo Atual: <span id="currentBalance">R$ 0,00</span>
-            </div>
-            
-            <div id="connectedServicesDiv" class="connected-services">
-                <strong>Serviços Conectados (Este mês):</strong>
-                <ul id="servicesList">
-                    </ul>
-            </div>
-
-            <p style="margin-top: 20px; font-size: 0.9em; color: #555;">
-                *Os valores de custo são estimativas e podem variar ligeiramente de acordo com o uso e o ciclo de faturamento.
-                As informações são atualizadas periodicamente para garantir a maior transparência possível.
-            </p>
-
-            <div class="progress-container">
-                <h4>Status de Cobertura de Custos</h4>
-                <div class="progress-bar-wrapper">
-                    <div id="contributionsBar" class="progress-bar"></div>
-                    <div id="costsBar" class="cost-bar"></div>
-                    <div class="bar-label" id="barLabel">Carregando...</div>
-                </div>
-                <p style="text-align: center; font-size: 0.9em; color: #555;">
-                    Verde: Contribuições Recebidas | Vermelho: Custos Mensais
-                </p>
-            </div>
-
-
-            <div class="donation-section">
-                <h4>Apoie o Projeto WZZM!</h4>
-                <p>Sua doação ajuda a manter a plataforma funcionando e crescendo.</p>
-                <p style="font-weight: bold; color: #3f51b5;">Funcionalidade de Doação: Ainda a ser implementada.</p>
-                </div>
-
-            <h3 style="margin-top: 30px;">Notas Fiscais de Custos</h3>
-            <p>Detalhes das notas fiscais dos serviços utilizados:</p>
-            <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" style="width: 100%;">
-                <thead>
-                    <tr>
-                        <th class="mdl-data-table__cell--non-numeric">Serviço</th>
-                        <th class="mdl-data-table__cell--non-numeric">Nº Nota Fiscal</th>
-                        <th class="mdl-data-table__cell--non-numeric">Data</th>
-                        <th>Valor (R$)</th>
-                        <th class="mdl-data-table__cell--non-numeric">Link</th>
-                    </tr>
-                </thead>
-                <tbody id="invoicesTableBody">
-                    <tr><td colspan="5" style="text-align: center;">Carregando notas fiscais...</td></tr>
-                </tbody>
-            </table>
-
+        <div id="article-results">
         </div>
     </div>
 
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
     <script>
-        // Sua configuração do Firebase (substitua com suas próprias chaves)
+        // --- Configuração do Firebase (Use as mesmas configurações do seu código original) ---
         const firebaseConfig = {
             apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
             authDomain: "wzzm-ce3fc.firebaseapp.com",
@@ -251,166 +139,170 @@
             measurementId: "G-PLKNZNFCQ8"
         };
 
-        // Inicializa o Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+        let app;
+        try {
+            app = firebase.app();
+        } catch (e) {
+            app = firebase.initializeApp(firebaseConfig);
         }
         const firestore = firebase.firestore();
+        const auth = firebase.auth();
 
-        // Elementos HTML
-        const totalDonationsEl = document.getElementById('totalDonations');
-        const costFirebaseEl = document.getElementById('costFirebase');
-        const costWorkspaceEl = document.getElementById('costWorkspace');
-        const currentBalanceEl = document.getElementById('currentBalance');
-        const balanceCardEl = document.getElementById('balanceCard');
-        const currentMonthYearEl = document.getElementById('currentMonthYear');
-        const contributionsBar = document.getElementById('contributionsBar');
-        const costsBar = document.getElementById('costsBar');
-        const barLabel = document.getElementById('barLabel');
-        const invoicesTableBody = document.getElementById('invoicesTableBody');
-        const statusMessageDiv = document.getElementById('statusMessage');
-        const servicesList = document.getElementById('servicesList');
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const showAllButton = document.getElementById('show-all-button');
+        const articleResultsDiv = document.getElementById('article-results');
+        const errorDisplay = document.getElementById('error-display');
 
-        // Função para formatar moeda
-        function formatCurrency(value) {
-            return `R$ ${value.toFixed(2).replace('.', ',')}`;
+        let currentUser = null;
+
+        function displayError(message) {
+            errorDisplay.textContent = `Erro: ${message}`;
+            errorDisplay.style.display = 'block';
         }
 
-        // Função para carregar dados financeiros e de notas fiscais
-        async function loadFinancialData() {
-            const now = new Date();
-            const currentMonth = now.getMonth() + 1; // getMonth() é 0-index
-            const currentYear = now.getFullYear();
-            const monthYearId = `${currentYear}-${String(currentMonth).padStart(2, '0')}`; // Ex: "2025-06"
-            
-            // Exibir o mês/ano atual no cabeçalho
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            currentMonthYearEl.textContent = `${monthNames[now.getMonth()]} de ${currentYear}`;
+        // Listener para o estado de autenticação
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                console.log("Usuário logado:", currentUser.uid);
+                // Opcional: Carregar todos os custos automaticamente ao carregar a página
+                // searchArticles(''); // Chame com string vazia para mostrar todos ao carregar
+            } else {
+                currentUser = null;
+                console.warn("Nenhum usuário logado. Redirecionando para login?");
+                alert("Você precisa estar logado para pesquisar custos.");
+                if (window.parent !== window && window.parent.postMessage) {
+                    window.parent.postMessage({ type: 'navigateIframe', url: './login.html' }, window.location.origin);
+                } else {
+                    window.location.href = './login.html';
+                }
+            }
+        });
 
-            let totalDonations = 0;
-            let firebaseCost = 0;
-            let workspaceCost = 0;
-            let statusText = "";
-            let connectedServices = [];
+        // Função para exibir os resultados da pesquisa
+        function displayArticles(articles) {
+            articleResultsDiv.innerHTML = ''; // Limpa resultados anteriores
+
+            if (articles.length === 0) {
+                articleResultsDiv.innerHTML = '<p class="no-results">Nenhum custo encontrado.</p>';
+                return;
+            }
+
+            articles.forEach(article => {
+                const articleCard = document.createElement('div');
+                articleCard.className = 'article-card';
+                articleCard.setAttribute('data-id', article.id);
+
+                // Elemento para o formattedContent com HTML renderizado
+                const formattedContentDiv = document.createElement('div');
+                formattedContentDiv.className = 'formatted-content-display';
+                formattedContentDiv.innerHTML = article.formattedContent || 'Conteúdo não disponível.'; // Renderiza o HTML
+
+                articleCard.innerHTML = `
+                    <h3>${article.title || 'Título não disponível'}</h3>
+                    <p>${article.description || 'Nenhuma descrição.'}</p>
+                    <small>UID do Criador: ${article.userId || 'N/A'}</small>
+                    <small>ID do Documento: ${article.id}</small>
+                    <small>Tipo: ${article.articleType || 'N/A'}</small>
+                    <small>Idioma: ${article.language || 'N/A'}</small>
+                    <small>Fontes: ${(article.sources && Array.isArray(article.sources)) ? article.sources.join(', ') : 'N/A'}</small>
+                    <small>URL Original: ${article.originalUrl ? `<a href="${article.originalUrl}" target="_blank">${article.originalUrl}</a>` : 'N/A'}</small>
+                    <small>Status de Verificação: ${article.verificationStatus || 'N/A'}</small>
+                    <small>Criado em: ${article.timestamp ? new Date(article.timestamp.toDate()).toLocaleString() : 'N/A'}</small>
+                    <small>Última Modificação: ${article.lastModified ? new Date(article.lastModified.toDate()).toLocaleString() : 'N/A'}</small>
+                `;
+                // Insere o div do formattedContent após a descrição ou onde desejar no card
+                // A ordem de inserção aqui importa. Inserindo após a descrição.
+                articleCard.insertBefore(formattedContentDiv, articleCard.querySelector('small'));
+
+
+                articleCard.addEventListener('click', () => {
+                    // Redireciona para a página de edição, passando o ID do custo
+                    const editPageUrl = `add-edit-article.html?id=${article.id}`;
+                    if (window.parent !== window && window.parent.postMessage) {
+                        window.parent.postMessage({ type: 'navigateIframe', url: editPageUrl }, window.location.origin);
+                    } else {
+                        window.location.href = editPageUrl;
+                    }
+                });
+                articleResultsDiv.appendChild(articleCard);
+            });
+        }
+
+        // Função de pesquisa principal
+        async function searchArticles(searchTerm = '') {
+            errorDisplay.style.display = 'none';
+            articleResultsDiv.innerHTML = '<p class="no-results">Carregando...</p>';
 
             try {
-                // 1. Buscar dados financeiros do mês atual
-                const financialDocRef = firestore.collection('financialData').doc(monthYearId);
-                const financialDoc = await financialDocRef.get();
+                let query = firestore.collection('financialData');
 
-                if (financialDoc.exists) {
-                    const data = financialDoc.data();
-                    totalDonations = data.totalDonations || 0;
-                    firebaseCost = data.firebaseCost || 0;
-                    workspaceCost = data.workspaceCost || 0;
-                    statusText = data.statusMessage || ""; // Obter mensagem de status
-                    connectedServices = data.connectedServices || []; // Obter lista de serviços
-                } else {
-                    console.warn(`Dados financeiros para ${monthYearId} não encontrados no Firestore. Exibindo zeros.`);
-                    statusText = "Dados financeiros para este mês ainda não foram registrados.";
-                }
+                if (searchTerm.trim()) {
+                    const termLower = searchTerm.trim().toLowerCase();
+                    // Firestore não suporta pesquisa "contém" ou "like" diretamente.
+                    // Para pesquisa de texto completo, você precisaria de uma solução como Algolia, ElasticSearch, etc.
+                    // Abaixo, faremos uma pesquisa por prefixo no título ou uma correspondência exata para o UID.
+                    // Para pesquisa de "contém" no título, você teria que baixar todos os títulos e filtrar no cliente,
+                    // o que não é recomendado para grandes volumes de dados.
 
-                // Exibir mensagem de status
-                if (statusText) {
-                    statusMessageDiv.textContent = statusText;
-                    statusMessageDiv.style.display = 'block';
-                } else {
-                    statusMessageDiv.style.display = 'none';
-                }
-
-                // Exibir serviços conectados
-                servicesList.innerHTML = ''; // Limpa a lista existente
-                if (connectedServices.length > 0) {
-                    connectedServices.forEach(service => {
-                        const li = document.createElement('li');
-                        li.textContent = service;
-                        servicesList.appendChild(li);
-                    });
-                } else {
-                    servicesList.innerHTML = '<li>Nenhum serviço conectado listado.</li>';
-                }
-
-                const totalCosts = firebaseCost + workspaceCost;
-                const balance = totalDonations - totalCosts;
-
-                totalDonationsEl.textContent = formatCurrency(totalDonations);
-                costFirebaseEl.textContent = formatCurrency(firebaseCost);
-                costWorkspaceEl.textContent = formatCurrency(workspaceCost);
-                currentBalanceEl.textContent = formatCurrency(balance);
-
-                if (balance >= 0) {
-                    balanceCardEl.classList.add('positive');
-                    balanceCardEl.classList.remove('negative');
-                } else {
-                    balanceCardEl.classList.add('negative');
-                    balanceCardEl.classList.remove('positive');
-                }
-
-                // --- Lógica das Barras de Progresso ---
-                const maxAmount = Math.max(totalDonations, totalCosts, 1);
-                let contributionsPercentage = (totalDonations / maxAmount) * 100;
-                let costsPercentage = (totalCosts / maxAmount) * 100;
-
-                // Para garantir que as barras não sejam maiores que 100% visivelmente
-                if (contributionsPercentage > 100) contributionsPercentage = 100;
-                if (costsPercentage > 100) costsPercentage = 100;
-
-                contributionsBar.style.width = `${contributionsPercentage}%`;
-                costsBar.style.width = `${costsPercentage}%`;
-
-                if (totalDonations > 0 || totalCosts > 0) {
-                    barLabel.textContent = `Doações: ${formatCurrency(totalDonations)} / Custos: ${formatCurrency(totalCosts)}`;
-                } else {
-                    barLabel.textContent = "Nenhum dado financeiro registrado ainda para este mês.";
-                }
-                
-                // 2. Buscar Notas Fiscais
-                invoicesTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Carregando notas fiscais...</td></tr>';
-                const invoicesSnapshot = await firestore.collection('invoices')
-                                                          .where('monthYear', '==', monthYearId)
-                                                          .orderBy('date', 'desc')
-                                                          .get();
-                
-                if (!invoicesSnapshot.empty) {
-                    invoicesTableBody.innerHTML = '';
-                    invoicesSnapshot.forEach(doc => {
-                        const invoice = doc.data();
-                        const row = invoicesTableBody.insertRow();
-                        row.insertCell(0).textContent = invoice.service || 'N/A';
-                        row.insertCell(1).textContent = invoice.invoiceNumber || 'N/A';
-                        row.insertCell(2).textContent = invoice.date ? new Date(invoice.date.seconds * 1000).toLocaleDateString() : 'N/A';
-                        row.insertCell(3).textContent = formatCurrency(invoice.amount || 0);
-                        const linkCell = row.insertCell(4);
-                        if (invoice.fileURL) {
-                            const link = document.createElement('a');
-                            link.href = invoice.fileURL;
-                            link.textContent = 'Ver Nota';
-                            link.target = '_blank';
-                            linkCell.appendChild(link);
+                    // Tentativa de pesquisa por prefixo no título ou UID exato
+                    // Se o termo parecer um UID (ex: comprimento específico, caracteres alfanuméricos),
+                    // tentamos a pesquisa por ID. Caso contrário, por título.
+                    if (searchTerm.length === 20 && /^[a-zA-Z0-9]+$/.test(searchTerm)) { // UID Firebase são geralmente 20 caracteres alfanuméricos
+                        const docRef = await query.doc(searchTerm).get();
+                        if (docRef.exists) {
+                            displayArticles([{ id: docRef.id, ...docRef.data() }]);
+                            return;
                         } else {
-                            linkCell.textContent = 'N/A';
+                            displayArticles([]); // Não encontrou por UID
+                            return;
                         }
-                    });
-                } else {
-                    invoicesTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhuma nota fiscal encontrada para este mês.</td></tr>';
+                    } else {
+                        // Pesquisa por título (usando startAt/endAt para simular "começa com")
+                        // Não é uma pesquisa "contém" completa, mas pode ser útil.
+                        query = query.orderBy('title').startAt(searchTerm).endAt(searchTerm + '\uf8ff');
+                    }
                 }
+
+                const snapshot = await query.get();
+                const articles = [];
+                snapshot.forEach(doc => {
+                    articles.push({ id: doc.id, ...doc.data() });
+                });
+
+                displayArticles(articles);
 
             } catch (error) {
-                console.error("Erro ao carregar dados financeiros ou notas fiscais:", error);
-                totalDonationsEl.textContent = 'Erro!';
-                costFirebaseEl.textContent = 'Erro!';
-                costWorkspaceEl.textContent = 'Erro!';
-                currentBalanceEl.textContent = 'Erro!';
-                balanceCardEl.classList.remove('positive', 'negative');
-                barLabel.textContent = "Erro ao carregar dados.";
-                invoicesTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Erro ao carregar notas fiscais.</td></tr>';
-                statusMessageDiv.textContent = "Houve um erro ao carregar os dados de status. Por favor, tente novamente mais tarde.";
-                statusMessageDiv.style.display = 'block';
+                displayError("Erro ao pesquisar custos: " + error.message);
+                console.error("Erro ao pesquisar custos:", error);
             }
         }
 
-        // Carregar dados ao carregar a página
-        document.addEventListener('DOMContentLoaded', loadFinancialData);
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            searchButton.addEventListener('click', () => {
+                searchArticles(searchInput.value);
+            });
+
+            showAllButton.addEventListener('click', () => {
+                searchInput.value = ''; // Limpa o campo de pesquisa
+                searchArticles(''); // Pesquisa sem termo, ou seja, todos
+            });
+
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchArticles(searchInput.value);
+                }
+            });
+
+            // Adiciona o carregamento inicial de todos os artigos ao carregar a página
+            searchArticles(''); // Chama a função para exibir todos os artigos ao carregar a página
+
+            if (window.componentHandler) {
+                window.componentHandler.upgradeDom();
+            }
+        });
     </script>
 </body>
 </html>
