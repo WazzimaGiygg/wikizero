@@ -9,6 +9,13 @@
         "href": "./transparencia/",
         "requiresAuth": false
     },
+
+    {
+        "label": "Contato",
+        "href": "./contato/index.html",
+        "requiresAuth": false
+    },
+    
     {
         "label": "Jogos Gratuitos<",
         "href": "./games/",
