@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulo Vertical - Jogo de Plataformas</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* Evita barras de rolagem */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Garante que o corpo ocupa toda a altura da tela */
+            background-color: #2c3e50; /* Fundo escuro */
+            font-family: 'Arial', sans-serif;
+            color: #ecf0f1; /* Cor do texto claro */
+        }
+        canvas {
+            background-color: #34495e; /* Fundo do jogo */
+            border: 5px solid #2980b9; /* Borda estilizada */
+            display: block; /* Remove margem extra inferior */
+        }
+        #game-info {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5em;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        #restart-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 30px;
+            font-size: 1.8em;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 5px #c0392b;
+            display: none; /* Escondido inicialmente */
+            z-index: 100;
+        }
+        #restart-button:hover {
+            background-color: #c0392b;
+        }
+        #restart-button:active {
+            box-shadow: 0 2px #c0392b;
+            transform: translate(-50%, -50%) translateY(3px);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <div id="game-info">
+        Pontuação: <span id="score">0</span>
+    </div>
+    <button id="restart-button">Reiniciar Jogo</button>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        const restartButton = document.getElementById('restart-button');
+
+        // --- Variáveis do Jogo ---
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height / 2, // Bolinha começa no meio da tela
+            radius: 20,
+            color: '#f1c40f', // Amarelo
+            velocityY: 0,
+            jumpStrength: -13, // Aumentado para um pulo mais alto!
+            gravity: 0.3
+        };
+
+        const platforms = [];
+        const platformWidth = 80;
+        const platformHeight = 10;
+        const platformColor = '#27ae60'; // Verde
+        const maxPlatforms = 8; // Número máximo de plataformas visíveis
+        const minGap = 80;   // Distância mínima entre plataformas no eixo Y
+        const maxGap = 120;  // Distância máxima entre plataformas no eixo Y
+
+        let score = 0;
+        let gameOver = false;
+        let lastPlatformY; // Será definido em resetGame
+
+        // --- Funções Auxiliares ---
+
+        function random(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function generatePlatform(y) {
+            const x = random(0, canvas.width - platformWidth);
+            platforms.push({ x, y, width: platformWidth, height: platformHeight, color: platformColor });
+        }
+
+        function resetGame() {
+            player.x = canvas.width / 2;
+            player.y = canvas.height / 2; // Bolinha começa no meio da tela
+            player.velocityY = 0;
+            platforms.length = 0; // Limpa as plataformas
+            score = 0;
+            scoreDisplay.textContent = score;
+            gameOver = false;
+            restartButton.style.display = 'none';
+
+            // Gera algumas plataformas iniciais ao redor do ponto de partida do jogador
+            // Começa gerando plataformas acima do jogador e descendo para preencher a tela
+            lastPlatformY = player.y - 50; // Começa um pouco acima do jogador
+
+            for (let i = 0; i < maxPlatforms; i++) {
+                let yPos = lastPlatformY - random(minGap, maxGap);
+                generatePlatform(yPos);
+                lastPlatformY = yPos;
+            }
+
+            // Garante que haja pelo menos uma plataforma abaixo do jogador, se ele não cair em uma logo de cara
+            let platformBelowExists = false;
+            platforms.forEach(p => {
+                if (p.y > player.y && p.y < player.y + 100) { // Verifica se há uma plataforma num alcance razoável
+                    platformBelowExists = true;
+                }
+            });
+
+            if (!platformBelowExists) {
+                // Se não houver, adiciona uma logo abaixo para garantir o pouso
+                generatePlatform(player.y + 50);
+            }
+            
+            // Reordena as plataformas pela posição Y para que a de baixo seja a primeira para remoção
+            platforms.sort((a, b) => a.y - b.y);
+
+            gameLoop(); // Inicia o loop do jogo novamente
+        }
+
+
+        // --- Desenho ---
+        function drawPlayer() {
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+            ctx.fillStyle = player.color;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawPlatforms() {
+            platforms.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.width, p.height);
+            });
+        }
+
+        // --- Atualização do Jogo ---
+        function updatePlayer() {
+            player.y += player.velocityY;
+            player.velocityY += player.gravity;
+
+            // Mantém o jogador dentro das bordas horizontais
+            if (player.x - player.radius < 0) {
+                player.x = player.radius;
+            } else if (player.x + player.radius > canvas.width) {
+                player.x = canvas.width - player.radius;
+            }
+
+            // Game Over se cair abaixo da tela
+            if (player.y > canvas.height + player.radius) {
+                endGame();
+            }
+
+            // Rolagem da tela (câmera)
+            // Se o jogador sobe acima da metade da tela, move o "mundo" para baixo
+            if (player.y < canvas.height / 2 && player.velocityY < 0) {
+                const scrollAmount = -player.velocityY;
+                player.y = canvas.height / 2; // Mantém o jogador na metade da tela
+
+                platforms.forEach(p => {
+                    p.y += scrollAmount;
+                });
+                lastPlatformY += scrollAmount; // Ajusta a referência da última plataforma gerada
+
+                score += Math.round(scrollAmount); // Aumenta a pontuação
+                scoreDisplay.textContent = score;
+            }
+        }
+
+        function updatePlatforms() {
+            // Remove plataformas que saíram da tela por baixo
+            for (let i = platforms.length - 1; i >= 0; i--) {
+                if (platforms[i].y > canvas.height) {
+                    platforms.splice(i, 1);
+                }
+            }
+
+            // Adiciona novas plataformas no topo se houver espaço
+            // Se a plataforma mais alta (índice 0) está visível, e há espaço para mais plataformas
+            while (platforms.length < maxPlatforms || (platforms.length > 0 && platforms[0].y > 0)) {
+                // Aumenta a "distância" para menos plataformas em alturas maiores
+                // Adaptação da dificuldade: plataformas mais esparsas
+                let currentMaxGap = maxGap;
+                if (score > 1000) currentMaxGap = 150; // Mais espaçamento
+                if (score > 3000) currentMaxGap = 180; // Ainda mais espaçamento
+                if (score > 5000) currentMaxGap = 220; // Muito mais espaçamento
+
+                // Gera a nova plataforma baseada na mais alta existente ou na última gerada
+                const newPlatformY = platforms[0] ? platforms[0].y - random(minGap, currentMaxGap) : lastPlatformY - random(minGap, currentMaxGap);
+
+                // Lógica para plataformas em lados opostos em alturas muito altas
+                if (score > 7000) { // Exemplo de pontuação para o modo "apenas lados opostos"
+                    const side = Math.random() < 0.5 ? 0 : canvas.width - platformWidth;
+                    platforms.unshift({ x: side, y: newPlatformY, width: platformWidth, height: platformHeight, color: platformColor });
+                } else {
+                    // Geração normal de plataformas
+                    platforms.unshift({ x: random(0, canvas.width - platformWidth), y: newPlatformY, width: platformWidth, height: platformHeight, color: platformColor });
+                }
+                
+                // Mantenha o número máximo de plataformas visíveis
+                if (platforms.length > maxPlatforms) {
+                    platforms.pop(); 
+                }
+            }
+        }
+
+        function checkCollision() {
+            // Checa colisão apenas se o jogador estiver caindo
+            if (player.velocityY > 0) {
+                platforms.forEach(p => {
+                    if (
+                        player.x + player.radius > p.x &&
+                        player.x - player.radius < p.x + p.width &&
+                        player.y + player.radius > p.y &&
+                        player.y + player.radius < p.y + p.height + player.velocityY // Pequena margem para evitar "furar" a plataforma
+                    ) {
+                        // Colisão detectada, faz o jogador pular
+                        player.velocityY = player.jumpStrength;
+                        // Ajusta a posição Y para evitar que ele fique preso na plataforma
+                        player.y = p.y - player.radius;
+                    }
+                });
+            }
+        }
+
+        function endGame() {
+            gameOver = true;
+            restartButton.style.display = 'block';
+            console.log("Game Over! Pontuação final: " + score);
+        }
+
+        // --- Loop Principal do Jogo ---
+        function gameLoop() {
+            if (gameOver) {
+                return; // Para o loop se o jogo acabou
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa o canvas
+
+            updatePlayer();
+            updatePlatforms(); // Atualiza, remove e adiciona plataformas
+            checkCollision();
+
+            drawPlatforms();
+            drawPlayer();
+
+            requestAnimationFrame(gameLoop); // Chama a próxima animação
+        }
+
+        // --- Event Listeners ---
+        // Controle da bolinha com o mouse
+        canvas.addEventListener('mousemove', (e) => {
+            if (!gameOver) {
+                // Ajusta a posição X do jogador para seguir o mouse, mantendo-o dentro do canvas
+                const mouseX = e.clientX - canvas.getBoundingClientRect().left;
+                player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, mouseX));
+            }
+        });
+
+        // Reiniciar jogo ao clicar no botão
+        restartButton.addEventListener('click', resetGame);
+
+        // --- Início do Jogo ---
+        resetGame(); // Inicia o jogo pela primeira vez
+    </script>
+</body>
+</html>	
