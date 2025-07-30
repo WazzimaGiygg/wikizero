@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Site Não Compatível com Mobile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Estilos básicos para o conteúdo da página */
+        .content-area p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        .content-area h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        .content-area ul, .content-area ol {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        .content-area ol {
+            list-style-type: decimal;
+        }
+        .content-area li {
+            margin-bottom: 0.5rem;
+        }
+        .content-area strong {
+            font-weight: 600; /* Tailwind font-semibold */
+        }
+        .content-area code {
+            background-color: #e2e8f0; /* bg-gray-200 */
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+            font-size: 0.875em;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen py-8 flex items-center justify-center">
+    <div class="max-w-3xl mx-auto px-4 w-full">
+        <h1 style="color: #ff0000; text-align: center;" class="text-4xl font-bold mb-8">
+            Atenção: Este site não é compatível com dispositivos móveis.
+        </h1>
+
+        <div class="bg-white rounded-lg shadow-md p-6 content-area">
+            <p>Lamentamos informar que a versão atual do nosso site foi projetada para ser acessada em <strong>desktops e notebooks</strong>, e não oferece uma experiência otimizada para dispositivos móveis como smartphones e tablets.</p>
+
+            <h3>Por que esta mensagem?</h3>
+            <p>Nossa equipe está trabalhando para garantir a melhor experiência de usuário possível. No momento, o layout e as funcionalidades podem não se adaptar corretamente a telas menores, o que pode resultar em:</p>
+            <ol>
+                <li><strong>Problemas de Visualização:</strong> Elementos desalinhados, texto cortado ou muito pequeno.</li>
+                <li><strong>Dificuldade de Navegação:</strong> Botões e links difíceis de clicar, menus que não funcionam como esperado.</li>
+                <li><strong>Funcionalidades Limitadas:</strong> Algumas interações ou recursos podem não estar disponíveis ou funcionar incorretamente.</li>
+            </ol>
+            <p>Agradecemos a sua compreensão enquanto continuamos a desenvolver uma versão totalmente responsiva para todos os dispositivos.</p>
+
+            <h3>O que você pode fazer?</h3>
+            <ul>
+                <li><strong>Acesse via Desktop:</strong> Para ter a melhor experiência e acesso a todas as funcionalidades, por favor, visite nosso site usando um computador desktop ou notebook.</li>
+                <li><strong>Volte Mais Tarde:</strong> Estamos constantemente aprimorando nosso site. Fique atento a futuras atualizações para uma versão mobile aprimorada.</li>
+            </ul>
+
+            <p class="mt-8">Se precisar de assistência imediata ou tiver dúvidas, por favor, entre em contato conosco.</p>
+            <p>O e-mail de contato é <a href="mailto:nukephoenixdeveloper@gmail.com" class="text-blue-600 hover:underline">nukephoenixdeveloper@gmail.com</a></p>
+        </div>
+    </div>
+</body>
+</html>
