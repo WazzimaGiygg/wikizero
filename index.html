@@ -1127,40 +1127,72 @@ console.error('Erro ao carregar menu.json:', err);
 });
 });
 
-// NOVO SCRIPT PARA CARREGAR info-general.json E APLICAR AS MUDANÇAS
+// NOVO SCRIPT PARA CARREGAR info-general.json DO FIREBASE E APLICAR AS MUDANÇAS
 document.addEventListener('DOMContentLoaded', () => {
-fetch('infogeneral.json')
-.then(response => {
-if (!response.ok) {
-throw new Error('infogeneral.json não encontrado ou erro de rede');
-}
-return response.json();
-})
-.then(data => {
-// Altera o título da página
-document.title = data.nomeCompletoWiki || 'Wiki';
+    // 1. Determina o ID do documento com base no hostname
+    let docId = window.location.hostname;
 
-// Altera o nome da página no cabeçalho
-const wikiPageName = document.getElementById('wiki-page-name');
-if (wikiPageName) {
-wikiPageName.textContent = data.nomeCompletoWiki || 'Wiki';
-}
-// Altera o nome da página no drawer
-const drawerTitle = document.getElementById('drawer-title');
-if (drawerTitle) {
-drawerTitle.textContent = data.nomePaginaDrawer || 'Navegação';
-}
+    // Remove "www." se presente
+    if (docId.startsWith('www.')) {
+        docId = docId.substring(4);
+    }
 
-// Altera o texto do link de "Procurar Artigos"
-const searchArticlesLink = document.getElementById('search-articles-link');
-if (searchArticlesLink) {
-searchArticlesLink.textContent = data.linkProcurarArtigos || 'Procurar Artigos';
-}
+    // Define um fallback para ambiente local (ex: localhost, 127.0.0.1)
+    // Se você estiver desenvolvendo localmente, ele usará 'defaultConfig'
+    // Certifique-se de ter um documento 'defaultConfig' ou 'wikiConfig' na sua coleção 'configuracoes'
+    if (docId === 'localhost' || docId === '127.0.0.1' || docId.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/)) {
+        docId = 'wikiConfig'; // Ou um ID padrão que você prefira para ambiente local
+    }
 
-// Aplica a cor personalizada
-const customThemeStyle = document.getElementById('custom-theme-color');
-if (customThemeStyle) {
-const css = `
+    console.log(`Tentando carregar configuração para o site: ${docId}`);
+
+    const configDocRef = firestore.collection('configuracoes').doc(docId);
+
+    // Listener em tempo real para mudanças no documento
+    configDocRef.onSnapshot(docSnapshot => {
+        if (docSnapshot.exists) {
+            const data = docSnapshot.data();
+            applyConfigData(data);
+            console.log("Configurações carregadas do Firebase (em tempo real):", data);
+        } else {
+            console.warn(`Documento de configuração '${docId}' não encontrado na coleção 'configuracoes'. Usando valores padrão.`);
+            // Se o documento específico do site não existir, você pode carregar um fallback
+            // Por exemplo, um documento 'default' ou 'global'
+            // Para simplicidade, aqui ele usará os valores padrão definidos em applyConfigData.
+            applyConfigData({});
+        }
+    }, error => {
+        console.error("Erro ao carregar configurações do Firebase:", error);
+        // Em caso de erro, tenta aplicar valores padrão
+        applyConfigData({});
+    });
+
+    // Função para aplicar os dados da configuração aos elementos da página
+    function applyConfigData(data) {
+        // Altera o título da página
+        document.title = data.nomeCompletoWiki || 'Wiki';
+
+        // Altera o nome da página no cabeçalho
+        const wikiPageName = document.getElementById('wiki-page-name');
+        if (wikiPageName) {
+            wikiPageName.textContent = data.nomeCompletoWiki || 'Wiki';
+        }
+        // Altera o nome da página no drawer
+        const drawerTitle = document.getElementById('drawer-title');
+        if (drawerTitle) {
+            drawerTitle.textContent = data.nomePaginaDrawer || 'Navegação';
+        }
+
+        // Altera o texto do link de "Procurar Artigos"
+        const searchArticlesLink = document.getElementById('search-articles-link');
+        if (searchArticlesLink) {
+            searchArticlesLink.textContent = data.linkProcurarArtigos || 'Procurar Artigos';
+        }
+
+        // Aplica a cor personalizada
+        const customThemeStyle = document.getElementById('custom-theme-color');
+        if (customThemeStyle) {
+            const css = `
 .mdl-layout__header, .mdl-layout__drawer, #news-popup-header {
 background-color: ${data.corSite || '#3f51b5'} !important;
 }
@@ -1171,12 +1203,9 @@ border-color: ${data.corSite || '#3f51b5'} !important;
 background: ${data.corSite || '#3f51b5'} !important;
 }
 `;
-customThemeStyle.innerHTML = css;
-}
-})
-.catch(err => {
-console.error('Erro ao carregar infogeneral.json:', err);
-});
+            customThemeStyle.innerHTML = css;
+        }
+    }
 });
 </script>
 <div id="error-log-popup" style="
