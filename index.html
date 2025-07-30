@@ -1,1148 +1,1203 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wiki Zone Zero Mod</title>
-    <link rel="icon" href="favicom.png" type="image/x-icon">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
-    <style id="custom-app-css">
-        /* Este será o local onde o CSS dos aplicativos do usuário será injetado */
-    </style>
-    <style>
-        /* Seus estilos CSS existentes aqui */
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-            font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
-        }
-        .mdl-layout__content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-        }
-        .page-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        .mdl-layout__drawer .mdl-navigation .mdl-navigation__link {
-            color: #424242;
-        }
-        .mdl-layout__drawer .mdl-navigation .mdl-navigation__link[data-requires-auth="true"] {
-            color: #9e9e9e;
-            pointer-events: none;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carregando...</title>
+<link rel="icon" href="favicom.png" type="image/x-icon">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.min.css">
+<style id="custom-app-css">
+/* Este será o local onde o CSS dos aplicativos do usuário será injetado */
+</style>
+<style id="custom-theme-color">
+/* A cor do tema será injetada aqui pelo JavaScript */
+</style>
+<style>
+/* Seus estilos CSS existentes aqui */
+body {
+display: flex;
+flex-direction: column;
+min-height: 100vh;
+margin: 0;
+font-family: 'Roboto', sans-serif;
+background-color: #f5f5f5;
+}
+.mdl-layout__content {
+flex-grow: 1;
+display: flex;
+flex-direction: column;
+padding: 0;
+}
+.page-content {
+flex-grow: 1;
+display: flex;
+flex-direction: column;
+}
+.mdl-layout__drawer .mdl-navigation .mdl-navigation__link {
+color: #424242;
+}
+.mdl-layout__drawer .mdl-navigation .mdl-navigation__link[data-requires-auth="true"] {
+color: #9e9e9e;
+pointer-events: none;
+}
 
-        iframe {
-            flex-grow: 1;
-            border: none;
-            width: 100%;
-        }
-        .mdl-layout__header-row {
-            padding: 0 16px;
-        }
-        .mdl-layout__header-row .mdl-navigation {
-            display: flex;
-            align-items: center;
-        }
-        .mdl-layout__header-row .mdl-navigation .mdl-navigation__link {
-            padding: 0 12px;
-        }
+iframe {
+flex-grow: 1;
+border: none;
+width: 100%;
+}
+.mdl-layout__header-row {
+padding: 0 16px;
+}
+.mdl-layout__header-row .mdl-navigation {
+display: flex;
+align-items: center;
+}
+.mdl-layout__header-row .mdl-navigation .mdl-navigation__link {
+padding: 0 12px;
+}
 
-        /* Estilo para a imagem de perfil */
-        #user-profile-pic {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-left: 8px;
-            vertical-align: middle;
-            display: none;
-        }
+/* Estilo para a imagem de perfil */
+#user-profile-pic {
+width: 32px;
+height: 32px;
+border-radius: 50%;
+margin-left: 8px;
+vertical-align: middle;
+display: none;
+}
 
-        /* Estilos para o popup de apps */
-        #google-apps-button {
-            display: none;
-        }
-        #google-apps-popup {
-            display: none;
-            position: absolute;
-            top: 48px; /* Altura do header */
-            right: 0;
-            width: 300px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            z-index: 1000;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        #google-apps-popup h4 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #3f51b5;
-            text-align: center;
-        }
-        #app-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            padding: 10px;
-        }
-        .app-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .app-item:hover {
-            background-color: #f0f0f0;
-        }
-        .app-item img {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 5px;
-        }
-        .app-item span {
-            font-size: 0.8em;
-            color: #555;
-        }
+/* Estilos para o popup de apps */
+#google-apps-button {
+display: none;
+}
+#google-apps-popup {
+display: none;
+position: absolute;
+top: 48px; /* Altura do header */
+right: 0;
+width: 300px;
+background-color: white;
+border-radius: 8px;
+box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+z-index: 1000;
+padding: 10px;
+box-sizing: border-box;
+}
+#google-apps-popup h4 {
+margin-top: 0;
+margin-bottom: 10px;
+color: #3f51b5;
+text-align: center;
+}
+#app-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 10px;
+padding: 10px;
+}
+.app-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+text-align: center;
+cursor: pointer;
+padding: 8px;
+border-radius: 4px;
+transition: background-color 0.3s;
+}
+.app-item:hover {
+background-color: #f0f0f0;
+}
+.app-item img {
+width: 48px;
+height: 48px;
+margin-bottom: 5px;
+}
+.app-item span {
+font-size: 0.8em;
+color: #555;
+}
 
-        /* Mensagens de acesso */
-        #access-denied-message, #banned-message {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #ffe0b2;
-            border: 1px solid #ffb74d;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            text-align: center;
-            color: #e65100;
-            font-weight: bold;
-            z-index: 1001;
-        }
+/* Mensagens de acesso */
+#access-denied-message, #banned-message {
+display: none;
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background-color: #ffe0b2;
+border: 1px solid #ffb74d;
+padding: 20px;
+border-radius: 8px;
+box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+text-align: center;
+color: #e65100;
+font-weight: bold;
+z-index: 1001;
+}
 
-        /* --- ESTILOS PARA NOTÍCIAS (Botão e Popup) --- */
-        #news-button {
-            margin-right: 8px;
-            display: none;
-        }
+/* --- ESTILOS PARA NOTÍCIAS (Botão e Popup) --- */
+#news-button {
+margin-right: 8px;
+display: none;
+}
 
-        #news-center-popup {
-            display: none;
-            position: absolute;
-            top: 48px;
-            right: 0;
-            width: 400px;
-            max-height: 80vh;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            z-index: 998;
-            flex-direction: column;
-            overflow: hidden;
-        }
+#news-center-popup {
+display: none;
+position: absolute;
+top: 48px;
+right: 0;
+width: 400px;
+max-height: 80vh;
+background-color: white;
+border-radius: 8px;
+box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+z-index: 998;
+flex-direction: column;
+overflow: hidden;
+}
 
-        #news-popup-header {
-            background-color: #3f51b5;
-            color: white;
-            padding: 10px 15px;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-weight: bold;
-            font-size: 16px;
-        }
+#news-popup-header {
+background-color: #3f51b5;
+color: white;
+padding: 10px 15px;
+border-top-left-radius: 8px;
+border-top-right-radius: 8px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+font-weight: bold;
+font-size: 16px;
+}
 
-        #news-popup-header .close-button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 0;
-        }
+#news-popup-header .close-button {
+background: none;
+border: none;
+color: white;
+font-size: 24px;
+cursor: pointer;
+padding: 0;
+}
 
-        #news-popup-content {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 15px;
-        }
+#news-popup-content {
+flex-grow: 1;
+overflow-y: auto;
+padding: 15px;
+}
 
-        #news-popup-footer {
-            padding: 10px 15px;
-            border-top: 1px solid #eee;
-            text-align: center;
-        }
+#news-popup-footer {
+padding: 10px 15px;
+border-top: 1px solid #eee;
+text-align: center;
+}
 
-        #news-popup-footer button {
-            width: 100%;
-        }
+#news-popup-footer button {
+width: 100%;
+}
 
-        /* Estilos para os itens de notícia dentro do popup (adaptados do seu código original) */
-        .news-popup-item {
-            background-color: #f9f9f9;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 1px 1px 0 rgba(0,0,0,.08);
-        }
-        .news-popup-item h3 {
-            margin-top: 0;
-            color: #5c6bc0;
-        }
-        .news-popup-item p {
-            color: #555;
-            line-height: 1.5;
-        }
-        .news-popup-item small {
-            font-size: 0.8em;
-            color: #888;
-            display: block;
-            margin-top: 10px;
-        }
-        .news-popup-item img {
-            max-width: 100%;
-            height: auto;
-            margin-top: 10px;
-            border-radius: 4px;
-        }
+/* Estilos para os itens de notícia dentro do popup (adaptados do seu código original) */
+.news-popup-item {
+background-color: #f9f9f9;
+border: 1px solid #e0e0e0;
+border-radius: 4px;
+padding: 15px;
+margin-bottom: 15px;
+box-shadow: 0 1px 1px 0 rgba(0,0,0,.08);
+}
+.news-popup-item h3 {
+margin-top: 0;
+color: #5c6bc0;
+}
+.news-popup-item p {
+color: #555;
+line-height: 1.5;
+}
+.news-popup-item small {
+font-size: 0.8em;
+color: #888;
+display: block;
+margin-top: 10px;
+}
+.news-popup-item img {
+max-width: 100%;
+height: auto;
+margin-top: 10px;
+border-radius: 4px;
+}
 
-	     #window-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            flex: 1;
-            overflow: visible;
-        }
+#window-container {
+position: relative;
+width: 100%;
+height: 100%;
+flex: 1;
+overflow: visible;
+}
 
-        .floating-window {
-            position: absolute;
-            top: 60px;
-            left: 60px;
-            width: 650px;
-            height: 450px;
-            min-width: 320px;
-            min-height: 200px;
-            background: #fff;
-            border: 2px solid #3f51b5;
-            border-radius: 8px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.20);
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            resize: both;
-        }
+.floating-window {
+position: absolute;
+top: 60px;
+left: 60px;
+width: 650px;
+height: 450px;
+min-width: 320px;
+min-height: 200px;
+background: #fff;
+border: 2px solid; /* Cor da borda será definida pelo JS */
+border-radius: 8px;
+box-shadow: 0 8px 24px rgba(0,0,0,0.20);
+z-index: 999;
+display: flex;
+flex-direction: column;
+overflow: hidden;
+resize: both;
+}
 
-        .window-header {
-            background: #3f51b5;
-            color: #fff;
-            cursor: move;
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-weight: bold;
-            user-select: none;
-        }
+.window-header {
+background: #3f51b5;
+color: #fff;
+cursor: move;
+padding: 8px 12px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+font-weight: bold;
+user-select: none;
+}
 
-        .window-controls {
-            display: flex;
-            gap: 4px;
-        }
+.window-controls {
+display: flex;
+gap: 4px;
+}
 
-        .window-controls button {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 18px;
-            cursor: pointer;
-            margin-left: 4px;
-            padding: 0 4px;
-            border-radius: 3px;
-            transition: background 0.2s;
-        }
-        .window-controls button:hover {
-            background: rgba(255,255,255,0.18);
-        }
+.window-controls button {
+background: none;
+border: none;
+color: #fff;
+font-size: 18px;
+cursor: pointer;
+margin-left: 4px;
+padding: 0 4px;
+border-radius: 3px;
+transition: background 0.2s;
+}
+.window-controls button:hover {
+background: rgba(255,255,255,0.18);
+}
 
-        .window-body {
-            flex: 1;
-            overflow: hidden;
-            display: flex;
-        }
-        .window-body iframe {
-            border: none;
-            width: 100%;
-            height: 100%;
-        }
-    </style>
-    <script>
-        // Script de redirecionamento para mobile
-        (function() {
-            const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768);
-            if (isMobile) {
-                window.location.href = './mobile/index.html';
-            }
-        })();
-    </script>
+.window-body {
+flex: 1;
+overflow: hidden;
+display: flex;
+}
+.window-body iframe {
+border: none;
+width: 100%;
+height: 100%;
+}
+</style>
+<script>
+// Script de redirecionamento para mobile
+(function() {
+const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768);
+if (isMobile) {
+window.location.href = './mobile/index.html';
+}
+})();
+</script>
 </head>
 <body>
 
-    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-        <header class="mdl-layout__header">
-            <div class="mdl-layout__header-row">
-                <span class="mdl-layout-title">Wiki Zone Zero Mod</span>
-		         <a href="https://wikizero.wzzm.org/" id="./wikinotpedia/">
-                <img src="https://wzzm.org/wnp.png" alt="Logo Wiki Zone Zero Mod" style="height: 32px; vertical-align: middle; margin-right: 8px;"></a> <div class="mdl-layout-spacer"></div>
-                <nav class="mdl-navigation">
-		             <button class="mdl-button mdl-js-button mdl-button--icon" id="error-log-button" title="Ver Erros">
- 		                 <i class="material-icons">bug_report</i>
-		             </button>
-                    <a class="mdl-navigation__link" href="#" onclick="loadPage('recepcao.html', false)">Procurar Artigos</a>
-
-
-                    <div style="position: relative; display: flex; align-items: center;">
-                        <button class="mdl-button mdl-js-button mdl-button--icon" id="news-button" style="display: none;">
-                            <i class="material-icons">article</i>
-                        </button>
-                        <div id="news-center-popup">
-                            <div id="news-popup-header">
-                                <span>Últimas Notícias</span>
-                                <button class="close-button" id="close-news-popup-button">×</button>
-                            </div>
-                            <div id="news-popup-content">
-                                <p>Carregando últimas notícias...</p>
-                            </div>
-                            <div id="news-popup-footer">
-                                <button id="view-all-news-button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
-                                    Ver todas as Notícias
-                                </button>
-                            </div>
-                        </div>
-
-                        <button class="mdl-button mdl-js-button mdl-button--icon" id="google-apps-button" style="display: none;">
-                            <i class="material-icons">widgets</i>
-                        </button>
-                        <div id="google-apps-popup">
-                            <h4>Serviços WZZM</h4>
-                            <div id="app-grid">
-                            </div>
-                        </div>
-
-                        <div id="user-info-container" style="display: none; align-items: center;">
-                            <span id="user-info" style="margin-left: 8px; color: white;"></span>
-                            <img id="user-profile-pic" src="" alt="Profile Pic">
-                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="logout-button" style="margin-left: 10px; display: none;">Sair</button>
-                        </div>
-                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="login-google">Login Google</button>
-                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="login-github" style="margin-left: 10px;">Login GitHub</button>
-                    </div>
-                </nav>
-            </div>
-        </header>
-        <div class="mdl-layout__drawer">
-            <span class="mdl-layout-title">Navegação</span>
-            <nav class="mdl-navigation" id="drawer-menu">
-
-            </nav>
-        </div>
-        <div id="window-container"></div>
-            <div id="access-denied-message" style="display:none;">
-                <p>Acesso negado. Por favor, faça login para ver este conteúdo.</p>
-            </div>
-            <div id="banned-message" style="display:none;">
-                <p>Sua conta foi banida. Você não pode acessar o conteúdo.</p>
-                <p>Para mais informações, contate o suporte.</p>
-            </div>
-
-        </main>
-    </div>
-
-    <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
-    <script>
-        // --- Configuração do Firebase ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0", // Use sua própria chave!
-            authDomain: "wzzm-ce3fc.firebaseapp.com",
-            projectId: "wzzm-ce3fc",
-            storageBucket: "wzzm-ce3fc.appspot.com",
-            messagingSenderId: "249427877153",
-            appId: "1:249427877153:web:0e4297294794a5aadeb260",
-            measurementId: "G-PLKNZNFCQ8"
-        };
-        // Inicialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const firestore = firebase.firestore();
-        firebase.analytics();
-
-        // Variáveis globais para estado do usuário
-        let currentUser = null;
-        let isCurrentUserBanned = false;
-
-        // --- Funções Auxiliares (Antiga loadPage foi substituída pela nova que cria janelas flutuantes) ---
-        // A função loadPage original que manipulava 'contentFrame' não é mais usada diretamente para links de navegação.
-        // Ela ainda é referenciada em outras partes do código para manipulação de mensagens de acesso/banimento,
-        // mas a navegação principal usará a nova createFloatingWindow.
-
-        // Função para ativar/desativar links de navegação com base no status de login
-        function setNavLinksEnabled(enabled) {
-            const navLinks = document.querySelectorAll('.mdl-navigation__link[data-requires-auth="true"]');
-            navLinks.forEach(link => {
-                if (enabled) {
-                    link.style.pointerEvents = 'auto';
-                    link.style.color = '#424242'; // Cor padrão
-                } else {
-                    link.style.pointerEvents = 'none';
-                    link.style.color = '#9e9e9e';
-                }
-            });
-        }
-
-        // Função para criar/atualizar o documento do perfil do usuário no Firestore
-        async function createUserProfileDocument(user) {
-            if (!user) return;
-            const userRef = firestore.doc(`users/${user.uid}`);
-            const snapshot = await userRef.get();
-
-            if (!snapshot.exists) {
-                const { displayName, email, photoURL } = user;
-                const createdAt = new Date();
-
-                try {
-                    await userRef.set({
-                        displayName,
-                        email,
-                        photoURL,
-                        createdAt,
-                        isAdmin: false, // Define como false por padrão
-                        isBan: false // Define como false por padrão
-                    });
-                    console.log("Perfil do usuário criado no Firestore.");
-                } catch (error) {
-                    console.error("Erro ao criar perfil do usuário:", error);
-                }
-            }
-        }
-
-        // Função para carregar e aplicar CSS de aplicativos específicos do usuário
-        async function loadAndApplyUserAppsCSS(userId) {
-            const customAppCssStyleTag = document.getElementById('custom-app-css');
-            if (!customAppCssStyleTag) return;
-
-            try {
-                const userAppsSnapshot = await firestore.collection('userApps').doc(userId).get();
-                if (userAppsSnapshot.exists) {
-                    const appData = userAppsSnapshot.data();
-                    let cssContent = '';
-                    if (appData && appData.apps) {
-                        appData.apps.forEach(app => {
-                            if (app.css) {
-                                cssContent += app.css + '\n';
-                            }
-                        });
-                    }
-                    customAppCssStyleTag.innerHTML = cssContent;
-                } else {
-                    customAppCssStyleTag.innerHTML = '';
-                }
-            } catch (error) {
-                console.error("Erro ao carregar CSS de aplicativos do usuário:", error);
-                customAppCssStyleTag.innerHTML = '';
-            }
-        }
-
-        // --- FUNÇÕES PARA O POPUP DE NOTÍCIAS (MANTIDAS) ---
-        function showNewsPopup() {
-            const newsCenterPopup = document.getElementById('news-center-popup');
-            if (newsCenterPopup) {
-                newsCenterPopup.style.display = 'flex';
-                fetchLatestNews(); // Fetch news when popup is shown
-            }
-        }
-
-        function hideNewsPopup() {
-            const newsCenterPopup = document.getElementById('news-center-popup');
-            if (newsCenterPopup) {
-                newsCenterPopup.style.display = 'none';
-            }
-        }
-
-        // Função para buscar as últimas notícias e exibi-las no popup
-        async function fetchLatestNews() {
-            const newsPopupContent = document.getElementById('news-popup-content');
-            newsPopupContent.innerHTML = '<p>Carregando últimas notícias...</p>';
-            try {
-                const newsSnapshot = await firestore.collection('news')
-                    .orderBy('createdAt', 'desc')
-                    .limit(5) // Limita a 5 notícias para o popup
-                    .get();
-                if (newsSnapshot.empty) {
-                    newsPopupContent.innerHTML = '<p>Nenhuma notícia encontrada.</p>';
-                    return;
-                }
-
-                newsPopupContent.innerHTML = '';
-                // Limpa o conteúdo existente
-                newsSnapshot.forEach(doc => {
-                    const news = doc.data();
-                    const newsItem = document.createElement('div');
-                    newsItem.classList.add('news-popup-item');
-
-                    const timestampDate = news.createdAt ? news.createdAt.toDate() : new Date();
-                    const timeString = timestampDate.toLocaleString([], {
-                        year: 'numeric', month: 'numeric', day: 'numeric',
-                        hour: '2-digit', minute: '2-digit'
-                    });
-
-                    newsItem.innerHTML = `
-                        <h3>${news.title}</h3>
-                        <p>${news.description}</p>
-                        <small>Categoria: ${news.category}</small><br> ${news.tags && news.tags.length > 0 ? `<small>Tags: ${news.tags.join(', ')}</small><br>` : ''}
-                        <small>Publicado em: ${timeString}</small>
-                        ${news.imageUrl ? `<img src="${news.imageUrl}" alt="Imagem da Notícia">` : ''} `;
-                    newsPopupContent.appendChild(newsItem);
-                });
-
-            } catch (error) {
-                console.error("Erro ao buscar últimas notícias para o popup:", error);
-                newsPopupContent.innerHTML = `<p style="color: red;">Erro ao carregar notícias: ${error.message}</p>`;
-            }
-        }
-
-        // --- Funções de Autenticação (EXISTENTES) ---
-        const providerGoogle = new firebase.auth.GoogleAuthProvider();
-        const providerGitHub = new firebase.auth.GithubAuthProvider();
-
-        document.getElementById('login-google').addEventListener('click', () => {
-            auth.signInWithPopup(providerGoogle)
-                .catch(error => {
-                    console.error("Erro no login com Google:", error);
-                });
-        });
-        document.getElementById('login-github').addEventListener('click', () => {
-            auth.signInWithPopup(providerGitHub)
-                .catch(error => {
-                    console.error("Erro no login com GitHub:", error);
-                });
-        });
-        function handleLogout() {
-            auth.signOut().then(() => {
-                console.log("Usuário deslogado.");
-            }).catch((error) => {
-                console.error("Erro ao deslogar:", error);
-            });
-        }
-        const logoutButton = document.getElementById('logout-button');
-        if (logoutButton) {
-            logoutButton.addEventListener('click', handleLogout);
-        }
-
-        // --- Gerenciamento de Estado de Autenticação ---
-        auth.onAuthStateChanged(async (user) => {
-            currentUser = user; // Define o currentUser globalmente
-            const userInfo = document.getElementById('user-info');
-            const loginGoogleButton = document.getElementById('login-google');
-            const loginGitHubButton = document.getElementById('login-github');
-            const logoutButton = document.getElementById('logout-button');
-            const userProfilePic = document.getElementById('user-profile-pic');
-            const googleAppsButton = document.getElementById('google-apps-button');
-            const userInfoContainer = document.getElementById('user-info-container');
-            const googleAppsPopup = document.getElementById('google-apps-popup');
-            const customAppCssStyleTag = document.getElementById('custom-app-css');
-            const contentFrame = document.getElementById('contentFrame');
-            const accessDeniedMessage = document.getElementById('access-denied-message');
-            const bannedMessage = document.getElementById('banned-message');
-            const newsButton = document.getElementById('news-button');
-            const newsCenterPopup = document.getElementById('news-center-popup');
-
-
-            if (user) {
-                if (userInfo) userInfo.textContent = `Olá, ${user.displayName || user.email}!`;
-                if (loginGoogleButton) loginGoogleButton.style.display = 'none';
-                if (loginGitHubButton) loginGitHubButton.style.display = 'none';
-                if (user.photoURL) {
-                    if (userProfilePic) {
-                        userProfilePic.src = user.photoURL;
-                        userProfilePic.style.display = 'inline-block';
-                    }
-                } else {
-                    if (userProfilePic) userProfilePic.style.display = 'none';
-                }
-                if (googleAppsButton) googleAppsButton.style.display = 'inline-block';
-                if (userInfoContainer) userInfoContainer.style.display = 'flex';
-
-                await createUserProfileDocument(user);
-
-                let isUserBanned = false;
-                try {
-                    const userProfileRef = firestore.collection('users').doc(user.uid);
-                    const doc = await userProfileRef.get();
-
-                    if (doc.exists && doc.data()) {
-                        isUserBanned = doc.data().isBan || false;
-                    }
-                } catch (error) {
-                    console.error("Erro ao verificar perfil de usuário ou status de banimento:", error);
-                    isUserBanned = false;
-                }
-
-                isCurrentUserBanned = isUserBanned;
-                if (isUserBanned) {
-                    console.warn(`Usuário ${user.uid} está banido.`);
-                    setNavLinksEnabled(false);
-                    if (logoutButton) {
-                        logoutButton.style.display = 'none';
-                        logoutButton.removeEventListener('click', handleLogout);
-                    }
-                    if (contentFrame) {
-                        contentFrame.style.display = 'none';
-                    }
-                    if (bannedMessage) bannedMessage.style.display = 'block';
-                    if (accessDeniedMessage) accessDeniedMessage.style.display = 'none';
-
-                    document.querySelectorAll('.floating-window').forEach(win => win.remove());
-
-                    if (googleAppsButton) {
-                        googleAppsButton.style.pointerEvents = 'none';
-                        googleAppsButton.style.opacity = '0.6';
-                    }
-                    if (googleAppsPopup) googleAppsPopup.style.display = 'none';
-                    if (newsButton) newsButton.style.display = 'none';
-                    if (newsCenterPopup) newsCenterPopup.style.display = 'none';
-                } else { // User is not banned
-                    if (logoutButton) logoutButton.style.display = 'inline-block';
-                    setNavLinksEnabled(true); // Enable all links if not banned
-                    if (bannedMessage) bannedMessage.style.display = 'none';
-                    if (accessDeniedMessage) accessDeniedMessage.style.display = 'none';
-
-                    if (googleAppsButton) {
-                        googleAppsButton.style.pointerEvents = 'auto';
-                        googleAppsButton.style.opacity = '1';
-                    }
-                    if (newsButton) newsButton.style.display = 'inline-block';
-
-                    await loadAndApplyUserAppsCSS(user.uid);
-
-                    // Carregar a página inicial na primeira janela flutuante se não houver nenhuma
-                    if (!document.querySelector('.floating-window')) {
-                        createFloatingWindow('recepcao.html', 'Recepção', false);
-                    }
-                }
-
-            } else { // Usuário deslogado
-                currentUser = null;
-                if (userInfo) userInfo.textContent = '';
-                if (loginGoogleButton) loginGoogleButton.style.display = 'inline-block';
-                if (loginGitHubButton) loginGitHubButton.style.display = 'inline-block';
-                if (logoutButton) logoutButton.style.display = 'none';
-                isCurrentUserBanned = false;
-                if (bannedMessage) bannedMessage.style.display = 'none';
-                setNavLinksEnabled(false);
-
-                document.querySelectorAll('.floating-window').forEach(win => win.remove());
-                if (contentFrame) contentFrame.style.display = 'none';
-                if (accessDeniedMessage) accessDeniedMessage.style.display = 'none';
-
-                if (!document.querySelector('.floating-window')) {
-                    createFloatingWindow('recepcao.html', 'Recepção', false);
-                }
-
-                if (userProfilePic) {
-                    userProfilePic.style.display = 'none';
-                    userProfilePic.src = '';
-                }
-                if (googleAppsButton) googleAppsButton.style.display = 'none';
-                if (userInfoContainer) userInfoContainer.style.display = 'none';
-                if (googleAppsPopup) googleAppsPopup.style.display = 'none';
-                if (customAppCssStyleTag) customAppCssStyleTag.innerHTML = '';
-                if (contentFrame) contentFrame.style.display = 'block';
-                if (newsButton) newsButton.style.display = 'none';
-                if (newsCenterPopup) newsCenterPopup.style.display = 'none';
-                hideNewsPopup();
-            }
-            if (componentHandler) {
-                componentHandler.upgradeDom();
-            }
-        });
-
-        // --- Event Listeners DOMContentLoaded ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Re-obter referências aos elementos DOM dentro deste escopo
-            const googleAppsButton = document.getElementById('google-apps-button');
-            const googleAppsPopup = document.getElementById('google-apps-popup');
-
-            const navLinks = document.querySelectorAll('.mdl-navigation__link');
-
-            // Get references for news popup elements (kept)
-            const newsButton = document.getElementById('news-button');
-            const newsCenterPopup = document.getElementById('news-center-popup');
-            const closeNewsPopupButton = document.getElementById('close-news-popup-button');
-            const viewAllNewsButton = document.getElementById('view-all-news-button');
-
-            // --- Adicionar Event Listeners ---
-
-            // Botão Google Apps (mantido, mas modificado)
-            if (googleAppsButton) {
-                googleAppsButton.addEventListener('click', (event) => {
-                    event.stopPropagation(); // Evita que o clique se propague para o document
-                    if (googleAppsPopup.style.display === 'block') {
-                        googleAppsPopup.style.display = 'none';
-                    } else {
-                        googleAppsPopup.style.display = 'block';
-                        // Carregar apps dinamicamente (MODIFIED: hardcoded apps)
-                        const appGrid = document.getElementById('app-grid');
-                        appGrid.innerHTML = ''; // Clear existing content
-
-                        // MODIFIED: Hardcoded list of WZZM services
-                        const wzzmServices = [
-                            { name: 'Office WZZM', url: 'https://office.wzzm.org', iconUrl: 'https://wzzm.org/iconmagic.png' },
-                            { name: 'Escolar WZZM', url: 'https://escolar.wzzm.org', iconUrl: 'https://wzzm.org/iconmagic.png' },
-                            { name: 'Minha Persona WZZM', url: 'https://minhapersona.wzzm.org', iconUrl: 'https://wzzm.org/iconmagic.png' },
-                            { name: 'Wiki Zero', url: 'https://wikizero.wzzm.org/', iconUrl: 'https://wzzm.org/iconmagic.png' },
-                            { name: 'UWG Wikidot', url: 'https://uwg.wikidot.com', iconUrl: 'https://wzzm.org/iconmagic.png' },
-                            { name: 'Wiki Metro SP', url: 'https://wikimetrosp.miraheze.org', iconUrl: 'https://wzzm.org/wikimetrosp.png' }
-                        ];
-                        wzzmServices.forEach(app => {
-                            const appItem = document.createElement('div');
-                            appItem.classList.add('app-item');
-                            appItem.innerHTML = `
-                                <img src="${app.iconUrl}" alt="${app.name}"> <span>${app.name}</span> `;
-                            appItem.addEventListener('click', () => {
-                                window.open(app.url, '_blank'); // Opens in a new tab for external services
-                                googleAppsPopup.style.display = 'none'; // Close the popup
-                            });
-                            appGrid.appendChild(appItem);
-                        });
-                    }
-                });
-            }
-
-            // Event Listeners for News Button and Popup (mantidos)
-            if (newsButton) {
-                newsButton.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    if (newsCenterPopup.style.display === 'flex') {
-                        hideNewsPopup();
-                    } else {
-                        showNewsPopup();
-                    }
-                });
-            }
-
-            if (closeNewsPopupButton) {
-                closeNewsPopupButton.addEventListener('click', () => {
-                    hideNewsPopup();
-                });
-            }
-
-            if (viewAllNewsButton) {
-                viewAllNewsButton.addEventListener('click', () => {
-                    createFloatingWindow('visualizarnoticias.html', 'Todas as Notícias'); // Carrega em nova janela
-                    hideNewsPopup(); // Hide the popup
-                });
-            }
-
-            // Listener global para fechar popups ao clicar fora (ajustado)
-            document.addEventListener('click', (event) => {
-                // Fecha o popup de apps se clicar fora dele
-                if (googleAppsPopup && googleAppsPopup.style.display === 'block' &&
-                    !googleAppsButton.contains(event.target) &&
-                    !googleAppsPopup.contains(event.target)) {
-                    googleAppsPopup.style.display = 'none';
-                }
-
-                // Fecha o popup de notícias se clicar fora dele (mantido)
-                if (newsCenterPopup && newsCenterPopup.style.display === 'flex' &&
-                    !newsButton.contains(event.target) &&
-                    !newsCenterPopup.contains(event.target)) {
-                    newsCenterPopup.style.display = 'none';
-                }
-            });
-
-            // Adiciona event listener para links de navegação no drawer (ajustado)
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(event) {
-                    const pageSrc = this.getAttribute('onclick'); // Get the raw onclick attribute
-                    let actualPageSrc = '';
-                    let requiresAuth = false;
-
-                    // Extract actual page source and requiresAuth
-                    if (pageSrc && pageSrc.includes("loadPage(")) {
-                        const match = pageSrc.match(/loadPage\('([^']*)', (true|false)\)/);
-                        if (match) {
-                            actualPageSrc = match[1];
-                            requiresAuth = match[2] === 'true';
-                        }
-                    }
-
-                    if (isCurrentUserBanned && !actualPageSrc.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) {
-                        event.preventDefault();
-                        return;
-                    }
-
-                    if (this.classList.contains('disabled') && !actualPageSrc.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) {
-                        event.preventDefault();
-                        return;
-                    }
-
-                    if (actualPageSrc.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) {
-                        // Se for o link das políticas, abre em nova aba/janela do navegador para PDF
-                        window.open(actualPageSrc, '_blank');
-                        event.preventDefault(); // Previna o comportamento padrão para não carregar em janela flutuante
-                        return;
-                    }
-
-                    event.preventDefault();
-                    createFloatingWindow(actualPageSrc, null, requiresAuth); // Usar createFloatingWindow
-                    // Fecha o drawer do MDL se estiver aberto
-                    if (document.querySelector('.mdl-layout__drawer.is-visible')) {
-                        document.querySelector('.mdl-layout__obfuscator').classList.remove('is-visible');
-                        document.querySelector('.mdl-layout__drawer').classList.remove('is-visible');
-                    }
-                });
-            });
-            // Inicializa componentes MDL
-            if (componentHandler) {
-                componentHandler.upgradeDom();
-            }
-        });
-
-        // Utilitário para gerar IDs únicos
-        function uniqueID() {
-            return 'win_' + Math.random().toString(36).substr(2, 9);
-        }
-
-        // Função para criar uma nova janela flutuante
-        // Adicionamos um histórico para cada iframe para os botões de navegação
-        const windowHistory = {}; // Armazena o histórico para cada janela (key: winId, value: array de URLs)
-        const windowHistoryIndex = {}; // Armazena o índice atual do histórico para cada janela
-
-        function createFloatingWindow(src, customTitle = null, requiresAuth = false) {
-            const container = document.getElementById('window-container');
-
-            // Verifica as regras de acesso antes de criar a janela
-            if (isCurrentUserBanned && src !== 'recepcao.html' && src !== 'POLÍTICAS GERAIS DO WIKI ZONE ZERO MOD.pdf') {
-                document.getElementById('banned-message').style.display = 'block';
-                return;
-            }
-            if (requiresAuth && !currentUser) {
-                document.getElementById('access-denied-message').style.display = 'block';
-                return;
-            }
-
-            const existing = Array.from(document.querySelectorAll('.floating-window'))
-                .find(win => win.getAttribute('data-src') === src);
-            if (existing) {
-                bringWindowToFront(existing);
-                return;
-            }
-
-            const winId = uniqueID();
-            windowHistory[winId] = [];
-            windowHistoryIndex[winId] = -1;
-
-            // Elemento da janela
-            const win = document.createElement('div');
-            win.className = 'floating-window';
-            win.setAttribute('data-winid', winId);
-            win.setAttribute('data-src', src); // Armazena o SRC original para verificação de existência
-
-            // Cabeçalho da janela
-            const header = document.createElement('div');
-            header.className = 'window-header';
-
-            // Função para extrair o nome do arquivo da URL para o título
-            function getFileNameFromUrl(url) {
-                try {
-                    const urlObj = new URL(url, window.location.origin);
-                    let path = urlObj.pathname.split('/').pop();
-                    if (path.includes('.')) {
-                        path = path.split('.')[0]; // Remove a extensão
-                    }
-                    path = path.replace(/%20/g, ' '); // Decodifica espaços
-                    return path || 'Nova Janela'; // Retorna o nome do arquivo ou "Nova Janela" se vazio
-                } catch (e) {
-                    return url; // Em caso de erro (URL inválida), retorna a URL completa
-                }
-            }
-
-            const titleText = customTitle || getFileNameFromUrl(src);
-
-            header.innerHTML = `
-                <div style="display: flex; align-items: center;">
-                    <button title="Voltar" onclick="historyBack('${winId}')" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored window-nav-back">
-                        <i class="material-icons">arrow_back</i>
-                    </button>
-                    <button title="Avançar" onclick="historyForward('${winId}')" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored window-nav-forward">
-                        <i class="material-icons">arrow_forward</i>
-                    </button>
-                    <span style="margin-left: 8px;">${titleText}</span>
-                </div>
-                <span class="window-controls">
-                    <button title="Fechar" onclick="closeWindow('${winId}')">&times;</button>
-                </span>
-            `;
-
-            // Corpo da janela com iframe
-            const body = document.createElement('div');
-            body.className = 'window-body';
-            const iframe = document.createElement('iframe');
-            iframe.src = src;
-            iframe.setAttribute('data-winid', winId); // Adiciona o winId ao iframe
-            body.appendChild(iframe);
-
-            win.appendChild(header);
-            win.appendChild(body);
-            container.appendChild(win);
-
-            // Torna a janela arrastável
-            makeWindowDraggable(win, header);
-            // Foca a janela ao clicar
-            win.addEventListener('mousedown', () => {
-                bringWindowToFront(win);
-            });
-            // Coloca no topo ao criar
-            bringWindowToFront(win);
-
-            // Adiciona a URL inicial ao histórico da nova janela
-            addToWindowHistory(winId, src);
-
-            // Adiciona listener para atualizações de URL dentro do iframe
-            iframe.addEventListener('load', function() {
-                try {
-                    // Para mesma origem, atualiza o histórico e o título
-                    if (iframe.contentWindow.location.origin === window.location.origin) {
-                        const currentIframeSrc = iframe.contentWindow.location.href;
-                        if (windowHistory[winId][windowHistoryIndex[winId]] !== currentIframeSrc) {
-                            addToWindowHistory(winId, currentIframeSrc);
-                            const newTitle = getFileNameFromUrl(currentIframeSrc);
-                            win.querySelector('.window-header span:last-of-type').textContent = newTitle; // Atualiza o texto do título
-                        }
-                    }
-                } catch (e) {
-                    // Ignora erros de Same-Origin Policy
-                    console.warn("Same-Origin Policy previne acesso ao conteúdo do iframe para atualização do histórico.", e);
-                }
-                updateNavigationButtons(winId); // Atualiza o estado dos botões Voltar/Avançar
-            });
-        }
-
-        // Função para adicionar URL ao histórico da janela
-        function addToWindowHistory(winId, url) {
-            if (!windowHistory[winId]) {
-                windowHistory[winId] = [];
-                windowHistoryIndex[winId] = -1;
-            }
-
-            // Remove URLs à frente do índice atual se navegarmos para trás e depois para uma nova página
-            if (windowHistoryIndex[winId] < windowHistory[winId].length - 1) {
-                windowHistory[winId] = windowHistory[winId].slice(0, windowHistoryIndex[winId] + 1);
-            }
-
-            windowHistory[winId].push(url);
-            windowHistoryIndex[winId]++;
-            updateNavigationButtons(winId);
-        }
-
-        // Função para navegar para trás no histórico da janela
-        function historyBack(winId) {
-            if (windowHistory[winId] && windowHistoryIndex[winId] > 0) {
-                windowHistoryIndex[winId]--;
-                const iframe = document.querySelector(`.floating-window[data-winid="${winId}"] iframe`);
-                if (iframe) {
-                    iframe.src = windowHistory[winId][windowHistoryIndex[winId]];
-                    const newTitle = getFileNameFromUrl(iframe.src);
-                    iframe.closest('.floating-window').querySelector('.window-header span:last-of-type').textContent = newTitle; // Atualiza o título
-                }
-                updateNavigationButtons(winId);
-            }
-        }
-
-        // Função para navegar para frente no histórico da janela
-        function historyForward(winId) {
-            if (windowHistory[winId] && windowHistoryIndex[winId] < windowHistory[winId].length - 1) {
-                windowHistoryIndex[winId]++;
-                const iframe = document.querySelector(`.floating-window[data-winid="${winId}"] iframe`);
-                if (iframe) {
-                    iframe.src = windowHistory[winId][windowHistoryIndex[winId]];
-                    const newTitle = getFileNameFromUrl(iframe.src);
-                    iframe.closest('.floating-window').querySelector('.window-header span:last-of-type').textContent = newTitle; // Atualiza o título
-                }
-                updateNavigationButtons(winId);
-            }
-        }
-
-        // Função para atualizar o estado (disabled) dos botões de navegação
-        function updateNavigationButtons(winId) {
-            const win = document.querySelector(`.floating-window[data-winid="${winId}"]`);
-            if (!win) return;
-            const backButton = win.querySelector('.window-nav-back');
-            const forwardButton = win.querySelector('.window-nav-forward');
-
-            if (backButton) {
-                backButton.disabled = !(windowHistory[winId] && windowHistoryIndex[winId] > 0);
-                backButton.style.opacity = backButton.disabled ? '0.5' : '1';
-                backButton.style.cursor = backButton.disabled ? 'not-allowed' : 'pointer';
-            }
-            if (forwardButton) {
-                forwardButton.disabled = !(windowHistory[winId] && windowHistoryIndex[winId] < windowHistory[winId].length - 1);
-                forwardButton.style.opacity = forwardButton.disabled ? '0.5' : '1';
-                forwardButton.style.cursor = forwardButton.disabled ? 'not-allowed' : 'pointer';
-            }
-        }
-
-        // Deixe a janela arrastável
-        function makeWindowDraggable(win, handle) {
-            let offsetX = 0, offsetY = 0, dragging = false;
-            handle.addEventListener('mousedown', function (e) {
-                dragging = true;
-                offsetX = e.clientX - win.offsetLeft;
-                offsetY = e.clientY - win.offsetTop;
-                win.style.zIndex = getNextZIndex();
-                document.body.style.userSelect = 'none';
-            });
-            document.addEventListener('mousemove', function (e) {
-                if (dragging) {
-                    win.style.left = (e.clientX - offsetX) + 'px';
-                    win.style.top = (e.clientY - offsetY) + 'px';
-                }
-            });
-            document.addEventListener('mouseup', function () {
-                dragging = false;
-                document.body.style.userSelect = '';
-            });
-        }
-
-        // Função para fechar janela
-        function closeWindow(winId) {
-            const win = document.querySelector(`.floating-window[data-winid="${winId}"]`);
-            if (win) {
-                delete windowHistory[winId];
-                delete windowHistoryIndex[winId];
-                win.remove();
-            }
-        }
-
-        // Z-Index para trazer para frente
-        let topZ = 1000;
-        function getNextZIndex() {
-            return ++topZ;
-        }
-        function bringWindowToFront(win) {
-            win.style.zIndex = getNextZIndex();
-        }
-
-        // Substitua a função loadPage para usar createFloatingWindow
-        function loadPage(src, requiresAuth = false) {
-            createFloatingWindow(src, null, requiresAuth);
-        }
-
-        // ========== CAPTURA E EXIBE ERROS DO CONSOLE ==========
-        // Array para armazenar os erros capturados
-        window._wzzmErrorLog = [];
-        // Captura erros globais de JavaScript
-        window.addEventListener('error', function(e) {
-            window._wzzmErrorLog.push(`[${new Date().toLocaleTimeString()}] ${e.message} (${e.filename}:${e.lineno})`);
-        });
-        // Captura rejeições de Promise não tratadas
-        window.addEventListener('unhandledrejection', function(e) {
-            window._wzzmErrorLog.push(`[${new Date().toLocaleTimeString()}] Unhandled Promise: ${e.reason}`);
-        });
-        // Intercepta console.error e armazena as mensagens
-        (function() {
-            const originalError = console.error;
-            console.error = function(...args) {
-                window._wzzmErrorLog.push(`[${new Date().toLocaleTimeString()}] console.error: ${args.join(' ')}`);
-                originalError.apply(console, args);
-            };
-        })();
-        // Mostra o popup com a lista de erros ao clicar no botão
-        document.addEventListener('DOMContentLoaded', function() {
-            var btn = document.getElementById('error-log-button');
-            if (!btn) return;
-            btn.addEventListener('click', function() {
-                var logList = document.getElementById('error-log-list');
-                logList.innerHTML = '';
-                if (window._wzzmErrorLog.length === 0) {
-                    logList.innerHTML = '<li style="color:green;">Nenhum erro registrado nesta sessão.</li>';
-                } else {
-                    window._wzzmErrorLog.slice(-100).forEach(function(msg) {
-                        var li = document.createElement('li');
-                        li.textContent = msg;
-                        logList.appendChild(li);
-                    });
-                }
-                document.getElementById('error-log-popup').style.display = 'block';
-            });
-        });
-
-	     document.addEventListener('DOMContentLoaded', function () {
-    fetch('menu.json')
-        .then(response => response.json())
-        .then(menuItems => {
-            const drawerMenu = document.getElementById('drawer-menu');
-            if (!drawerMenu) return;
-            drawerMenu.innerHTML = ''; // Limpa itens antigos, se houver
-
-            menuItems.forEach(item => {
-                const a = document.createElement('a');
-                a.className = 'mdl-navigation__link';
-                a.href = '#'; // A navegação será controlada pelo onclick
-                a.setAttribute('onclick', `loadPage('${item.href}', ${item.requiresAuth})`);
-                if (item.requiresAuth) {
-                    a.setAttribute('data-requires-auth', 'true');
-                }
-                a.textContent = item.label;
-                drawerMenu.appendChild(a);
-            });
-        })
-        .catch(err => {
-            console.error('Erro ao carregar menu.json:', err);
-        });
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+<header class="mdl-layout__header">
+<div class="mdl-layout__header-row">
+<span class="mdl-layout-title" id="wiki-page-name">Carregando...</span>
+<a href="https://wikizero.wzzm.org/" id="./wikinotpedia/">
+<img src="https://wzzm.org/wnp.png" alt="Logo Wiki Zone Zero Mod" style="height: 32px; vertical-align: middle; margin-right: 8px;"></a> <div class="mdl-layout-spacer"></div>
+<nav class="mdl-navigation">
+<button class="mdl-button mdl-js-button mdl-button--icon" id="error-log-button" title="Ver Erros">
+<i class="material-icons">bug_report</i>
+</button>
+<a class="mdl-navigation__link" href="#" id="search-articles-link" onclick="loadPage('recepcao.html', false)">Procurar Artigos</a>
+
+
+<div style="position: relative; display: flex; align-items: center;">
+<button class="mdl-button mdl-js-button mdl-button--icon" id="news-button" style="display: none;">
+<i class="material-icons">article</i>
+</button>
+<div id="news-center-popup">
+<div id="news-popup-header">
+<span>Últimas Notícias</span>
+<button class="close-button" id="close-news-popup-button">×</button>
+</div>
+<div id="news-popup-content">
+<p>Carregando últimas notícias...</p>
+</div>
+<div id="news-popup-footer">
+<button id="view-all-news-button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent">
+Ver todas as Notícias
+</button>
+</div>
+</div>
+
+<button class="mdl-button mdl-js-button mdl-button--icon" id="google-apps-button" style="display: none;">
+<i class="material-icons">widgets</i>
+</button>
+<div id="google-apps-popup">
+<h4>Serviços WZZM</h4>
+<div id="app-grid">
+</div>
+</div>
+
+<div id="user-info-container" style="display: none; align-items: center;">
+<span id="user-info" style="margin-left: 8px; color: white;"></span>
+<img id="user-profile-pic" src="" alt="Profile Pic">
+<button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="logout-button" style="margin-left: 10px; display: none;">Sair</button>
+</div>
+<button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="login-google">Login Google</button>
+<button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="login-github" style="margin-left: 10px;">Login GitHub</button>
+</div>
+</nav>
+</div>
+</header>
+<div class="mdl-layout__drawer">
+<span class="mdl-layout-title" id="drawer-title">Navegação</span>
+<nav class="mdl-navigation" id="drawer-menu">
+
+</nav>
+</div>
+<div id="window-container"></div>
+<div id="access-denied-message" style="display:none;">
+<p>Acesso negado. Por favor, faça login para ver este conteúdo.</p>
+</div>
+<div id="banned-message" style="display:none;">
+<p>Sua conta foi banida. Você não pode acessar o conteúdo.</p>
+<p>Para mais informações, contate o suporte.</p>
+</div>
+
+</main>
+</div>
+
+<script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
+<script>
+// --- Configuração do Firebase ---
+const firebaseConfig = {
+apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0", // Use sua própria chave!
+authDomain: "wzzm-ce3fc.firebaseapp.com",
+projectId: "wzzm-ce3fc",
+storageBucket: "wzzm-ce3fc.appspot.com",
+messagingSenderId: "249427877153",
+appId: "1:249427877153:web:0e4297294794a5aadeb260",
+measurementId: "G-PLKNZNFCQ8"
+};
+// Inicialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const firestore = firebase.firestore();
+firebase.analytics();
+
+// Variáveis globais para estado do usuário
+let currentUser = null;
+let isCurrentUserBanned = false;
+
+// --- Funções Auxiliares (Antiga loadPage foi substituída pela nova que cria janelas flutuantes) ---
+// A função loadPage original que manipulava 'contentFrame' não é mais usada diretamente para links de navegação.
+// Ela ainda é referenciada em outras partes do código para manipulação de mensagens de acesso/banimento,
+// mas a navegação principal usará a nova createFloatingWindow.
+
+// Função para ativar/desativar links de navegação com base no status de login
+function setNavLinksEnabled(enabled) {
+const navLinks = document.querySelectorAll('.mdl-navigation__link[data-requires-auth="true"]');
+navLinks.forEach(link => {
+if (enabled) {
+link.style.pointerEvents = 'auto';
+link.style.color = '#424242'; // Cor padrão
+} else {
+link.style.pointerEvents = 'none';
+link.style.color = '#9e9e9e';
+}
 });
-    </script>
-    <div id="error-log-popup" style="
-        display: none;
-        position: fixed;
-        top: 60px;
-        right: 30px;
-        width: 400px;
-        max-height: 60vh;
-        overflow-y: auto;
-        background: #fff;
-        border: 2px solid #e53935;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        z-index: 2000;
-        padding: 16px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: bold; color: #e53935;">Erros do Console</span>
-            <button onclick="document.getElementById('error-log-popup').style.display='none'" style="background:none;border:none;font-size:22px;color:#e53935;cursor:pointer;">×</button>
-        </div>
-        <ul id="error-log-list" style="margin-top: 12px; color: #b71c1c; font-size: 0.97em;"></ul>
-    </div>
+}
+
+// Função para criar/atualizar o documento do perfil do usuário no Firestore
+async function createUserProfileDocument(user) {
+if (!user) return;
+const userRef = firestore.doc(`users/${user.uid}`);
+const snapshot = await userRef.get();
+
+if (!snapshot.exists) {
+const { displayName, email, photoURL } = user;
+const createdAt = new Date();
+
+try {
+await userRef.set({
+displayName,
+email,
+photoURL,
+createdAt,
+isAdmin: false, // Define como false por padrão
+isBan: false // Define como false por padrão
+});
+console.log("Perfil do usuário criado no Firestore.");
+} catch (error) {
+console.error("Erro ao criar perfil do usuário:", error);
+}
+}
+}
+
+// Função para carregar e aplicar CSS de aplicativos específicos do usuário
+async function loadAndApplyUserAppsCSS(userId) {
+const customAppCssStyleTag = document.getElementById('custom-app-css');
+if (!customAppCssStyleTag) return;
+
+try {
+const userAppsSnapshot = await firestore.collection('userApps').doc(userId).get();
+if (userAppsSnapshot.exists) {
+const appData = userAppsSnapshot.data();
+let cssContent = '';
+if (appData && appData.apps) {
+appData.apps.forEach(app => {
+if (app.css) {
+cssContent += app.css + '\n';
+}
+});
+}
+customAppCssStyleTag.innerHTML = cssContent;
+} else {
+customAppCssStyleTag.innerHTML = '';
+}
+} catch (error) {
+console.error("Erro ao carregar CSS de aplicativos do usuário:", error);
+customAppCssStyleTag.innerHTML = '';
+}
+}
+
+// --- FUNÇÕES PARA O POPUP DE NOTÍCIAS (MANTIDAS) ---
+function showNewsPopup() {
+const newsCenterPopup = document.getElementById('news-center-popup');
+if (newsCenterPopup) {
+newsCenterPopup.style.display = 'flex';
+fetchLatestNews(); // Fetch news when popup is shown
+}
+}
+
+function hideNewsPopup() {
+const newsCenterPopup = document.getElementById('news-center-popup');
+if (newsCenterPopup) {
+newsCenterPopup.style.display = 'none';
+}
+}
+
+// Função para buscar as últimas notícias e exibi-las no popup
+async function fetchLatestNews() {
+const newsPopupContent = document.getElementById('news-popup-content');
+newsPopupContent.innerHTML = '<p>Carregando últimas notícias...</p>';
+try {
+const newsSnapshot = await firestore.collection('news')
+.orderBy('createdAt', 'desc')
+.limit(5) // Limita a 5 notícias para o popup
+.get();
+if (newsSnapshot.empty) {
+newsPopupContent.innerHTML = '<p>Nenhuma notícia encontrada.</p>';
+return;
+}
+
+newsPopupContent.innerHTML = '';
+// Limpa o conteúdo existente
+newsSnapshot.forEach(doc => {
+const news = doc.data();
+const newsItem = document.createElement('div');
+newsItem.classList.add('news-popup-item');
+
+const timestampDate = news.createdAt ? news.createdAt.toDate() : new Date();
+const timeString = timestampDate.toLocaleString([], {
+year: 'numeric', month: 'numeric', day: 'numeric',
+hour: '2-digit', minute: '2-digit'
+});
+
+newsItem.innerHTML = `
+<h3>${news.title}</h3>
+<p>${news.description}</p>
+<small>Categoria: ${news.category}</small><br> ${news.tags && news.tags.length > 0 ? `<small>Tags: ${news.tags.join(', ')}</small><br>` : ''}
+<small>Publicado em: ${timeString}</small>
+${news.imageUrl ? `<img src="${news.imageUrl}" alt="Imagem da Notícia">` : ''} `;
+newsPopupContent.appendChild(newsItem);
+});
+
+} catch (error) {
+console.error("Erro ao buscar últimas notícias para o popup:", error);
+newsPopupContent.innerHTML = `<p style="color: red;">Erro ao carregar notícias: ${error.message}</p>`;
+}
+}
+
+// --- Funções de Autenticação (EXISTENTES) ---
+const providerGoogle = new firebase.auth.GoogleAuthProvider();
+const providerGitHub = new firebase.auth.GithubAuthProvider();
+
+document.getElementById('login-google').addEventListener('click', () => {
+auth.signInWithPopup(providerGoogle)
+.catch(error => {
+console.error("Erro no login com Google:", error);
+});
+});
+document.getElementById('login-github').addEventListener('click', () => {
+auth.signInWithPopup(providerGitHub)
+.catch(error => {
+console.error("Erro no login com GitHub:", error);
+});
+});
+function handleLogout() {
+auth.signOut().then(() => {
+console.log("Usuário deslogado.");
+}).catch((error) => {
+console.error("Erro ao deslogar:", error);
+});
+}
+const logoutButton = document.getElementById('logout-button');
+if (logoutButton) {
+logoutButton.addEventListener('click', handleLogout);
+}
+
+// --- Gerenciamento de Estado de Autenticação ---
+auth.onAuthStateChanged(async (user) => {
+currentUser = user; // Define o currentUser globalmente
+const userInfo = document.getElementById('user-info');
+const loginGoogleButton = document.getElementById('login-google');
+const loginGitHubButton = document.getElementById('login-github');
+const logoutButton = document.getElementById('logout-button');
+const userProfilePic = document.getElementById('user-profile-pic');
+const googleAppsButton = document.getElementById('google-apps-button');
+const userInfoContainer = document.getElementById('user-info-container');
+const googleAppsPopup = document.getElementById('google-apps-popup');
+const customAppCssStyleTag = document.getElementById('custom-app-css');
+const contentFrame = document.getElementById('contentFrame');
+const accessDeniedMessage = document.getElementById('access-denied-message');
+const bannedMessage = document.getElementById('banned-message');
+const newsButton = document.getElementById('news-button');
+const newsCenterPopup = document.getElementById('news-center-popup');
+
+
+if (user) {
+if (userInfo) userInfo.textContent = `Olá, ${user.displayName || user.email}!`;
+if (loginGoogleButton) loginGoogleButton.style.display = 'none';
+if (loginGitHubButton) loginGitHubButton.style.display = 'none';
+if (user.photoURL) {
+if (userProfilePic) {
+userProfilePic.src = user.photoURL;
+userProfilePic.style.display = 'inline-block';
+}
+} else {
+if (userProfilePic) userProfilePic.style.display = 'none';
+}
+if (googleAppsButton) googleAppsButton.style.display = 'inline-block';
+if (userInfoContainer) userInfoContainer.style.display = 'flex';
+
+await createUserProfileDocument(user);
+
+let isUserBanned = false;
+try {
+const userProfileRef = firestore.collection('users').doc(user.uid);
+const doc = await userProfileRef.get();
+
+if (doc.exists && doc.data()) {
+isUserBanned = doc.data().isBan || false;
+}
+} catch (error) {
+console.error("Erro ao verificar perfil de usuário ou status de banimento:", error);
+isUserBanned = false;
+}
+
+isCurrentUserBanned = isUserBanned;
+if (isUserBanned) {
+console.warn(`Usuário ${user.uid} está banido.`);
+setNavLinksEnabled(false);
+if (logoutButton) {
+logoutButton.style.display = 'none';
+logoutButton.removeEventListener('click', handleLogout);
+}
+if (contentFrame) {
+contentFrame.style.display = 'none';
+}
+if (bannedMessage) bannedMessage.style.display = 'block';
+if (accessDeniedMessage) accessDeniedMessage.style.display = 'none';
+
+document.querySelectorAll('.floating-window').forEach(win => win.remove());
+
+if (googleAppsButton) {
+googleAppsButton.style.pointerEvents = 'none';
+googleAppsButton.style.opacity = '0.6';
+}
+if (googleAppsPopup) googleAppsPopup.style.display = 'none';
+if (newsButton) newsButton.style.display = 'none';
+if (newsCenterPopup) newsCenterPopup.style.display = 'none';
+} else { // User is not banned
+if (logoutButton) logoutButton.style.display = 'inline-block';
+setNavLinksEnabled(true); // Enable all links if not banned
+if (bannedMessage) bannedMessage.style.display = 'none';
+if (accessDeniedMessage) accessDeniedMessage.style.display = 'none';
+
+if (googleAppsButton) {
+googleAppsButton.style.pointerEvents = 'auto';
+googleAppsButton.style.opacity = '1';
+}
+if (newsButton) newsButton.style.display = 'inline-block';
+
+await loadAndApplyUserAppsCSS(user.uid);
+
+// Carregar a página inicial na primeira janela flutuante se não houver nenhuma
+if (!document.querySelector('.floating-window')) {
+createFloatingWindow('recepcao.html', 'Recepção', false);
+}
+}
+
+} else { // Usuário deslogado
+currentUser = null;
+if (userInfo) userInfo.textContent = '';
+if (loginGoogleButton) loginGoogleButton.style.display = 'inline-block';
+if (loginGitHubButton) loginGitHubButton.style.display = 'inline-block';
+if (logoutButton) logoutButton.style.display = 'none';
+isCurrentUserBanned = false;
+if (bannedMessage) bannedMessage.style.display = 'none';
+setNavLinksEnabled(false);
+
+document.querySelectorAll('.floating-window').forEach(win => win.remove());
+if (contentFrame) contentFrame.style.display = 'none';
+if (accessDeniedMessage) accessDeniedMessage.style.display = 'none';
+
+if (!document.querySelector('.floating-window')) {
+createFloatingWindow('recepcao.html', 'Recepção', false);
+}
+
+if (userProfilePic) {
+userProfilePic.style.display = 'none';
+userProfilePic.src = '';
+}
+if (googleAppsButton) googleAppsButton.style.display = 'none';
+if (userInfoContainer) userInfoContainer.style.display = 'none';
+if (googleAppsPopup) googleAppsPopup.style.display = 'none';
+if (customAppCssStyleTag) customAppCssStyleTag.innerHTML = '';
+if (contentFrame) contentFrame.style.display = 'block';
+if (newsButton) newsButton.style.display = 'none';
+if (newsCenterPopup) newsCenterPopup.style.display = 'none';
+hideNewsPopup();
+}
+if (componentHandler) {
+componentHandler.upgradeDom();
+}
+});
+
+// --- Event Listeners DOMContentLoaded ---
+document.addEventListener('DOMContentLoaded', () => {
+// Re-obter referências aos elementos DOM dentro deste escopo
+const googleAppsButton = document.getElementById('google-apps-button');
+const googleAppsPopup = document.getElementById('google-apps-popup');
+
+const navLinks = document.querySelectorAll('.mdl-navigation__link');
+
+// Get references for news popup elements (kept)
+const newsButton = document.getElementById('news-button');
+const newsCenterPopup = document.getElementById('news-center-popup');
+const closeNewsPopupButton = document.getElementById('close-news-popup-button');
+const viewAllNewsButton = document.getElementById('view-all-news-button');
+
+// --- Adicionar Event Listeners ---
+
+// Botão Google Apps (mantido, mas modificado)
+if (googleAppsButton) {
+googleAppsButton.addEventListener('click', (event) => {
+event.stopPropagation(); // Evita que o clique se propague para o document
+if (googleAppsPopup.style.display === 'block') {
+googleAppsPopup.style.display = 'none';
+} else {
+googleAppsPopup.style.display = 'block';
+// Carregar apps dinamicamente (MODIFIED: hardcoded apps)
+const appGrid = document.getElementById('app-grid');
+appGrid.innerHTML = ''; // Clear existing content
+
+// MODIFIED: Hardcoded list of WZZM services
+const wzzmServices = [
+{ name: 'Office WZZM', url: 'https://office.wzzm.org', iconUrl: 'https://wzzm.org/iconmagic.png' },
+{ name: 'Escolar WZZM', url: 'https://escolar.wzzm.org', iconUrl: 'https://wzzm.org/iconmagic.png' },
+{ name: 'Minha Persona WZZM', url: 'https://minhapersona.wzzm.org', iconUrl: 'https://wzzm.org/iconmagic.png' },
+{ name: 'Wiki Zero', url: 'https://wikizero.wzzm.org/', iconUrl: 'https://wzzm.org/iconmagic.png' },
+{ name: 'UWG Wikidot', url: 'https://uwg.wikidot.com', iconUrl: 'https://wzzm.org/iconmagic.png' },
+{ name: 'Wiki Metro SP', url: 'https://wikimetrosp.miraheze.org', iconUrl: 'https://wzzm.org/wikimetrosp.png' }
+];
+wzzmServices.forEach(app => {
+const appItem = document.createElement('div');
+appItem.classList.add('app-item');
+appItem.innerHTML = `
+<img src="${app.iconUrl}" alt="${app.name}"> <span>${app.name}</span> `;
+appItem.addEventListener('click', () => {
+window.open(app.url, '_blank'); // Opens in a new tab for external services
+googleAppsPopup.style.display = 'none'; // Close the popup
+});
+appGrid.appendChild(appItem);
+});
+}
+});
+}
+
+// Event Listeners for News Button and Popup (mantidos)
+if (newsButton) {
+newsButton.addEventListener('click', (event) => {
+event.stopPropagation();
+if (newsCenterPopup.style.display === 'flex') {
+hideNewsPopup();
+} else {
+showNewsPopup();
+}
+});
+}
+
+if (closeNewsPopupButton) {
+closeNewsPopupButton.addEventListener('click', () => {
+hideNewsPopup();
+});
+}
+
+if (viewAllNewsButton) {
+viewAllNewsButton.addEventListener('click', () => {
+createFloatingWindow('visualizarnoticias.html', 'Todas as Notícias'); // Carrega em nova janela
+hideNewsPopup(); // Hide the popup
+});
+}
+
+// Listener global para fechar popups ao clicar fora (ajustado)
+document.addEventListener('click', (event) => {
+// Fecha o popup de apps se clicar fora dele
+if (googleAppsPopup && googleAppsPopup.style.display === 'block' &&
+!googleAppsButton.contains(event.target) &&
+!googleAppsPopup.contains(event.target)) {
+googleAppsPopup.style.display = 'none';
+}
+
+// Fecha o popup de notícias se clicar fora dele (mantido)
+if (newsCenterPopup && newsCenterPopup.style.display === 'flex' &&
+!newsButton.contains(event.target) &&
+!newsCenterPopup.contains(event.target)) {
+newsCenterPopup.style.display = 'none';
+}
+});
+
+// Adiciona event listener para links de navegação no drawer (ajustado)
+navLinks.forEach(link => {
+link.addEventListener('click', function(event) {
+const pageSrc = this.getAttribute('onclick'); // Get the raw onclick attribute
+let actualPageSrc = '';
+let requiresAuth = false;
+
+// Extract actual page source and requiresAuth
+if (pageSrc && pageSrc.includes("loadPage(")) {
+const match = pageSrc.match(/loadPage\('([^']*)', (true|false)\)/);
+if (match) {
+actualPageSrc = match[1];
+requiresAuth = match[2] === 'true';
+}
+}
+
+if (isCurrentUserBanned && !actualPageSrc.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) {
+event.preventDefault();
+return;
+}
+
+if (this.classList.contains('disabled') && !actualPageSrc.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) {
+event.preventDefault();
+return;
+}
+
+if (actualPageSrc.includes('POL%C3%8DTICAS%20GERAIS%20DO%20WIKI%20ZONE%20ZERO%20MOD.pdf')) {
+// Se for o link das políticas, abre em nova aba/janela do navegador para PDF
+window.open(actualPageSrc, '_blank');
+event.preventDefault(); // Previna o comportamento padrão para não carregar em janela flutuante
+return;
+}
+
+event.preventDefault();
+createFloatingWindow(actualPageSrc, null, requiresAuth); // Usar createFloatingWindow
+// Fecha o drawer do MDL se estiver aberto
+if (document.querySelector('.mdl-layout__drawer.is-visible')) {
+document.querySelector('.mdl-layout__obfuscator').classList.remove('is-visible');
+document.querySelector('.mdl-layout__drawer').classList.remove('is-visible');
+}
+});
+});
+// Inicializa componentes MDL
+if (componentHandler) {
+componentHandler.upgradeDom();
+}
+});
+
+// Utilitário para gerar IDs únicos
+function uniqueID() {
+return 'win_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Função para criar uma nova janela flutuante
+// Adicionamos um histórico para cada iframe para os botões de navegação
+const windowHistory = {}; // Armazena o histórico para cada janela (key: winId, value: array de URLs)
+const windowHistoryIndex = {}; // Armazena o índice atual do histórico para cada janela
+
+function createFloatingWindow(src, customTitle = null, requiresAuth = false) {
+const container = document.getElementById('window-container');
+
+// Verifica as regras de acesso antes de criar a janela
+if (isCurrentUserBanned && src !== 'recepcao.html' && src !== 'POLÍTICAS GERAIS DO WIKI ZONE ZERO MOD.pdf') {
+document.getElementById('banned-message').style.display = 'block';
+return;
+}
+if (requiresAuth && !currentUser) {
+document.getElementById('access-denied-message').style.display = 'block';
+return;
+}
+
+const existing = Array.from(document.querySelectorAll('.floating-window'))
+.find(win => win.getAttribute('data-src') === src);
+if (existing) {
+bringWindowToFront(existing);
+return;
+}
+
+const winId = uniqueID();
+windowHistory[winId] = [];
+windowHistoryIndex[winId] = -1;
+
+// Elemento da janela
+const win = document.createElement('div');
+win.className = 'floating-window';
+win.setAttribute('data-winid', winId);
+win.setAttribute('data-src', src); // Armazena o SRC original para verificação de existência
+
+// Cabeçalho da janela
+const header = document.createElement('div');
+header.className = 'window-header';
+
+// Função para extrair o nome do arquivo da URL para o título
+function getFileNameFromUrl(url) {
+try {
+const urlObj = new URL(url, window.location.origin);
+let path = urlObj.pathname.split('/').pop();
+if (path.includes('.')) {
+path = path.split('.')[0]; // Remove a extensão
+}
+path = path.replace(/%20/g, ' '); // Decodifica espaços
+return path || 'Nova Janela'; // Retorna o nome do arquivo ou "Nova Janela" se vazio
+} catch (e) {
+return url; // Em caso de erro (URL inválida), retorna a URL completa
+}
+}
+
+const titleText = customTitle || getFileNameFromUrl(src);
+
+header.innerHTML = `
+<div style="display: flex; align-items: center;">
+<button title="Voltar" onclick="historyBack('${winId}')" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored window-nav-back">
+<i class="material-icons">arrow_back</i>
+</button>
+<button title="Avançar" onclick="historyForward('${winId}')" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored window-nav-forward">
+<i class="material-icons">arrow_forward</i>
+</button>
+<span style="margin-left: 8px;">${titleText}</span>
+</div>
+<span class="window-controls">
+<button title="Fechar" onclick="closeWindow('${winId}')">&times;</button>
+</span>
+`;
+
+// Corpo da janela com iframe
+const body = document.createElement('div');
+body.className = 'window-body';
+const iframe = document.createElement('iframe');
+iframe.src = src;
+iframe.setAttribute('data-winid', winId); // Adiciona o winId ao iframe
+body.appendChild(iframe);
+
+win.appendChild(header);
+win.appendChild(body);
+container.appendChild(win);
+
+// Torna a janela arrastável
+makeWindowDraggable(win, header);
+// Foca a janela ao clicar
+win.addEventListener('mousedown', () => {
+bringWindowToFront(win);
+});
+// Coloca no topo ao criar
+bringWindowToFront(win);
+
+// Adiciona a URL inicial ao histórico da nova janela
+addToWindowHistory(winId, src);
+
+// Adiciona listener para atualizações de URL dentro do iframe
+iframe.addEventListener('load', function() {
+try {
+// Para mesma origem, atualiza o histórico e o título
+if (iframe.contentWindow.location.origin === window.location.origin) {
+const currentIframeSrc = iframe.contentWindow.location.href;
+if (windowHistory[winId][windowHistoryIndex[winId]] !== currentIframeSrc) {
+addToWindowHistory(winId, currentIframeSrc);
+const newTitle = getFileNameFromUrl(currentIframeSrc);
+win.querySelector('.window-header span:last-of-type').textContent = newTitle; // Atualiza o texto do título
+}
+}
+} catch (e) {
+// Ignora erros de Same-Origin Policy
+console.warn("Same-Origin Policy previne acesso ao conteúdo do iframe para atualização do histórico.", e);
+}
+updateNavigationButtons(winId); // Atualiza o estado dos botões Voltar/Avançar
+});
+}
+
+// Função para adicionar URL ao histórico da janela
+function addToWindowHistory(winId, url) {
+if (!windowHistory[winId]) {
+windowHistory[winId] = [];
+windowHistoryIndex[winId] = -1;
+}
+
+// Remove URLs à frente do índice atual se navegarmos para trás e depois para uma nova página
+if (windowHistoryIndex[winId] < windowHistory[winId].length - 1) {
+windowHistory[winId] = windowHistory[winId].slice(0, windowHistoryIndex[winId] + 1);
+}
+
+windowHistory[winId].push(url);
+windowHistoryIndex[winId]++;
+updateNavigationButtons(winId);
+}
+
+// Função para navegar para trás no histórico da janela
+function historyBack(winId) {
+if (windowHistory[winId] && windowHistoryIndex[winId] > 0) {
+windowHistoryIndex[winId]--;
+const iframe = document.querySelector(`.floating-window[data-winid="${winId}"] iframe`);
+if (iframe) {
+iframe.src = windowHistory[winId][windowHistoryIndex[winId]];
+const newTitle = getFileNameFromUrl(iframe.src);
+iframe.closest('.floating-window').querySelector('.window-header span:last-of-type').textContent = newTitle; // Atualiza o título
+}
+updateNavigationButtons(winId);
+}
+}
+
+// Função para navegar para frente no histórico da janela
+function historyForward(winId) {
+if (windowHistory[winId] && windowHistoryIndex[winId] < windowHistory[winId].length - 1) {
+windowHistoryIndex[winId]++;
+const iframe = document.querySelector(`.floating-window[data-winid="${winId}"] iframe`);
+if (iframe) {
+iframe.src = windowHistory[winId][windowHistoryIndex[winId]];
+const newTitle = getFileNameFromUrl(iframe.src);
+iframe.closest('.floating-window').querySelector('.window-header span:last-of-type').textContent = newTitle; // Atualiza o título
+}
+updateNavigationButtons(winId);
+}
+}
+
+// Função para atualizar o estado (disabled) dos botões de navegação
+function updateNavigationButtons(winId) {
+const win = document.querySelector(`.floating-window[data-winid="${winId}"]`);
+if (!win) return;
+const backButton = win.querySelector('.window-nav-back');
+const forwardButton = win.querySelector('.window-nav-forward');
+
+if (backButton) {
+backButton.disabled = !(windowHistory[winId] && windowHistoryIndex[winId] > 0);
+backButton.style.opacity = backButton.disabled ? '0.5' : '1';
+backButton.style.cursor = backButton.disabled ? 'not-allowed' : 'pointer';
+}
+if (forwardButton) {
+forwardButton.disabled = !(windowHistory[winId] && windowHistoryIndex[winId] < windowHistory[winId].length - 1);
+forwardButton.style.opacity = forwardButton.disabled ? '0.5' : '1';
+forwardButton.style.cursor = forwardButton.disabled ? 'not-allowed' : 'pointer';
+}
+}
+
+// Deixe a janela arrastável
+function makeWindowDraggable(win, handle) {
+let offsetX = 0, offsetY = 0, dragging = false;
+handle.addEventListener('mousedown', function (e) {
+dragging = true;
+offsetX = e.clientX - win.offsetLeft;
+offsetY = e.clientY - win.offsetTop;
+win.style.zIndex = getNextZIndex();
+document.body.style.userSelect = 'none';
+});
+document.addEventListener('mousemove', function (e) {
+if (dragging) {
+win.style.left = (e.clientX - offsetX) + 'px';
+win.style.top = (e.clientY - offsetY) + 'px';
+}
+});
+document.addEventListener('mouseup', function () {
+dragging = false;
+document.body.style.userSelect = '';
+});
+}
+
+// Função para fechar janela
+function closeWindow(winId) {
+const win = document.querySelector(`.floating-window[data-winid="${winId}"]`);
+if (win) {
+delete windowHistory[winId];
+delete windowHistoryIndex[winId];
+win.remove();
+}
+}
+
+// Z-Index para trazer para frente
+let topZ = 1000;
+function getNextZIndex() {
+return ++topZ;
+}
+function bringWindowToFront(win) {
+win.style.zIndex = getNextZIndex();
+}
+
+// Substitua a função loadPage para usar createFloatingWindow
+function loadPage(src, requiresAuth = false) {
+createFloatingWindow(src, null, requiresAuth);
+}
+
+// ========== CAPTURA E EXIBE ERROS DO CONSOLE ==========
+// Array para armazenar os erros capturados
+window._wzzmErrorLog = [];
+// Captura erros globais de JavaScript
+window.addEventListener('error', function(e) {
+window._wzzmErrorLog.push(`[${new Date().toLocaleTimeString()}] ${e.message} (${e.filename}:${e.lineno})`);
+});
+// Captura rejeições de Promise não tratadas
+window.addEventListener('unhandledrejection', function(e) {
+window._wzzmErrorLog.push(`[${new Date().toLocaleTimeString()}] Unhandled Promise: ${e.reason}`);
+});
+// Intercepta console.error e armazena as mensagens
+(function() {
+const originalError = console.error;
+console.error = function(...args) {
+window._wzzmErrorLog.push(`[${new Date().toLocaleTimeString()}] console.error: ${args.join(' ')}`);
+originalError.apply(console, args);
+};
+})();
+// Mostra o popup com a lista de erros ao clicar no botão
+document.addEventListener('DOMContentLoaded', function() {
+var btn = document.getElementById('error-log-button');
+if (!btn) return;
+btn.addEventListener('click', function() {
+var logList = document.getElementById('error-log-list');
+logList.innerHTML = '';
+if (window._wzzmErrorLog.length === 0) {
+logList.innerHTML = '<li style="color:green;">Nenhum erro registrado nesta sessão.</li>';
+} else {
+window._wzzmErrorLog.slice(-100).forEach(function(msg) {
+var li = document.createElement('li');
+li.textContent = msg;
+logList.appendChild(li);
+});
+}
+document.getElementById('error-log-popup').style.display = 'block';
+});
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+fetch('menu.json')
+.then(response => response.json())
+.then(menuItems => {
+const drawerMenu = document.getElementById('drawer-menu');
+if (!drawerMenu) return;
+drawerMenu.innerHTML = ''; // Limpa itens antigos, se houver
+
+menuItems.forEach(item => {
+const a = document.createElement('a');
+a.className = 'mdl-navigation__link';
+a.href = '#'; // A navegação será controlada pelo onclick
+a.setAttribute('onclick', `loadPage('${item.href}', ${item.requiresAuth})`);
+if (item.requiresAuth) {
+a.setAttribute('data-requires-auth', 'true');
+}
+a.textContent = item.label;
+drawerMenu.appendChild(a);
+});
+})
+.catch(err => {
+console.error('Erro ao carregar menu.json:', err);
+});
+});
+
+// NOVO SCRIPT PARA CARREGAR info-general.json E APLICAR AS MUDANÇAS
+document.addEventListener('DOMContentLoaded', () => {
+fetch('infogeneral.json')
+.then(response => {
+if (!response.ok) {
+throw new Error('infogeneral.json não encontrado ou erro de rede');
+}
+return response.json();
+})
+.then(data => {
+// Altera o título da página
+document.title = data.nomeCompletoWiki || 'Wiki';
+
+// Altera o nome da página no cabeçalho
+const wikiPageName = document.getElementById('wiki-page-name');
+if (wikiPageName) {
+wikiPageName.textContent = data.nomeCompletoWiki || 'Wiki';
+}
+// Altera o nome da página no drawer
+const drawerTitle = document.getElementById('drawer-title');
+if (drawerTitle) {
+drawerTitle.textContent = data.nomePaginaDrawer || 'Navegação';
+}
+
+// Altera o texto do link de "Procurar Artigos"
+const searchArticlesLink = document.getElementById('search-articles-link');
+if (searchArticlesLink) {
+searchArticlesLink.textContent = data.linkProcurarArtigos || 'Procurar Artigos';
+}
+
+// Aplica a cor personalizada
+const customThemeStyle = document.getElementById('custom-theme-color');
+if (customThemeStyle) {
+const css = `
+.mdl-layout__header, .mdl-layout__drawer, #news-popup-header {
+background-color: ${data.corSite || '#3f51b5'} !important;
+}
+.floating-window {
+border-color: ${data.corSite || '#3f51b5'} !important;
+}
+.window-header {
+background: ${data.corSite || '#3f51b5'} !important;
+}
+`;
+customThemeStyle.innerHTML = css;
+}
+})
+.catch(err => {
+console.error('Erro ao carregar infogeneral.json:', err);
+});
+});
+</script>
+<div id="error-log-popup" style="
+display: none;
+position: fixed;
+top: 60px;
+right: 30px;
+width: 400px;
+max-height: 60vh;
+overflow-y: auto;
+background: #fff;
+border: 2px solid #e53935;
+border-radius: 8px;
+box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+z-index: 2000;
+padding: 16px;">
+<div style="display: flex; justify-content: space-between; align-items: center;">
+<span style="font-weight: bold; color: #e53935;">Erros do Console</span>
+<button onclick="document.getElementById('error-log-popup').style.display='none'" style="background:none;border:none;font-size:22px;color:#e53935;cursor:pointer;">×</button>
+</div>
+<ul id="error-log-list" style="margin-top: 12px; color: #b71c1c; font-size: 0.97em;"></ul>
+</div>
 </body>
 </html>
