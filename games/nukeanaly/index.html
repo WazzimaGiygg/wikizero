@@ -151,20 +151,14 @@
         // Importa os módulos necessários do Firebase (v11)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 
-        // --- Configuração e Inicialização do Firebase ---
-        // ATENÇÃO: SUBSTITUA ESTE OBJETO COM AS INFORMAÇÕES DO SEU PROJETO FIREBASE
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+        // --- Variáveis globais do Canvas (não altere) ---
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
-        let db, auth;
+        let db, auth, app;
         let isUserAdmin = false;
         
         // --- Lógica do Visualizador Público (executada antes do restante do script) ---
@@ -173,43 +167,44 @@
         const publicUrlPathPrefix = "/games/";
         
         if (window.location.hostname === publicUrlDomain && window.location.pathname.startsWith(publicUrlPathPrefix)) {
-            // Extrai o nome do documento (documentId) da URL
             const pathParts = window.location.pathname.split('/');
-            const docIdFromUrl = pathParts[2]; // Assume que o nome do documento está na 3ª parte do path
+            const docIdFromUrl = pathParts[2];
             
-            // Verifica se o ID do documento é válido
             if (docIdFromUrl && docIdFromUrl.length > 0) {
-                // Remove o conteúdo do body para evitar que o CMS seja exibido
                 document.body.innerHTML = 'Carregando conteúdo...';
                 
-                // Inicializa o Firebase para buscar o conteúdo (sem autenticação)
                 try {
-                    const app = initializeApp(firebaseConfig);
-                    const db = getFirestore(app);
+                    const publicApp = initializeApp(firebaseConfig, "public-app");
+                    const publicAuth = getAuth(publicApp);
+                    const publicDb = getFirestore(publicApp);
                     const collectionName = "HTML2W";
 
-                    // Cria a query para buscar o documento pelo nomeInterno
-                    const q = query(collection(db, collectionName), where("nomeInterno", "==", docIdFromUrl));
-                    
-                    getDocs(q).then((querySnapshot) => {
-                        if (!querySnapshot.empty) {
-                            // Documento encontrado, substitui o conteúdo do body
-                            const docData = querySnapshot.docs[0].data();
-                            document.body.innerHTML = docData.conteudo;
-                        } else {
-                            // Documento não encontrado
-                            document.body.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Conteúdo para "${docIdFromUrl}" não encontrado.</div>`;
-                        }
-                    }).catch(error => {
-                        console.error("Erro ao buscar documento para visualização:", error);
-                        document.body.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Erro ao carregar conteúdo: ${error.message}</div>`;
-                    });
+                    // Autentica anonimamente para permitir leitura, se as regras do Firestore permitirem
+                    signInAnonymously(publicAuth)
+                        .then(() => {
+                            const q = query(collection(publicDb, collectionName), where("nomeInterno", "==", docIdFromUrl));
+                            
+                            getDocs(q).then((querySnapshot) => {
+                                if (!querySnapshot.empty) {
+                                    const docData = querySnapshot.docs[0].data();
+                                    document.body.innerHTML = docData.conteudo;
+                                } else {
+                                    document.body.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Conteúdo para "${docIdFromUrl}" não encontrado.</div>`;
+                                }
+                            }).catch(error => {
+                                console.error("Erro ao buscar documento para visualização:", error);
+                                document.body.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Erro ao carregar conteúdo: ${error.message}</div>`;
+                            });
+                        })
+                        .catch(error => {
+                            console.error("Erro ao autenticar anonimamente:", error);
+                            document.body.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Erro de autenticação para leitura pública: ${error.message}</div>`;
+                        });
                 } catch (error) {
                     console.error("Erro fatal ao inicializar o Firebase para o visualizador:", error);
                     document.body.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Erro fatal na inicialização do Firebase: ${error.message}</div>`;
                 }
                 
-                // Interrompe a execução do script para que o CMS não seja inicializado
                 return;
             }
         }
@@ -218,9 +213,19 @@
         
         // Inicializa o Firebase com autenticação para o CMS
         try {
-            const app = initializeApp(firebaseConfig);
+            app = initializeApp(firebaseConfig, "admin-app");
             auth = getAuth(app);
             db = getFirestore(app);
+            
+            if (initialAuthToken) {
+              signInWithCustomToken(auth, initialAuthToken).then(() => {
+                  console.log("Autenticação Canvas bem-sucedida.");
+              }).catch(error => {
+                  console.error("Erro de autenticação Canvas:", error);
+              });
+            } else {
+              console.warn("Nenhum token de autenticação Canvas encontrado.");
+            }
             console.log("Firebase inicializado para o CMS com sucesso.");
         } catch (error) {
             console.error("Erro fatal ao inicializar o Firebase para o CMS:", error);
