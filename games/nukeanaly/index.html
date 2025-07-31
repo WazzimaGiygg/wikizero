@@ -1,1692 +1,417 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Reator Nuclear</title>
+    <title>Firebase CMS - Gerenciador de Conteúdo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --bg-color: #222;
-            --main-bg-color: #333;
-            --text-color: #eee;
-            --highlight-color: #0f0;
-            --button-bg-color: #0a0;
-            --button-hover-bg-color: #070;
-            --panel-bg-color: #444;
-            --panel-border-color: #0f0;
-            --info-text-color: #bbb;
-            --warning-text-color: #ff0;
-            --danger-text-color: #f00;
-            --system-text-color: #0f0;
-            --good-status-color: #0f0;
-            --warning-status-color: #ff0;
-            --danger-status-color: #f00;
-            --reactor-map-border: #070;
-            --reactor-map-bg: #2a2a2a;
-            --reactor-cell-bg: #555;
-            --reactor-cell-border: #777;
-            --reactor-cell-hover-bg: #666;
-            --fuel-channel-bg: #005500;
-            --fuel-channel-border: #0f0;
-            --fuel-channel-empty-bg: #660000;
-            --fuel-channel-empty-border: #ff0000;
-            --control-rod-bg: #8B0000;
-            --control-rod-border: #ff0;
-            --control-rod-inserted-level-bg: #00f;
-            --rbmk-fuel-channel-bg: #007700;
-            --rbmk-control-rod-bg: #B22222;
-            --rbmk-control-rod-border: #ff4500;
-            --rbmk-control-rod-inserted-level-bg: #4169e1;
-        }
-
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
         }
-
-        #main-menu, #game-screen, #day-summary-screen, #cheat-menu, #difficulty-selection-screen, #workshop-screen, #settings-menu {
-            background-color: var(--main-bg-color);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px var(--highlight-color);
-            text-align: center;
-            width: 80%;
-            max-width: 900px;
-            margin: 20px auto;
-        }
-
-        h1, h2, h3 {
-            color: var(--highlight-color);
-        }
-
-        button {
-            background-color: var(--button-bg-color);
+        .btn-primary {
+            background-color: #3b82f6;
             color: white;
+            padding: 12px 20px;
             border: none;
-            padding: 12px 25px;
-            margin: 10px;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 1.1em;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 700;
         }
-
-        button:hover {
-            background-color: var(--button-hover-bg-color);
-            transform: translateY(-2px);
+        .btn-primary:hover {
+            background-color: #2563eb;
         }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        #game-screen, #day-summary-screen, #cheat-menu, #difficulty-selection-screen, #workshop-screen, #settings-menu {
-            display: none;
-            text-align: left;
-        }
-
-        #game-layout {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        #reactor-info-panel {
-            flex: 1;
-            min-width: 300px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        #reactor-status, #economic-status, #management-status, #employee-management, #message-box-container {
-            padding: 15px;
-            background-color: var(--panel-bg-color);
-            border-radius: 8px;
-            border: 1px solid var(--panel-border-color);
-            margin-bottom: 15px;
-        }
-
-        #reactor-status p, #economic-status p, #management-status p, #employee-management p {
-            margin: 8px 0;
-            color: var(--text-color);
-        }
-
-        .status-good { color: var(--good-status-color); }
-        .status-warning { color: var(--warning-status-color); }
-        .status-danger { color: var(--danger-status-color); }
-
-        #reactor-map-container {
-            background-color: var(--panel-bg-color);
-            border-radius: 8px;
-            border: 1px solid var(--panel-border-color);
-            padding: 10px;
-            flex-shrink: 0;
-        }
-
-        #reactor-map {
-            display: grid;
-            grid-template-columns: repeat(5, 70px);
-            grid-template-rows: repeat(4, 70px);
-            gap: 5px;
-            width: fit-content;
-            margin: 0 auto;
-            border: 2px solid var(--reactor-map-border);
-            padding: 5px;
-            background-color: var(--reactor-map-bg);
-        }
-
-        /* RBMK Specific Styles */
-        .rbmk #reactor-map {
-            grid-template-columns: repeat(6, 60px); /* Adjust for RBMK layout */
-            grid-template-rows: repeat(5, 60px);
-            gap: 4px;
-        }
-
-        .rbmk .fuel-channel {
-            background-color: var(--rbmk-fuel-channel-bg); /* Darker green for RBMK fuel */
-            border-color: var(--highlight-color);
-        }
-
-        .rbmk .control-rod {
-            background-color: var(--rbmk-control-rod-bg); /* Firered for RBMK control rods */
-            border-color: var(--rbmk-control-rod-border);
-        }
-
-        .rbmk .control-rod-inserted-level {
-            background-color: var(--rbmk-control-rod-inserted-level-bg); /* Royalblue for RBMK inserted level */
-        }
-
-
-        .reactor-cell {
-            width: 70px;
-            height: 70px;
-            background-color: var(--reactor-cell-bg);
-            border: 1px solid var(--reactor-cell-border);
+        .google-button {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.9em;
-            color: var(--text-color);
+            padding: 12px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s ease, border-color 0.2s ease;
-            position: relative;
-        }
-
-        .reactor-cell:hover {
-            background-color: var(--reactor-cell-hover-bg);
-            border-color: var(--highlight-color);
-        }
-
-        .fuel-channel {
-            background-color: var(--fuel-channel-bg);
-            border-color: var(--fuel-channel-border);
-        }
-
-        .fuel-channel.empty {
-            background-color: var(--fuel-channel-empty-bg);
-            border-color: var(--fuel-channel-empty-border);
-        }
-
-        .fuel-channel:hover {
-            background-color: var(--rbmk-fuel-channel-bg);
-        }
-
-        .control-rod {
-            background-color: var(--control-rod-bg);
-            border-color: var(--control-rod-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+            font-weight: 700;
+            background-color: #4285F4;
             color: white;
-            cursor: grab;
-            position: relative;
-            overflow: hidden;
+            transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
-
-        .control-rod:hover {
-            background-color: #A00000;
+        .google-button:hover {
+            background-color: #357ae8;
+            transform: scale(1.05);
         }
-
-        .control-rod-inserted-level {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: var(--control-rod-inserted-level-bg);
-            opacity: 0.7;
-            transition: height 0.2s ease;
+        .google-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
         }
-
-        .control-rod-label {
-            position: relative;
-            z-index: 1;
-            font-size: 0.7em;
-            text-align: center;
-            line-height: 1;
-        }
-
-        #game-controls {
-            margin-top: 20px;
-            text-align: center;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        #drag-all-rods {
-            background-color: #0f9;
-            margin-top: 15px;
-            padding: 10px 20px;
-        }
-
-        #drag-all-rods:hover {
-            background-color: #0c7;
-        }
-
-        #message-box-container {
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        #message-box {
-            height: 150px;
-            background-color: var(--reactor-map-bg);
-            border: 1px solid var(--highlight-color);
-            border-radius: 5px;
-            padding: 10px;
-            overflow-y: scroll;
-            font-size: 0.9em;
-            color: var(--info-text-color);
-            text-align: left;
-        }
-
-        .message-entry {
-            margin-bottom: 5px;
-            line-height: 1.2;
-        }
-
-        .message-info { color: var(--info-text-color); }
-        .message-warning { color: var(--warning-text-color); }
-        .message-danger { color: var(--danger-text-color); }
-        .message-system { color: var(--system-text-color); }
-
-        #employee-management button {
-            margin: 5px;
-            padding: 8px 15px;
-            font-size: 0.9em;
-        }
-
-        .current-level {
-            font-weight: bold;
-            color: var(--highlight-color);
-        }
-
-        #day-summary-screen p, #workshop-screen p, #settings-menu p {
-            font-size: 1.1em;
-            margin-bottom: 10px;
-        }
-        #day-summary-screen .summary-value {
-            font-weight: bold;
-            color: var(--highlight-color);
-        }
-
-        #cheat-menu label, #cheat-menu input, #cheat-menu button,
-        #settings-menu label, #settings-menu input[type="color"], #settings-menu button {
-            margin: 5px 0;
-            display: block;
-            width: calc(100% - 10px);
-            max-width: 300px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        #cheat-menu input[type="range"] {
-            width: 100%;
-        }
-        #settings-menu .setting-group {
-            border: 1px solid var(--panel-border-color);
-            padding: 15px;
-            margin-bottom: 20px;
+        #copy-url-button {
+            background-color: #4caf50;
+            color: white;
+            padding: 8px 12px;
+            border: none;
             border-radius: 8px;
-            text-align: left;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.875rem;
+            margin-top: 8px;
         }
-        #settings-menu .setting-group h3 {
-            margin-top: 0;
-            color: var(--highlight-color);
-        }
-        #settings-menu .setting-group button {
-            display: inline-block;
-            width: auto;
-            margin-right: 10px;
-        }
-
-        #difficulty-selection-screen button, #workshop-screen .reactor-option button {
-            background-color: #007bff;
-            margin: 15px;
-            padding: 15px 30px;
-            font-size: 1.2em;
-        }
-        #difficulty-selection-screen button:hover, #workshop-screen .reactor-option button:hover {
-            background-color: #0056b3;
-        }
-
-        #workshop-screen .reactor-option {
-            border: 1px solid var(--panel-border-color);
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-        #workshop-screen .reactor-option h3 {
-            margin-top: 0;
-            color: var(--highlight-color);
-        }
-        #workshop-screen .reactor-option p {
-            margin-bottom: 5px;
-            color: var(--text-color);
-        }
-        #workshop-screen .reactor-option .price {
-            font-weight: bold;
-            color: var(--warning-text-color);
-            font-size: 1.2em;
+        #copy-url-button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
-<body>
-    <div id="main-menu">
-        <h1 id="main-title-reactor">Simulador de Reator Nuclear BWR</h1>
-        <button onclick="openDifficultySelection()">Iniciar Novo Jogo</button>
-        <button onclick="loadGame()">Carregar Jogo</button>
-        <button onclick="openWorkshop()">Workshop</button>
-        <button onclick="openSettings()">Configurações</button>
-    </div>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div id="admin-container" class="container bg-white rounded-xl shadow-lg p-8 space-y-6 max-w-2xl w-full">
+        <h1 class="text-3xl font-bold text-center text-blue-700">Firebase CMS - Gerenciador de Conteúdo</h1>
 
-    <div id="difficulty-selection-screen">
-        <h2>Selecione a Dificuldade</h2>
-        <button onclick="startGame('easy')">Fácil</button>
-        <button onclick="startGame('medium')">Médio</button>
-        <button onclick="startGame('hard')">Difícil</button>
-        <button onclick="backToMenu()">Voltar ao Menu</button>
-    </div>
+        <p class="text-gray-600 text-center">Faça login com uma conta de administrador para salvar e carregar conteúdo no Firestore.</p>
 
-    <div id="workshop-screen">
-        <h2>Workshop de Reatores</h2>
-        <p>Dólares Nucleares Atuais: <span id="workshop-current-dollars">$0</span></p>
-
-        <div id="current-reactor-info">
-            <h3>Seu Reator Atual: <span id="current-reactor-type">BWR Padrão</span></h3>
-            <p id="current-reactor-description">Seu reator inicial, confiável mas sem recursos extras.</p>
+        <div id="status-message" class="text-center text-lg font-semibold p-4 rounded-lg bg-gray-200 text-gray-800">
+            Por favor, faça login para continuar.
+        </div>
+        
+        <div id="auth-section" class="space-y-4">
+            <h2 class="text-2xl font-bold text-center text-blue-700">Login</h2>
+            
+            <button id="googleLoginButton" class="w-full google-button">
+                <svg class="google-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M44.5 20H24V28H37C35.9 31.8 33.3 36.3 29.5 39.1L29.4 39.2L35 43.4L35.1 43.5C39 39.1 41.5 33.2 41.5 26.5C41.5 24.6 41.2 22.8 40.8 21.1H44.5Z" fill="#4285F4"/>
+                    <path d="M24 44.5C30.6 44.5 36.2 42.4 40.8 38.6L35.1 34.4L35 34.3C33.2 35.7 30.7 36.6 28 36.6C22.6 36.6 18 33.1 16.2 27.9L16.1 27.8L10.3 32.2L10.2 32.3C12 36.7 17.5 41.5 24 41.5Z" fill="#34A853"/>
+                    <path d="M9.9 27.9C9.4 26.4 9.1 24.7 9.1 23C9.1 21.3 9.4 19.6 9.9 18.1L9.9 18L4.1 13.7L4 13.8C2.1 17.8 1.1 22.3 1.1 27C1.1 31.7 2.1 36.2 4 40.2L9.9 36L9.9 27.9Z" fill="#FABC05"/>
+                    <path d="M24 9.5C26.9 9.5 29.6 10.6 31.8 12.5L36.2 8.1C32.3 4.5 28.3 2.5 24 2.5C17.5 2.5 12 7.3 10.2 11.7L16.1 15.9C18 10.7 22.6 7.5 28 7.5Z" fill="#EA4335"/>
+                </svg>
+                Entrar com Google
+            </button>
         </div>
 
-        <div class="reactor-option" id="reactor-option-bwr-plus">
-            <h3>BWR (Circuito Adicional)</h3>
-            <p>Uma versão aprimorada do reator BWR, com um circuito de resfriamento adicional para maior estabilidade.</p>
-            <p class="price" id="bwr-plus-price"></p>
-            <button onclick="buyReactor('bwr_plus')" id="buy-bwr-plus-button"></button>
-        </div>
+        <div id="admin-controls" class="space-y-6" style="display:none;">
+            <p id="user-info" class="text-center font-semibold text-gray-700">Bem-vindo, <span id="currentUserEmail"></span>!</p>
+            <button id="logoutButton" class="w-full bg-red-500 text-white font-bold py-3 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 hover:bg-red-600">Sair</button>
 
-        <div class="reactor-option" id="reactor-option-rbmk">
-            <h3>RBMK</h3>
-            <p>Um reator com um design único de canais de combustível e barras de controle. Maior potência, mas exige gerenciamento diferente.</p>
-            <p class="price" id="rbmk-price"></p>
-            <button onclick="buyReactor('rbmk')" id="buy-rbmk-button"></button>
-        </div>
+            <hr class="border-gray-300">
 
-        <button onclick="backToMenu()">Voltar ao Menu</button>
-    </div>
-
-    <div id="settings-menu">
-        <h2>Configurações</h2>
-
-        <div class="setting-group">
-            <h3>Unidade de Temperatura</h3>
-            <p>Unidade Atual: <span id="temp-unit-display">Celsius</span></p>
-            <button onclick="setTemperatureUnit('celsius')">Celsius</button>
-            <button onclick="setTemperatureUnit('fahrenheit')">Fahrenheit</button>
-        </div>
-
-        <div class="setting-group">
-            <h3>Duração do Dia no Jogo</h3>
-            <p>Duração Atual: <span id="day-duration-display">10 Minutos</span></p>
-            <button onclick="setDayDuration('short')">10 Minutos</button>
-            <button onclick="setDayDuration('medium')">1 Hora</button>
-            <button onclick="setDayDuration('long')">1 Dia (Real)</button>
-        </div>
-
-        <div class="setting-group">
-            <h3>Personalização de Cores</h3>
-            <label for="color-main-background">Cor de Fundo Principal:</label>
-            <input type="color" id="color-main-background" value="#333333" onchange="updateColor('--main-bg-color', this.value)">
-            <label for="color-highlight">Cor de Destaque:</label>
-            <input type="color" id="color-highlight" value="#00ff00" onchange="updateColor('--highlight-color', this.value)">
-            <label for="color-button">Cor dos Botões:</label>
-            <input type="color" id="color-button" value="#00aa00" onchange="updateColor('--button-bg-color', this.value)">
-        </div>
-
-        <button onclick="backToMenu()">Voltar ao Menu</button>
-    </div>
-
-    <div id="game-screen">
-        <h2>Reator Nuclear BWR</h2>
-        <div id="game-layout">
-            <div id="reactor-info-panel">
-                <div id="reactor-status">
-                    <h3>Status do Reator:</h3>
-                    <p>Estado: <span id="status-state" class="status-danger">Desligado</span></p>
-                    <p>Tipo de Reator: <span id="status-reactor-type">BWR Padrão</span></p>
-                    <p>Dificuldade: <span id="status-difficulty">Fácil</span></p>
-                    <p>Barras de Controle: <span id="status-control-rods" class="status-warning">Inseridas</span></p>
-                    <p>Fluxo de Água: <span id="status-water-flow" class="status-warning">Baixo</span></p>
-                    <p>Temperatura: <span id="status-temperature" class="status-good">25°C</span></p>
-                    <p>Pressão: <span id="status-pressure" class="status-good">1 atm</span></p>
-                    <p>Nível de Alarme: <span id="status-alarm-level" class="status-good">Nenhum</span></p>
+            <!-- Salvar Conteúdo -->
+            <div class="space-y-4">
+                <h2 class="text-2xl font-bold text-blue-700">Salvar Conteúdo</h2>
+                
+                <div>
+                    <label for="documentName" class="block text-gray-700 font-semibold mb-1">Nome do Documento (ID):</label>
+                    <input type="text" id="documentName" placeholder="Ex: meu-primeiro-documento" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
-                <div id="economic-status">
-                    <h3>Economia:</h3>
-                    <p>Combustível Restante: <span id="status-fuel-percentage" class="status-good">100%</span></p>
-                    <p>Megawatts Gerados: <span id="status-megawatts" class="status-good">0 MW</span></p>
-                    <p>Dólares Nucleares: <span id="status-nuclear-dollars" class="status-good">$0</span></p>
+                <div>
+                    <label for="internalName" class="block text-gray-700 font-semibold mb-1">Nome Interno:</label>
+                    <input type="text" id="internalName" placeholder="Ex: Artigo sobre tecnologia" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-
-                <div id="management-status">
-                    <h3>Gerenciamento:</h3>
-                    <p>Dias Operacionais: <span id="status-days">0</span></p>
-                    <p>Custo Diário de Operação: <span id="status-daily-cost">$1000</span></p>
-                    <button onclick="buyFuelChannels()" id="buy-fuel-button" style="display: none;">Comprar Canais de Combustível (x14 - $140000)</button>
+                
+                <div>
+                    <label for="content" class="block text-gray-700 font-semibold mb-1">Conteúdo:</label>
+                    <textarea id="content" placeholder="Insira seu conteúdo aqui..." rows="8" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                 </div>
-
-                <div id="employee-management">
-                    <h3>Nível dos Funcionários:</h3>
-                    <p>Nível Atual: <span id="employee-level" class="current-level">Iniciante</span></p>
-                    <button onclick="setEmployeeLevel('beginner')">Iniciante ($1000/dia)</button>
-                    <button onclick="setEmployeeLevel('medium')">Médio ($2000/dia)</button>
-                    <button onclick="setEmployeeLevel('high')">Alto ($8000/dia)</button>
-                </div>
+                
+                <button id="saveButton" onclick="saveContent()" class="w-full btn-primary text-white font-bold py-3 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">Salvar Conteúdo</button>
             </div>
+            
+            <hr class="border-gray-300">
 
-            <div id="reactor-map-container">
-                <h3>Mapa do Reator (Canais de Combustível e Barras de Controle)</h3>
-                <div id="reactor-map">
+            <!-- Abrir Conteúdo -->
+            <div class="space-y-4">
+                <h2 class="text-2xl font-bold text-blue-700">Abrir Conteúdo</h2>
+                
+                <div>
+                    <label for="openDocumentName" class="block text-gray-700 font-semibold mb-1">Nome do Documento para Abrir (ID):</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="openDocumentName" placeholder="Ex: meu-primeiro-documento" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button id="copyPublicUrlButton" onclick="copyPublicUrl()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm transition duration-300 ease-in-out hover:bg-gray-300">Copiar URL Pública</button>
                     </div>
-                <button id="drag-all-rods" onmousedown="startDragAllRods(event)">Mover Todas as Barras de Controle</button>
+                </div>
+
+                <button id="openButton" onclick="openContent()" class="w-full bg-green-500 text-white font-bold py-3 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 hover:bg-green-600">Abrir Conteúdo</button>
             </div>
         </div>
 
-        <div id="message-box-container">
-            <h3>Caixa de Mensagens:</h3>
-            <div id="message-box">
-                </div>
+        <div id="contentDisplay" class="bg-gray-50 p-6 rounded-lg shadow-inner space-y-4">
+            <h3 class="text-xl font-bold text-blue-700">Conteúdo Recuperado:</h3>
+            <p id="displayInternalName" class="text-gray-700">Nome Interno: <span class="font-normal text-gray-600">N/A</span></p>
+            <p id="displayContent" class="text-gray-700">Conteúdo: <span class="font-normal text-gray-600">N/A</span></p>
         </div>
 
-        <div id="game-controls">
-            <button onclick="powerOn()">Ligar</button>
-            <button onclick="powerOff()">Desligar</button>
-            <button onclick="removeControlRods()">Remover Todas as Barras</button>
-            <button onclick="addControlRods()">Adicionar Todas as Barras</button>
-            <button onclick="increaseWaterFlow()">Aumentar Fluxo de Água</button>
-            <button onclick="decreaseWaterFlow()">Diminuir Fluxo de Água</button>
-            <button onclick="emergencyShutdown()">Desligamento de Emergência</button>
-            <button onclick="ignoreAlarm()">Ignorar Alarme</button>
-            <button onclick="endDayImmediatelyFromGame()">Finalizar Dia Agora</button>
-            <button onclick="saveGame()">Salvar Jogo</button>
+        <!-- Custom Modal for Alerts -->
+        <div id="custom-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
+            <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-4 text-center">
+                <p id="modal-message" class="text-lg font-medium mb-4"></p>
+                <button onclick="hideModal()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300">OK</button>
+            </div>
         </div>
-        <button onclick="backToMenu()" style="margin-top: 20px;">Voltar ao Menu</button>
     </div>
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        // Importa os módulos necessários do Firebase (v11)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    <div id="day-summary-screen">
-        <h2>Resumo do Dia <span id="summary-day-number"></span></h2>
-        <p>Ganhos de Megawatts: <span id="summary-mw-gain" class="summary-value">$0</span></p>
-        <p>Custos de Operação: <span id="summary-costs" class="summary-value">$0</span></p>
-        <p>Penalidades Aplicadas: <span id="summary-penalties" class="summary-value">$0</span></p>
-        <p>Eventos (Custos): <span id="summary-event-costs" class="summary-value">$0</span></p>
-        <p>Balanço do Dia: <span id="summary-daily-balance" class="summary-value">$0</span></p>
-        <p>Dólares Nucleares Totais: <span id="summary-total-dollars" class="summary-value">$0</span></p>
-        <button onclick="startNextDay()">Continuar para o Próximo Dia</button>
-        <button onclick="openWorkshop()">Workshop</button>
-    </div>
-
-    <div id="cheat-menu">
-        <h2>Menu de Cheats (Desenvolvedor)</h2>
-        <label for="cheat-dollars">Dólares Nucleares:</label>
-        <input type="number" id="cheat-dollars" value="0">
-        <button onclick="applyCheat('dollars')">Aplicar Dólares</button>
-
-        <label for="cheat-fuel">Combustível (%):</label>
-        <input type="range" id="cheat-fuel" min="0" max="100" value="100" oninput="document.getElementById('cheat-fuel-value').innerText = this.value + '%'">
-        <span id="cheat-fuel-value">100%</span>
-        <button onclick="applyCheat('fuel')">Aplicar Combustível</button>
-
-        <label for="cheat-temp">Temperatura (°C):</label>
-        <input type="number" id="cheat-temp" value="25">
-        <button onclick="applyCheat('temperature')">Aplicar Temperatura</button>
-
-        <label for="cheat-pressure">Pressão (atm):</label>
-        <input type="number" id="cheat-pressure" value="1">
-        <button onclick="applyCheat('pressure')">Aplicar Pressão</button>
-
-        <label for="cheat-mw">Megawatts (MW):</label>
-        <input type="number" id="cheat-mw" value="0">
-        <button onclick="applyCheat('megawatts')">Aplicar Megawatts</button>
-
-        <button onclick="toggleIgnorePenalties()">Ignorar Penalidades: <span id="cheat-ignore-penalties-status">Desativado</span></button>
-        <button onclick="endDayImmediatelyFromCheatMenu()">Finalizar Dia Imediatamente (Cheat)</button>
-        <button onclick="hideCheatMenu()">Voltar ao Menu Principal</button>
-    </div>
-
-    <script>
-        // --- Variáveis de Estado do Jogo ---
-        let reactorState = 'off'; // 'off', 'starting', 'running', 'emergency'
-        let controlRods = 'inserted'; // 'inserted', 'removed', 'partial'
-        let waterFlow = 'low'; // 'low', 'medium', 'high'
-        let temperature = 25; // em °C
-        let pressure = 1; // em atm
-        let alarmLevel = 'none'; // 'none', 'low', 'medium', 'high'
-        let gameInterval; // Para o loop principal do jogo
-        let elapsedGameSeconds = 0; // Tempo em segundos desde o início do jogo
-        let cheatClickCount = 0; // Contador para o cheat do menu principal
-
-        let fuelPercentage = 100; // Porcentagem de combustível restante
-        let megawattsGenerated = 0; // MW gerados no momento
-        let nuclearDollars = 10000; // Dinheiro do jogador - **Inicia com $10.000**
-        let daysOperated = 0; // Dias de operação
-        const FUEL_CHANNEL_COST = 10000; // Custo de cada canal
-        const MIN_STARTING_DOLLARS = 10000; // Mínimo de dólares para iniciar o jogo
-        const NUM_FUEL_CHANNELS = 14; // Usado para calcular o custo de reabastecimento
-
-        // Variáveis para o resumo do dia
-        let dailyMegawattGain = 0;
-        let dailyCosts = 0;
-        let dailyPenalties = 0;
-        let dailyEventCosts = 0; // Novo para custos de eventos
-
-        // Variáveis de funcionários
-        let employeeLevel = 'beginner'; // 'beginner', 'medium', 'high'
-        const EMPLOYEE_COSTS = {
-            'beginner': 1000,
-            'medium': 2000,
-            'high': 8000
+        // --- Configuração e Inicialização do Firebase ---
+        // ATENÇÃO: SUBSTITUA ESTE OBJETO COM AS INFORMAÇÕES DO SEU PROJETO FIREBASE
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
-        const EMPLOYEE_INFO_INTERVALS = { // Em segundos
-            'reactor_status': { 'beginner': 10, 'medium': Infinity, 'high': 5 },
-            'refuel_need': { 'beginner': 30, 'medium': Infinity, 'high': Infinity },
-            'energy_monitor': { 'beginner': 10, 'medium': 10, 'high': Infinity },
-            'admin_penalty': { 'beginner': 60, 'medium': 30, 'high': 30 }
-        };
-        const EMPLOYEE_AUTOMATION = {
-            'refuel_auto': { 'beginner': false, 'medium': true, 'high': false },
-            'reactor_maintenance': { 'beginner': false, 'medium': true, 'high': true },
-            'energy_maintenance': { 'beginner': false, 'medium': true, 'high': false },
-            'energy_auto_system': { 'beginner': false, 'medium': false, 'high': true }
-        };
-        const PENALTY_THRESHOLD_TEMP = 190;
-        const CRITICAL_TEMP_NO_MELTDOWN = 250;
+        
+        let db, auth;
+        let isUserAdmin = false;
+        
+        // --- Lógica do Visualizador Público (executada antes do restante do script) ---
+        // Verifica se a URL corresponde ao padrão de visualização pública
+        const publicUrlDomain = "wikizero.wzzm.org";
+        const publicUrlPathPrefix = "/games/";
+        
+        if (window.location.hostname === publicUrlDomain && window.location.pathname.startsWith(publicUrlPathPrefix)) {
+            // Extrai o nome do documento (documentId) da URL
+            const pathParts = window.location.pathname.split('/');
+            const docIdFromUrl = pathParts[2]; // Assume que o nome do documento está na 3ª parte do path
+            
+            // Verifica se o ID do documento é válido
+            if (docIdFromUrl && docIdFromUrl.length > 0) {
+                // Remove o conteúdo do body para evitar que o CMS seja exibido
+                document.body.innerHTML = 'Carregando conteúdo...';
+                
+                // Inicializa o Firebase para buscar o conteúdo (sem autenticação)
+                try {
+                    const app = initializeApp(firebaseConfig);
+                    const db = getFirestore(app);
+                    const collectionName = "HTML2W";
 
-        // Variável para o cheat de ignorar penalidades
-        let ignorePenaltiesCheat = false;
-
-        // --- Configurações de Dificuldade ---
-        let currentDifficulty = 'easy'; // Padrão
-        const DIFFICULTY_SETTINGS = {
-            'easy': {
-                temp_inc_low_rods: 0.1, temp_inc_mid_rods: 0.4, temp_inc_high_rods: 1.0,
-                pressure_inc_low_rods: 0.01, pressure_inc_mid_rods: 0.04, pressure_inc_high_rods: 0.1,
-                temp_dec_medium_water: 0.05, temp_dec_high_water: 0.2,
-                pressure_dec_medium_water: 0.005, pressure_dec_high_water: 0.02,
-                random_temp_spike_chance: 0.05, random_pressure_spike_chance: 0.02,
-                random_temp_spike_max: 5, random_pressure_spike_max: 0.5,
-                event_frequency: 1200, // 20 minutos
-                event_cost_min: 500, event_cost_max: 2000
-            },
-            'medium': {
-                temp_inc_low_rods: 0.2, temp_inc_mid_rods: 0.8, temp_inc_high_rods: 2.0,
-                pressure_inc_low_rods: 0.02, pressure_inc_mid_rods: 0.08, pressure_inc_high_rods: 0.2,
-                temp_dec_medium_water: 0.1, temp_dec_high_water: 0.5,
-                pressure_dec_medium_water: 0.01, pressure_dec_high_water: 0.05,
-                random_temp_spike_chance: 0.1, random_pressure_spike_chance: 0.05,
-                random_temp_spike_max: 10, random_pressure_spike_max: 1.0,
-                event_frequency: 600, // 10 minutos
-                event_cost_min: 1000, event_cost_max: 5000
-            },
-            'hard': {
-                temp_inc_low_rods: 0.4, temp_inc_mid_rods: 1.5, temp_inc_high_rods: 4.0,
-                pressure_inc_low_rods: 0.04, pressure_inc_mid_rods: 0.15, pressure_inc_high_rods: 0.4,
-                temp_dec_medium_water: 0.2, temp_dec_high_water: 1.0,
-                pressure_dec_medium_water: 0.02, pressure_dec_high_water: 0.1,
-                random_temp_spike_chance: 0.2, random_pressure_spike_chance: 0.1,
-                random_temp_spike_max: 15, random_pressure_spike_max: 2.0,
-                event_frequency: 300, // 5 minutos
-                event_cost_min: 2000, event_cost_max: 10000
-            }
-        };
-
-        // --- Configurações de Reator ---
-        let currentReactorType = 'bwr_standard'; // 'bwr_standard', 'bwr_plus', 'rbmk'
-        const REACTOR_CONFIGS = {
-            'bwr_standard': {
-                name: 'BWR Padrão',
-                description: 'Seu reator inicial, confiável mas sem recursos extras.',
-                fuel_channels: [
-                    0, 1, 0, 1, 0,
-                    1, 0, 0, 0, 1,
-                    0, 0, 1, 0, 0,
-                    1, 0, 0, 0, 0
-                ],
-                control_rod_indices: [1, 3, 5, 9, 12, 15],
-                water_cooling_efficiency: {
-                    'low': 0, 'medium': 0.1, 'high': 0.2 // Redução percentual da temperatura/pressão
-                },
-                base_megawatt_output: 100, // MW a 100C
-                max_megawatt_output: 190, // MW a 190C
-                buy_cost: null // Não pode ser comprado
-            },
-            'bwr_plus': {
-                name: 'BWR (Circuito Adicional)',
-                description: 'Uma versão aprimorada do reator BWR, com um circuito de resfriamento adicional para maior estabilidade.',
-                fuel_channels: [
-                    0, 1, 0, 1, 0,
-                    1, 0, 0, 0, 1,
-                    0, 0, 1, 0, 0,
-                    1, 0, 0, 0, 0
-                ],
-                control_rod_indices: [1, 3, 5, 9, 12, 15],
-                water_cooling_efficiency: {
-                    'low': 0, 'medium': 0.2, 'high': 0.3 // Melhor eficiência de resfriamento
-                },
-                base_megawatt_output: 110,
-                max_megawatt_output: 210,
-                buy_cost: () => Math.floor(Math.random() * (200000 - 150000 + 1)) + 150000 // Preço entre 150k e 200k
-            },
-            'rbmk': {
-                name: 'RBMK',
-                description: 'Um reator com um design único de canais de combustível e barras de controle. Maior potência, mas exige gerenciamento diferente.',
-                fuel_channels: [ // Exemplo de layout RBMK (maior, mais canais de combustível)
-                    0, 1, 0, 0, 1, 0,
-                    1, 0, 0, 0, 0, 1,
-                    0, 0, 1, 0, 0, 0,
-                    1, 0, 0, 0, 0, 1,
-                    0, 1, 0, 0, 1, 0
-                ],
-                control_rod_indices: [1, 4, 6, 11, 14, 19, 22, 25, 28], // Mais barras de controle
-                water_cooling_efficiency: {
-                    'low': 0, 'medium': 0.05, 'high': 0.1 // Menor eficiência de resfriamento (característica RBMK)
-                },
-                base_megawatt_output: 150,
-                max_megawatt_output: 250,
-                buy_cost: () => Math.floor(Math.random() * (300000 - 250000 + 1)) + 250000 // Preço entre 250k e 300k
-            }
-        };
-
-        let currentReactorMapConfig;
-        let currentControlRodIndices;
-        let controlRodInsertionLevels;
-
-        // --- Novas Variáveis de Configuração ---
-        let temperatureUnit = 'celsius'; // 'celsius' ou 'fahrenheit'
-        let dayDurationSeconds = 600; // Padrão: 10 minutos (600 segundos)
-        const DAY_DURATIONS = {
-            'short': 600,    // 10 minutos
-            'medium': 3600,  // 1 hora
-            'long': 86400    // 1 dia real
-        };
-        const DAY_DURATION_NAMES = {
-            'short': '10 Minutos',
-            'medium': '1 Hora',
-            'long': '1 Dia (Real)'
-        };
-
-        // --- Elementos HTML ---
-        const statusState = document.getElementById('status-state');
-        const statusReactorType = document.getElementById('status-reactor-type');
-        const statusDifficulty = document.getElementById('status-difficulty');
-        const statusControlRods = document.getElementById('status-control-rods');
-        const statusWaterFlow = document.getElementById('status-water-flow');
-        const statusTemperature = document.getElementById('status-temperature');
-        const statusPressure = document.getElementById('status-pressure');
-        const statusAlarmLevel = document.getElementById('status-alarm-level');
-
-        const statusFuelPercentage = document.getElementById('status-fuel-percentage');
-        const statusMegawatts = document.getElementById('status-megawatts');
-        const statusNuclearDollars = document.getElementById('status-nuclear-dollars');
-        const statusDays = document.getElementById('status-days');
-        const statusDailyCost = document.getElementById('status-daily-cost');
-        const buyFuelButton = document.getElementById('buy-fuel-button');
-        const employeeLevelDisplay = document.getElementById('employee-level');
-        const messageBox = document.getElementById('message-box');
-
-        const reactorMapElement = document.getElementById('reactor-map');
-
-        const summaryDayNumber = document.getElementById('summary-day-number');
-        const summaryMwGain = document.getElementById('summary-mw-gain');
-        const summaryCosts = document.getElementById('summary-costs');
-        const summaryPenalties = document.getElementById('summary-penalties');
-        const summaryEventCosts = document.getElementById('summary-event-costs'); // Novo elemento
-        const summaryDailyBalance = document.getElementById('summary-daily-balance');
-        const summaryTotalDollars = document.getElementById('summary-total-dollars');
-
-        const cheatDollarsInput = document.getElementById('cheat-dollars');
-        const cheatFuelInput = document.getElementById('cheat-fuel');
-        const cheatTempInput = document.getElementById('cheat-temp');
-        const cheatPressureInput = document.getElementById('cheat-pressure');
-        const cheatMwInput = document.getElementById('cheat-mw');
-        const cheatIgnorePenaltiesStatus = document.getElementById('cheat-ignore-penalties-status');
-
-        const workshopCurrentDollars = document.getElementById('workshop-current-dollars');
-        const currentReactorTypeDisplay = document.getElementById('current-reactor-type');
-        const currentReactorDescription = document.getElementById('current-reactor-description');
-        const bwrPlusPriceDisplay = document.getElementById('bwr-plus-price');
-        const buyBwrPlusButton = document.getElementById('buy-bwr-plus-button');
-        const rbmkPriceDisplay = document.getElementById('rbmk-price');
-        const buyRbmkButton = document.getElementById('buy-rbmk-button');
-
-        // Novos elementos de configurações
-        const tempUnitDisplay = document.getElementById('temp-unit-display');
-        const dayDurationDisplay = document.getElementById('day-duration-display');
-        const colorMainBackgroundInput = document.getElementById('color-main-background');
-        const colorHighlightInput = document.getElementById('color-highlight');
-        const colorButtonInput = document.getElementById('color-button');
-
-
-        // --- Funções Auxiliares de Temperatura ---
-        function celsiusToFahrenheit(celsius) {
-            return (celsius * 9/5) + 32;
-        }
-
-        function fahrenheitToCelsius(fahrenheit) {
-            return (fahrenheit - 32) * 5/9;
-        }
-
-        // --- Funções de Mensagens ---
-        function addMessage(text, type = 'info') {
-            const messageElement = document.createElement('p');
-            messageElement.classList.add('message-entry', `message-${type}`);
-            messageElement.textContent = `[Dia ${daysOperated}, Seg ${elapsedGameSeconds % 60}] ${text}`;
-            messageBox.prepend(messageElement);
-            if (messageBox.children.length > 50) {
-                messageBox.removeChild(messageBox.lastChild);
-            }
-        }
-
-        // --- Funções de Atualização de Display ---
-        function updateReactorStatusDisplay() {
-            statusState.textContent = reactorState === 'off' ? 'Desligado' :
-                                      reactorState === 'starting' ? 'Iniciando' :
-                                      reactorState === 'running' ? 'Funcionando' :
-                                      'Emergência';
-            statusState.className = reactorState === 'emergency' ? 'status-danger' :
-                                    reactorState === 'running' ? 'status-good' : 'status-warning';
-
-            statusReactorType.textContent = REACTOR_CONFIGS[currentReactorType].name;
-            statusDifficulty.textContent = currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1);
-
-
-            const avgControlRodInsertion = controlRodInsertionLevels.reduce((sum, level) => sum + level, 0) / controlRodInsertionLevels.length;
-            if (avgControlRodInsertion > 90) {
-                controlRods = 'inserted';
-                statusControlRods.textContent = 'Inseridas';
-                statusControlRods.className = 'status-good';
-            } else if (avgControlRodInsertion < 10) {
-                controlRods = 'removed';
-                statusControlRods.textContent = 'Removidas';
-                statusControlRods.className = 'status-danger';
-            } else {
-                controlRods = 'partial';
-                statusControlRods.textContent = 'Parcialmente Inseridas';
-                statusControlRods.className = 'status-warning';
-            }
-
-
-            statusWaterFlow.textContent = waterFlow === 'low' ? 'Baixo' :
-                                        waterFlow === 'medium' ? 'Médio' : 'Alto';
-            statusWaterFlow.className = waterFlow === 'low' ? 'status-warning' :
-                                        waterFlow === 'medium' ? 'status-good' : 'status-danger';
-
-            let displayedTemperature = temperature;
-            let tempUnitSymbol = '°C';
-            if (temperatureUnit === 'fahrenheit') {
-                displayedTemperature = celsiusToFahrenheit(temperature);
-                tempUnitSymbol = '°F';
-            }
-            statusTemperature.textContent = `${displayedTemperature.toFixed(1)}${tempUnitSymbol}`;
-            statusTemperature.className = (temperature > 150) ? 'status-danger' :
-                                          (temperature > 90) ? 'status-warning' : 'status-good';
-
-            statusPressure.textContent = `${pressure.toFixed(1)} atm`;
-            statusPressure.className = pressure > 15 ? 'status-danger' :
-                                       pressure > 8 ? 'status-warning' : 'status-good';
-
-            statusAlarmLevel.textContent = alarmLevel === 'none' ? 'Nenhum' :
-                                           alarmLevel === 'low' ? 'Baixo' :
-                                           alarmLevel === 'medium' ? 'Médio' : 'Alto';
-            statusAlarmLevel.className = alarmLevel === 'high' ? 'status-danger' :
-                                         alarmLevel === 'medium' ? 'status-warning' : 'status-good';
-
-            statusFuelPercentage.textContent = `${fuelPercentage.toFixed(1)}%`;
-            statusFuelPercentage.className = fuelPercentage < 10 ? 'status-danger' :
-                                             fuelPercentage < 30 ? 'status-warning' : 'status-good';
-            statusMegawatts.textContent = `${megawattsGenerated.toFixed(0)} MW`;
-            statusNuclearDollars.textContent = `$${nuclearDollars.toFixed(2)}`;
-
-            statusDays.textContent = daysOperated;
-            statusDailyCost.textContent = `$${EMPLOYEE_COSTS[employeeLevel] * (dayDurationSeconds / 150)}`; // Adjusted daily cost based on intervals
-            // Assuming 150 seconds (2.5 minutes) is the base interval for daily employee cost
-
-            if (fuelPercentage <= 0) {
-                buyFuelButton.style.display = 'block';
-            } else {
-                buyFuelButton.style.display = 'none';
-            }
-            employeeLevelDisplay.textContent = employeeLevel.charAt(0).toUpperCase() + employeeLevel.slice(1);
-        }
-
-        function createReactorMap() {
-            reactorMapElement.innerHTML = '';
-            reactorMapElement.className = ''; // Remove classes anteriores
-            reactorMapElement.classList.add(currentReactorType === 'rbmk' ? 'rbmk' : 'bwr'); // Adiciona classe específica para estilos
-
-            currentReactorMapConfig.forEach((cellType, index) => {
-                const cell = document.createElement('div');
-                cell.classList.add('reactor-cell');
-
-                if (cellType === 0) {
-                    cell.classList.add('fuel-channel');
-                    cell.title = `Canal de Combustível ${index + 1}`;
-                    if (fuelPercentage <= 0) {
-                        cell.classList.add('empty');
-                    } else {
-                        cell.classList.remove('empty');
-                    }
-                } else if (cellType === 1) {
-                    cell.classList.add('control-rod');
-                    cell.title = `Barra de Controle ${currentControlRodIndices.indexOf(index) + 1}`;
-                    cell.dataset.rodIndex = currentControlRodIndices.indexOf(index);
-                    cell.innerHTML = `<span class="control-rod-label">CR ${currentControlRodIndices.indexOf(index) + 1}</span><div class="control-rod-inserted-level"></div>`;
-                    setupControlRodDragging(cell);
-                }
-                reactorMapElement.appendChild(cell);
-            });
-            updateControlRodDisplay();
-        }
-
-        function updateControlRodDisplay() {
-            currentControlRodIndices.forEach((mapIndex, rodArrIndex) => {
-                const cell = reactorMapElement.children[mapIndex];
-                if (cell) {
-                    const insertedLevelDiv = cell.querySelector('.control-rod-inserted-level');
-                    if (insertedLevelDiv) {
-                        insertedLevelDiv.style.height = `${controlRodInsertionLevels[rodArrIndex]}%`;
-                    }
-                }
-            });
-        }
-
-        function updateFuelChannelDisplay() {
-            currentReactorMapConfig.forEach((cellType, index) => {
-                if (cellType === 0) {
-                    const cell = reactorMapElement.children[index];
-                    if (cell) {
-                        if (fuelPercentage <= 0) {
-                            cell.classList.add('empty');
+                    // Cria a query para buscar o documento pelo nomeInterno
+                    const q = query(collection(db, collectionName), where("nomeInterno", "==", docIdFromUrl));
+                    
+                    getDocs(q).then((querySnapshot) => {
+                        if (!querySnapshot.empty) {
+                            // Documento encontrado, substitui o conteúdo do body
+                            const docData = querySnapshot.docs[0].data();
+                            document.body.innerHTML = docData.conteudo;
                         } else {
-                            cell.classList.remove('empty');
+                            // Documento não encontrado
+                            document.body.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Conteúdo para "${docIdFromUrl}" não encontrado.</div>`;
                         }
-                    }
+                    }).catch(error => {
+                        console.error("Erro ao buscar documento para visualização:", error);
+                        document.body.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Erro ao carregar conteúdo: ${error.message}</div>`;
+                    });
+                } catch (error) {
+                    console.error("Erro fatal ao inicializar o Firebase para o visualizador:", error);
+                    document.body.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Erro fatal na inicialização do Firebase: ${error.message}</div>`;
                 }
-            });
-        }
-
-        // --- Funções de Drag and Drop para Barras de Controle ---
-        let isDraggingRod = false;
-        let currentDraggedRod = null;
-        let initialMouseY;
-        let initialRodInsertionLevel;
-
-        function setupControlRodDragging(rodElement) {
-            rodElement.onmousedown = (e) => {
-                if (e.button === 0) {
-                    isDraggingRod = true;
-                    currentDraggedRod = rodElement;
-                    initialMouseY = e.clientY;
-                    initialRodInsertionLevel = controlRodInsertionLevels[parseInt(rodElement.dataset.rodIndex)];
-                    rodElement.style.cursor = 'grabbing';
-                }
-            };
-        }
-
-        let isDraggingAllRods = false;
-        let initialMouseYAllRods;
-        let initialAllRodInsertionLevels;
-
-        function startDragAllRods(e) {
-            if (e.button === 0) {
-                isDraggingAllRods = true;
-                initialMouseYAllRods = e.clientY;
-                initialAllRodInsertionLevels = [...controlRodInsertionLevels];
-                document.getElementById('drag-all-rods').style.cursor = 'grabbing';
-            }
-        }
-
-        document.onmousemove = (e) => {
-            if (isDraggingRod && currentDraggedRod) {
-                const deltaY = e.clientY - initialMouseY;
-                const rodIndex = parseInt(currentDraggedRod.dataset.rodIndex);
-                const mapCellHeight = currentDraggedRod.offsetHeight;
-                let newInsertionLevel = initialRodInsertionLevel - (deltaY / mapCellHeight) * 100;
-                newInsertionLevel = Math.max(0, Math.min(100, newInsertionLevel));
-                controlRodInsertionLevels[rodIndex] = newInsertionLevel;
-                updateControlRodDisplay();
-                updateReactorStatusDisplay();
-            } else if (isDraggingAllRods) {
-                const deltaY = e.clientY - initialMouseYAllRods;
-                const mapHeightForDrag = reactorMapElement.offsetHeight;
-
-                controlRodInsertionLevels = initialAllRodInsertionLevels.map(level => {
-                    let newLevel = level - (deltaY / mapHeightForDrag) * 100;
-                    return Math.max(0, Math.min(100, newLevel));
-                });
-                updateControlRodDisplay();
-                updateReactorStatusDisplay();
-            }
-        };
-
-        document.onmouseup = () => {
-            if (isDraggingRod && currentDraggedRod) {
-                isDraggingRod = false;
-                currentDraggedRod.style.cursor = 'grab';
-                currentDraggedRod = null;
-            } else if (isDraggingAllRods) {
-                isDraggingAllRods = false;
-                document.getElementById('drag-all-rods').style.cursor = 'pointer';
-            }
-        };
-
-
-        // --- Funções do Menu ---
-        function openDifficultySelection() {
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('difficulty-selection-screen').style.display = 'block';
-        }
-
-        function startGame(difficulty) {
-            currentDifficulty = difficulty;
-            if (nuclearDollars < MIN_STARTING_DOLLARS) {
-                alert(`Você precisa de pelo menos $${MIN_STARTING_DOLLARS} Dólares Nucleares para iniciar um novo jogo. Seu saldo atual é $${nuclearDollars.toFixed(2)}.`);
+                
+                // Interrompe a execução do script para que o CMS não seja inicializado
                 return;
             }
-            document.getElementById('difficulty-selection-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'block';
-            resetGameState();
-            setReactorType(currentReactorType); // Configura o reator inicial
-            createReactorMap();
-            startGameLoop();
+        }
+        
+        // --- Lógica do CMS Admin (só é executada se a URL não for de visualização) ---
+        
+        // Inicializa o Firebase com autenticação para o CMS
+        try {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            console.log("Firebase inicializado para o CMS com sucesso.");
+        } catch (error) {
+            console.error("Erro fatal ao inicializar o Firebase para o CMS:", error);
+            const statusDiv = document.getElementById('status-message');
+            statusDiv.textContent = `Erro fatal na inicialização do Firebase: ${error.message}`;
+            statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-red-200 text-red-800';
+            document.getElementById('admin-container').style.display = 'none';
         }
 
-        function loadGame() {
-            const savedState = localStorage.getItem('nuclearReactorGame');
-            if (savedState) {
-                const state = JSON.parse(savedState);
+        // --- Funções de Autenticação e Eventos ---
+        const googleLoginButton = document.getElementById('googleLoginButton');
+        const logoutButton = document.getElementById('logoutButton');
 
-                // Restore game variables
-                reactorState = state.reactorState;
-                controlRods = state.controlRods;
-                waterFlow = state.waterFlow;
-                temperature = state.temperature;
-                pressure = state.pressure;
-                alarmLevel = state.alarmLevel;
-                elapsedGameSeconds = state.elapsedGameSeconds;
-                fuelPercentage = state.fuelPercentage;
-                megawattsGenerated = state.megawattsGenerated;
-                nuclearDollars = state.nuclearDollars;
-                daysOperated = state.daysOperated;
-                dailyMegawattGain = state.dailyMegawattGain;
-                dailyCosts = state.dailyCosts;
-                dailyPenalties = state.dailyPenalties;
-                dailyEventCosts = state.dailyEventCosts;
-                employeeLevel = state.employeeLevel;
-                ignorePenaltiesCheat = state.ignorePenaltiesCheat;
-                currentDifficulty = state.currentDifficulty;
-                currentReactorType = state.currentReactorType;
-                controlRodInsertionLevels = state.controlRodInsertionLevels;
-                temperatureUnit = state.temperatureUnit || 'celsius'; // Default to celsius if not found
-                dayDurationSeconds = state.dayDurationSeconds || 600; // Default to 600 if not found
+        const provider = new GoogleAuthProvider();
 
-                // Restore custom colors
-                const savedColors = state.customColors || {};
-                for (const prop in savedColors) {
-                    document.documentElement.style.setProperty(prop, savedColors[prop]);
-                    const inputElement = document.getElementById(prop.replace('--', '').replace(/-/g, '_'));
-                    if (inputElement) {
-                        inputElement.value = savedColors[prop];
-                    }
-                }
-
-
-                setReactorType(currentReactorType); // Reapply reactor config for map
-                createReactorMap(); // Recreate map for current reactor
-                updateReactorStatusDisplay(); // Update all displayed info
-                updateSettingsDisplay(); // Update settings display
-
-                document.getElementById('main-menu').style.display = 'none';
-                document.getElementById('game-screen').style.display = 'block';
-                startGameLoop();
-                addMessage('Jogo carregado com sucesso!', 'system');
-            } else {
-                addMessage('Nenhum jogo salvo encontrado.', 'warning');
+        googleLoginButton.addEventListener('click', async () => {
+            try {
+                await signInWithPopup(auth, provider);
+                showMessage("Login realizado com sucesso! Verificando permissões...");
+            } catch (error) {
+                console.error("Erro de login com Google:", error);
+                showMessage(`Erro de login: ${error.message}`);
             }
-        }
+        });
 
-        function saveGame() {
-            clearInterval(gameInterval); // Pause game before saving
-            const customColors = {};
-            document.documentElement.style.cssText.split(';').forEach(rule => {
-                const parts = rule.split(':');
-                if (parts.length === 2 && parts[0].trim().startsWith('--')) {
-                    customColors[parts[0].trim()] = parts[1].trim();
-                }
-            });
-
-            const gameState = {
-                reactorState,
-                controlRods,
-                waterFlow,
-                temperature,
-                pressure,
-                alarmLevel,
-                elapsedGameSeconds,
-                fuelPercentage,
-                megawattsGenerated,
-                nuclearDollars,
-                daysOperated,
-                dailyMegawattGain,
-                dailyCosts,
-                dailyPenalties,
-                dailyEventCosts,
-                employeeLevel,
-                ignorePenaltiesCheat,
-                currentDifficulty,
-                currentReactorType,
-                controlRodInsertionLevels,
-                temperatureUnit,
-                dayDurationSeconds,
-                customColors
-            };
-            localStorage.setItem('nuclearReactorGame', JSON.stringify(gameState));
-            addMessage('Jogo salvo com sucesso!', 'system');
-            startGameLoop(); // Resume game after saving
-        }
-
-        function openSettings() {
-            clearInterval(gameInterval); // Pausa o jogo se estiver rodando
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'none';
-            document.getElementById('day-summary-screen').style.display = 'none';
-            document.getElementById('workshop-screen').style.display = 'none';
-            document.getElementById('settings-menu').style.display = 'block';
-            updateSettingsDisplay();
-        }
-
-        function updateSettingsDisplay() {
-            tempUnitDisplay.textContent = temperatureUnit.charAt(0).toUpperCase() + temperatureUnit.slice(1);
-            dayDurationDisplay.textContent = DAY_DURATION_NAMES[Object.keys(DAY_DURATIONS).find(key => DAY_DURATIONS[key] === dayDurationSeconds)];
-
-            colorMainBackgroundInput.value = getComputedStyle(document.documentElement).getPropertyValue('--main-bg-color');
-            colorHighlightInput.value = getComputedStyle(document.documentElement).getPropertyValue('--highlight-color');
-            colorButtonInput.value = getComputedStyle(document.documentElement).getPropertyValue('--button-bg-color');
-        }
-
-        function setTemperatureUnit(unit) {
-            temperatureUnit = unit;
-            updateReactorStatusDisplay();
-            updateSettingsDisplay();
-            addMessage(`Unidade de temperatura alterada para ${unit.charAt(0).toUpperCase() + unit.slice(1)}.`, 'system');
-        }
-
-        function setDayDuration(durationKey) {
-            dayDurationSeconds = DAY_DURATIONS[durationKey];
-            updateSettingsDisplay();
-            addMessage(`Duração do dia no jogo alterada para ${DAY_DURATION_NAMES[durationKey]}.`, 'system');
-            // No need to restart game loop immediately, it will pick up the new value on the next day end or start.
-        }
-
-        function updateColor(cssVar, value) {
-            document.documentElement.style.setProperty(cssVar, value);
-            addMessage(`Cor ${cssVar} atualizada para ${value}.`, 'system');
-        }
-
-        function backToMenu() {
-            clearInterval(gameInterval);
-            document.getElementById('game-screen').style.display = 'none';
-            document.getElementById('day-summary-screen').style.display = 'none';
-            document.getElementById('cheat-menu').style.display = 'none';
-            document.getElementById('difficulty-selection-screen').style.display = 'none';
-            document.getElementById('workshop-screen').style.display = 'none';
-            document.getElementById('settings-menu').style.display = 'none'; // Hide settings menu
-            document.getElementById('main-menu').style.display = 'block';
-        }
-
-        function openWorkshop() {
-            clearInterval(gameInterval); // Pausa o jogo se estiver rodando
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'none'; // Garante que a tela de jogo está oculta
-            document.getElementById('day-summary-screen').style.display = 'none'; // Garante que a tela de resumo está oculta
-            document.getElementById('settings-menu').style.display = 'none'; // Garante que a tela de configurações está oculta
-            document.getElementById('workshop-screen').style.display = 'block';
-            updateWorkshopDisplay();
-        }
-
-        function updateWorkshopDisplay() {
-            workshopCurrentDollars.textContent = `$${nuclearDollars.toFixed(2)}`;
-            currentReactorTypeDisplay.textContent = REACTOR_CONFIGS[currentReactorType].name;
-            currentReactorDescription.textContent = REACTOR_CONFIGS[currentReactorType].description;
-
-            // Update BWR Plus
-            const bwrPlusCost = REACTOR_CONFIGS['bwr_plus'].buy_cost();
-            bwrPlusPriceDisplay.textContent = `Custo: $${bwrPlusCost.toFixed(2)}`;
-            if (currentReactorType === 'bwr_plus') {
-                buyBwrPlusButton.textContent = 'Adquirido';
-                buyBwrPlusButton.disabled = true;
-            } else if (nuclearDollars < bwrPlusCost) {
-                buyBwrPlusButton.textContent = 'Comprar (Fundos Insuficientes)';
-                buyBwrPlusButton.disabled = true;
-            } else {
-                buyBwrPlusButton.textContent = 'Comprar';
-                buyBwrPlusButton.disabled = false;
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                showMessage("Você saiu da sua conta.");
+            } catch (error) {
+                console.error("Erro ao sair:", error);
+                showMessage(`Erro ao sair: ${error.message}`);
             }
+        });
 
-            // Update RBMK
-            const rbmkCost = REACTOR_CONFIGS['rbmk'].buy_cost();
-            rbmkPriceDisplay.textContent = `Custo: $${rbmkCost.toFixed(2)}`;
-            if (currentReactorType === 'rbmk') {
-                buyRbmkButton.textContent = 'Adquirido';
-                buyRbmkButton.disabled = true;
-            } else if (nuclearDollars < rbmkCost) {
-                buyRbmkButton.textContent = 'Comprar (Fundos Insuficientes)';
-                buyRbmkButton.disabled = true;
-            } else {
-                buyRbmkButton.textContent = 'Comprar';
-                buyRbmkButton.disabled = false;
-            }
-        }
+        onAuthStateChanged(auth, async (user) => {
+            const statusDiv = document.getElementById('status-message');
+            const authSection = document.getElementById('auth-section');
+            const adminControlsDiv = document.getElementById('admin-controls');
+            const currentUserEmailSpan = document.getElementById('currentUserEmail');
 
-        function buyReactor(reactorId) {
-            const reactorInfo = REACTOR_CONFIGS[reactorId];
-            const cost = reactorInfo.buy_cost();
+            if (user) {
+                authSection.style.display = 'none';
+                currentUserEmailSpan.textContent = user.email || 'Usuário';
 
-            if (nuclearDollars >= cost) {
-                nuclearDollars -= cost;
-                setReactorType(reactorId);
-                addMessage(`Você comprou o reator ${reactorInfo.name} por $${cost.toFixed(2)}!`, 'system');
-                updateWorkshopDisplay(); // Atualiza o workshop
-                // Se o jogo estava rodando, ele precisará ser reiniciado ou ter seu mapa atualizado
-                // Por simplicidade, vamos forçar o retorno ao menu principal e pedir para iniciar um novo jogo
-                // Ou você pode ir direto para a tela de jogo
-                alert(`Parabéns! Você adquiriu o ${reactorInfo.name}. Um novo jogo será iniciado com este reator.`);
-                backToMenu(); // Volta para o menu principal para iniciar um novo jogo com o novo reator
-            } else {
-                addMessage(`Você não tem dinheiro suficiente para comprar o reator ${reactorInfo.name}. Você precisa de $${cost.toFixed(2)}.`, 'warning');
-            }
-        }
+                try {
+                    const userDocRef = doc(db, "users", user.uid);
+                    const userDocSnap = await getDoc(userDocRef);
 
-
-        // --- Funções de Controle do Reator ---
-        function setReactorType(type) {
-            currentReactorType = type;
-            currentReactorMapConfig = REACTOR_CONFIGS[currentReactorType].fuel_channels;
-            currentControlRodIndices = REACTOR_CONFIGS[currentReactorType].control_rod_indices;
-            controlRodInsertionLevels = new Array(currentControlRodIndices.length).fill(100);
-            createReactorMap(); // Recria o mapa com as novas configurações
-            addMessage(`Tipo de reator atualizado para: ${REACTOR_CONFIGS[currentReactorType].name}.`, 'system');
-            updateReactorStatusDisplay();
-        }
-
-        function resetGameState() {
-            reactorState = 'off';
-            fuelPercentage = 100;
-            megawattsGenerated = 0;
-            // nuclearDollars mantém o valor atual ao resetar para iniciar um novo jogo
-            daysOperated = 0;
-            elapsedGameSeconds = 0;
-            dailyMegawattGain = 0;
-            dailyCosts = 0;
-            dailyPenalties = 0;
-            dailyEventCosts = 0; // Resetar custos de eventos
-            ignorePenaltiesCheat = false;
-            cheatIgnorePenaltiesStatus.textContent = 'Desativado';
-            setEmployeeLevel('beginner'); // Reseta para iniciante
-            setReactorType(currentReactorType); // Redefine as configs do reator atual e recria o mapa
-            addMessage('Simulador reiniciado. Novo jogo iniciado!', 'system');
-            updateReactorStatusDisplay();
-        }
-
-        function startGameLoop() {
-            gameInterval = setInterval(() => {
-                elapsedGameSeconds++;
-
-                // Contagem de Dias e Salário dos Operários (1 dia a cada X segundos, X definido por dayDurationSeconds)
-                if (elapsedGameSeconds % dayDurationSeconds === 0) {
-                    endDay();
-                    return;
-                }
-
-                // Eventos Aleatórios
-                if (elapsedGameSeconds % DIFFICULTY_SETTINGS[currentDifficulty].event_frequency === 0) {
-                    triggerRandomEvent();
-                }
-
-                // Consumo de Combustível (1% a cada 60 segundos - adjust based on dayDurationSeconds if desired, or keep fixed for balance)
-                if (elapsedGameSeconds % 60 === 0 && fuelPercentage > 0 && reactorState === 'running') {
-                    fuelPercentage -= 1;
-                    if (fuelPercentage < 0) fuelPercentage = 0;
-                    updateFuelChannelDisplay();
-                }
-
-                if (fuelPercentage <= 0 && reactorState === 'running') {
-                    addMessage('Combustível esgotado! Reator parou e precisa de recarga.', 'danger');
-                    powerOff();
-                    alarmLevel = 'high';
-                }
-
-                // Lógica de Simulação de Temperatura e Pressão baseada na dificuldade
-                let effectiveRodRemoval = 1 - (controlRodInsertionLevels.reduce((sum, level) => sum + level, 0) / currentControlRodIndices.length / 100);
-                const diff = DIFFICULTY_SETTINGS[currentDifficulty];
-                const reactorCoolingEfficiency = REACTOR_CONFIGS[currentReactorType].water_cooling_efficiency[waterFlow];
-
-                if (reactorState === 'running' && fuelPercentage > 0) {
-                    // Lógica de Temperatura e Pressão
-                    let temp_increase = 0;
-                    let pressure_increase = 0;
-
-                    if (effectiveRodRemoval < 0.2) { // Barras quase inseridas
-                        temp_increase = diff.temp_inc_low_rods;
-                        pressure_increase = diff.pressure_inc_low_rods;
-                    } else if (effectiveRodRemoval >= 0.2 && effectiveRodRemoval < 0.8) { // Barras parcialmente removidas
-                        temp_increase = diff.temp_inc_mid_rods * (1 + effectiveRodRemoval);
-                        pressure_increase = diff.pressure_inc_mid_rods * (1 + effectiveRodRemoval);
-                    } else { // Barras quase removidas
-                        temp_increase = diff.temp_inc_high_rods * (1 + effectiveRodRemoval * 2);
-                        pressure_increase = diff.pressure_inc_high_rods * (1 + effectiveRodRemoval * 2);
-
-                        if (Math.random() < diff.random_temp_spike_chance) temperature += Math.random() * diff.random_temp_spike_max;
-                        if (Math.random() < diff.random_pressure_spike_chance) pressure += Math.random() * diff.random_pressure_spike_max;
-                    }
-
-                    temperature += temp_increase;
-                    pressure += pressure_increase;
-
-                    // Aplica o resfriamento pela água
-                    if (temperature > 70 && waterFlow !== 'low') {
-                        temperature -= temperature * reactorCoolingEfficiency;
-                    }
-                    if (pressure > 5 && waterFlow !== 'low') {
-                        pressure -= pressure * reactorCoolingEfficiency;
-                    }
-
-                    if (temperature < 25) temperature = 25; // Minimum temperature
-                    if (pressure < 1) pressure = 1; // Minimum pressure
-
-
-                    // Geração de Megawatts (linear entre base e max)
-                    // Se o cheat de ignorar penalidades estiver ativo, o reator sempre gera no máximo se a temperatura estiver alta o suficiente.
-                    if (ignorePenaltiesCheat && (temperature >= PENALTY_THRESHOLD_TEMP || pressure >= 18)) {
-                        megawattsGenerated = REACTOR_CONFIGS[currentReactorType].max_megawatt_output;
-                    } else if (temperature >= 100 && temperature <= PENALTY_THRESHOLD_TEMP) {
-                        megawattsGenerated = REACTOR_CONFIGS[currentReactorType].base_megawatt_output +
-                                             ((temperature - 100) * (REACTOR_CONFIGS[currentReactorType].max_megawatt_output - REACTOR_CONFIGS[currentReactorType].base_megawatt_output) / (PENALTY_THRESHOLD_TEMP - 100));
-                    } else if (temperature > PENALTY_THRESHOLD_TEMP) {
-                        megawattsGenerated = REACTOR_CONFIGS[currentReactorType].max_megawatt_output;
+                    if (userDocSnap.exists() && userDocSnap.data().isAdmin === true) {
+                        isUserAdmin = true;
+                        statusDiv.textContent = `Autenticado como administrador (${user.uid}). Você pode salvar e abrir conteúdo.`;
+                        statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-green-200 text-green-800';
+                        adminControlsDiv.style.display = 'block';
                     } else {
-                        megawattsGenerated = 0;
+                        isUserAdmin = false;
+                        statusDiv.textContent = `Autenticado, mas você não é um administrador. Seu UID é: ${user.uid}. O acesso é restrito.`;
+                        statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-yellow-200 text-yellow-800';
+                        adminControlsDiv.style.display = 'none';
                     }
-
-                    // Ganhos por Megawatt (a cada 1 segundo)
-                    const currentMwGain = (megawattsGenerated / 1000) * 1000;
-                    nuclearDollars += currentMwGain;
-                    dailyMegawattGain += currentMwGain;
-
-                } else if (reactorState === 'off' || fuelPercentage <= 0) {
-                    if (temperature > 25) temperature -= 1;
-                    if (temperature < 25) temperature = 25;
-                    if (pressure > 1) pressure -= 0.1;
-                    if (pressure < 1) pressure = 1;
-                    megawattsGenerated = 0;
+                } catch (error) {
+                    console.error("Erro ao verificar status de admin:", error);
+                    isUserAdmin = false;
+                    statusDiv.textContent = `Erro ao verificar status de admin: ${error.message}`;
+                    statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-red-200 text-red-800';
+                    adminControlsDiv.style.display = 'none';
                 }
-
-                // Lógica de Alarmes
-                if (temperature >= 180 || pressure >= 18) {
-                    alarmLevel = 'high';
-                } else if (temperature >= 150 || pressure >= 12) {
-                    alarmLevel = 'medium';
-                } else if (temperature >= 100 || pressure >= 7) {
-                    alarmLevel = 'low';
-                } else {
-                    alarmLevel = 'none';
-                }
-
-                // Lógica dos Funcionários (Mensagens e Automação)
-                handleEmployeeActions();
-
-                updateReactorStatusDisplay();
-                checkGameEndConditions();
-            }, 1000);
-        }
-
-        function checkGameEndConditions() {
-            if (pressure >= 20) {
-                addMessage('Pressão crítica! O reator explodiu! Fim de jogo.', 'danger');
-                emergencyShutdown(true);
-            }
-            if (nuclearDollars < -50000) {
-                addMessage('Você faliu! Não conseguiu gerenciar as finanças da usina. Fim de jogo.', 'danger');
-                backToMenu();
-            }
-        }
-
-        function triggerRandomEvent() {
-            const events = [
-                { name: "Falha na Turbina Auxiliar", cost: () => Math.floor(Math.random() * (diff.event_cost_max - diff.event_cost_min + 1)) + diff.event_cost_min, msg: "Uma turbina auxiliar apresentou falha. Custos de reparo." },
-                { name: "Vazamento de Vapor Secundário", cost: () => Math.floor(Math.random() * (diff.event_cost_max - diff.event_cost_min + 1)) + diff.event_cost_min, msg: "Pequeno vazamento de vapor secundário detectado. Reparos urgentes." },
-                { name: "Problema no Sistema Elétrico", cost: () => Math.floor(Math.random() * (diff.event_cost_max - diff.event_cost_min + 1)) + diff.event_cost_min, msg: "Falha no sistema elétrico temporária. Custos de manutenção." },
-                { name: "Manutenção Não Programada", cost: () => Math.floor(Math.random() * (diff.event_cost_max - diff.event_cost_min + 1)) + diff.event_cost_min, msg: "Equipamento crítico requer manutenção imediata." },
-                { name: "Inspeção Regulamentar Extra", cost: () => Math.floor(Math.random() * (diff.event_cost_max - diff.event_cost_min + 1)) + diff.event_cost_min, msg: "Inspeção regulamentar surpresa. Custos administrativos." }
-            ];
-            const diff = DIFFICULTY_SETTINGS[currentDifficulty];
-            const randomEvent = events[Math.floor(Math.random() * events.length)];
-            const eventCost = randomEvent.cost();
-
-            nuclearDollars -= eventCost;
-            dailyEventCosts += eventCost;
-            addMessage(`Evento: ${randomEvent.name} - $${eventCost.toFixed(2)} debitados. ${randomEvent.msg}`, 'warning');
-        }
-
-
-        function powerOn() {
-            const allRodsInserted = controlRodInsertionLevels.every(level => level >= 90);
-            if (reactorState === 'off' && allRodsInserted && fuelPercentage > 0) {
-                reactorState = 'starting';
-                addMessage('Reator iniciando. Aguarde a estabilização.', 'info');
-                setTimeout(() => {
-                    reactorState = 'running';
-                    addMessage('Reator funcionando! Mantenha a atenção.', 'system');
-                    updateReactorStatusDisplay();
-                }, 5000);
-            } else if (reactorState !== 'off') {
-                addMessage('O reator já está ligado ou em processo de ligamento.', 'warning');
-            } else if (fuelPercentage <= 0) {
-                addMessage('O reator não pode ser ligado: não há combustível!', 'warning');
             } else {
-                addMessage('As barras de controle precisam estar inseridas (pelo menos 90%) para ligar o reator!', 'warning');
-            }
-            updateReactorStatusDisplay();
-        }
-
-        function powerOff() {
-            if (reactorState === 'running' || reactorState === 'starting' || reactorState === 'emergency') {
-                reactorState = 'off';
-                addMessage('Reator desligado. Iniciando processo de resfriamento.', 'info');
-                controlRodInsertionLevels.fill(100);
-                updateControlRodDisplay();
-            } else {
-                addMessage('O reator já está desligado.', 'warning');
-            }
-            updateReactorStatusDisplay();
-        }
-
-        function removeControlRods() {
-            if (reactorState === 'running') {
-                controlRodInsertionLevels.fill(0);
-                addMessage('Todas as barras de controle removidas. A potência do reator aumentará bruscamente!', 'danger');
-            } else {
-                addMessage('O reator precisa estar ligado para remover as barras de controle.', 'warning');
-            }
-            updateControlRodDisplay();
-            updateReactorStatusDisplay();
-        }
-
-        function addControlRods() {
-            if (controlRodInsertionLevels.some(level => level < 100)) {
-                controlRodInsertionLevels.fill(100);
-                addMessage('Todas as barras de controle inseridas. A potência do reator diminuirá.', 'info');
-            } else {
-                addMessage('Todas as barras de controle já estão inseridas.', 'warning');
-            }
-            updateControlRodDisplay();
-            updateReactorStatusDisplay();
-        }
-
-        function increaseWaterFlow() {
-            if (waterFlow === 'low') {
-                waterFlow = 'medium';
-            } else if (waterFlow === 'medium') {
-                waterFlow = 'high';
-            } else {
-                addMessage('O fluxo de água já está no máximo.', 'warning');
-                return;
-            }
-            addMessage(`Fluxo de água aumentado para: ${waterFlow}`, 'info');
-            updateReactorStatusDisplay();
-        }
-
-        function decreaseWaterFlow() {
-            if (waterFlow === 'high') {
-                waterFlow = 'medium';
-            } else if (waterFlow === 'medium') {
-                waterFlow = 'low';
-            } else {
-                addMessage('O fluxo de água já está no mínimo.', 'warning');
-                return;
-            }
-            addMessage(`Fluxo de água diminuído para: ${waterFlow}`, 'info');
-            updateReactorStatusDisplay();
-        }
-
-        function emergencyShutdown(isGameOver = false) {
-            reactorState = 'emergency';
-            controlRodInsertionLevels.fill(100);
-            waterFlow = 'high';
-            alarmLevel = 'high';
-            addMessage('DESLIGAMENTO DE EMERGÊNCIA ATIVADO! Todas as barras inseridas, fluxo de água máximo.', 'danger');
-            updateControlRodDisplay();
-            updateReactorStatusDisplay();
-
-            if (!isGameOver) {
-                setTimeout(() => {
-                    addMessage('Reator estabilizado após emergência. Volte para o menu para reiniciar.', 'system');
-                    backToMenu();
-                }, 5000);
-            } else {
-                backToMenu();
-            }
-        }
-
-        function ignoreAlarm() {
-            if (alarmLevel !== 'none') {
-                alarmLevel = 'none';
-                addMessage('Alarme ignorado. Os problemas subjacentes podem persistir!', 'warning');
-            } else {
-                addMessage('Não há alarmes para ignorar.', 'info');
-            }
-            updateReactorStatusDisplay();
-        }
-
-        function buyFuelChannels() {
-            const totalFuelCost = NUM_FUEL_CHANNELS * FUEL_CHANNEL_COST;
-            if (nuclearDollars >= totalFuelCost) {
-                nuclearDollars -= totalFuelCost;
-                fuelPercentage = 100;
-                updateFuelChannelDisplay();
-                addMessage(`Você comprou ${NUM_FUEL_CHANNELS} canais de combustível por $${totalFuelCost}! Combustível recarregado.`, 'system');
-                updateReactorStatusDisplay();
-            } else {
-                addMessage(`Você não tem dinheiro suficiente! Precisa de $${totalFuelCost} para comprar novos canais de combustível.`, 'warning');
-            }
-        }
-
-        // --- Gerenciamento de Funcionários ---
-        function setEmployeeLevel(level) {
-            if (['beginner', 'medium', 'high'].includes(level)) {
-                employeeLevel = level;
-                addMessage(`Nível dos funcionários alterado para ${level.charAt(0).toUpperCase() + level.slice(1)}.`, 'system');
-                updateReactorStatusDisplay();
-            } else {
-                addMessage('Nível de funcionário inválido.', 'warning');
-            }
-        }
-
-        function handleEmployeeActions() {
-            // Funcionários da área do reator
-            if (EMPLOYEE_INFO_INTERVALS['reactor_status'][employeeLevel] !== Infinity && elapsedGameSeconds % EMPLOYEE_INFO_INTERVALS['reactor_status'][employeeLevel] === 0) {
-                addMessage(`(Reator) Status atual: Temp ${temperature.toFixed(1)}°C, Pressão ${pressure.toFixed(1)} atm.`, 'info');
-            }
-            if (EMPLOYEE_AUTOMATION['reactor_maintenance'][employeeLevel] && Math.random() < 0.005) {
-                const defect = Math.floor(Math.random() * 3);
-                if (defect === 0 && pressure > 5) {
-                    pressure = Math.max(1, pressure - 1);
-                    addMessage('(Reator) Funcionários repararam uma pequena falha na tubulação, pressão aliviada.', 'info');
-                } else if (defect === 1 && temperature > 70) {
-                    temperature = Math.max(25, temperature - 5);
-                    addMessage('(Reator) Funcionários ajustaram o sistema de resfriamento, temperatura estável.', 'info');
-                } else {
-                    addMessage('(Reator) Funcionários realizaram uma inspeção de rotina. Tudo ok.', 'info');
-                }
-            }
-
-            // Funcionários de Reabastecimento
-            if (EMPLOYEE_INFO_INTERVALS['refuel_need'][employeeLevel] !== Infinity && elapsedGameSeconds % EMPLOYEE_INFO_INTERVALS['refuel_need'][employeeLevel] === 0) {
-                if (fuelPercentage <= 20) {
-                    addMessage(`(Reabastecimento) Alerta: Combustível com ${fuelPercentage.toFixed(1)}%. Necessário recarga em breve!`, 'warning');
-                } else {
-                    addMessage(`(Reabastecimento) Nível de combustível: ${fuelPercentage.toFixed(1)}%.`, 'info');
-                }
-            }
-            if (EMPLOYEE_AUTOMATION['refuel_auto'][employeeLevel] && fuelPercentage <= 10 && nuclearDollars >= (NUM_FUEL_CHANNELS * FUEL_CHANNEL_COST)) {
-                addMessage('(Reabastecimento) Reabastecimento automático iniciado! Comprando novos canais de combustível.', 'system');
-                buyFuelChannels();
-            }
-
-            // Funcionários de Geração de Energia
-            if (EMPLOYEE_INFO_INTERVALS['energy_monitor'][employeeLevel] !== Infinity && elapsedGameSeconds % EMPLOYEE_INFO_INTERVALS['energy_monitor'][employeeLevel] === 0) {
-                addMessage(`(Energia) Geração atual: ${megawattsGenerated.toFixed(0)} MW.`, 'info');
-            }
-            if (EMPLOYEE_AUTOMATION['energy_maintenance'][employeeLevel] && Math.random() < 0.003) {
-                 if (megawattsGenerated < REACTOR_CONFIGS[currentReactorType].max_megawatt_output && reactorState === 'running') {
-                    addMessage('(Energia) Funcionários otimizaram as turbinas, eficiência de geração melhorada.', 'info');
-                 }
-            }
-            if (EMPLOYEE_AUTOMATION['energy_auto_system'][employeeLevel] && reactorState === 'running') {
-                addMessage('(Energia) Sistema automático de energia operando. Monitoramento constante.', 'system');
-            }
-
-            // Funcionários da Administração
-            const adminPenaltyInterval = EMPLOYEE_INFO_INTERVALS['admin_penalty'][employeeLevel];
-            if (elapsedGameSeconds % adminPenaltyInterval === 0 && temperature >= PENALTY_THRESHOLD_TEMP && temperature <= CRITICAL_TEMP_NO_MELTDOWN) {
-                if (!ignorePenaltiesCheat) {
-                    const penaltyAmount = nuclearDollars * 0.50;
-                    nuclearDollars -= penaltyAmount;
-                    dailyPenalties += penaltyAmount;
-                    addMessage(`(Administração) Penalidade por pré-derretimento do núcleo! -$${penaltyAmount.toFixed(2)}. Verba reduzida em 50%.`, 'danger');
-                } else {
-                    addMessage('(Administração) Penalidade por pré-derretimento evitada devido ao cheat "Ignorar Penalidades".', 'system');
-                }
-            }
-        }
-
-        // --- Funções de Resumo do Dia ---
-        function endDay() {
-            clearInterval(gameInterval);
-            document.getElementById('game-screen').style.display = 'none';
-            document.getElementById('day-summary-screen').style.display = 'block';
-
-            daysOperated++;
-            const currentDailyCost = EMPLOYEE_COSTS[employeeLevel] * (dayDurationSeconds / 150); // Adjust cost based on day duration
-            dailyCosts += currentDailyCost;
-
-            summaryDayNumber.textContent = daysOperated;
-            summaryMwGain.textContent = `$${dailyMegawattGain.toFixed(2)}`;
-            summaryCosts.textContent = `$${dailyCosts.toFixed(2)}`;
-            summaryPenalties.textContent = `$${dailyPenalties.toFixed(2)}`;
-            summaryEventCosts.textContent = `$${dailyEventCosts.toFixed(2)}`; // Exibe custos de eventos
-
-            const dailyBalance = dailyMegawattGain - dailyCosts - dailyPenalties - dailyEventCosts;
-            summaryDailyBalance.textContent = `$${dailyBalance.toFixed(2)}`;
-            summaryTotalDollars.textContent = `$${nuclearDollars.toFixed(2)}`;
-
-            dailyMegawattGain = 0;
-            dailyPenalties = 0;
-            dailyCosts = 0;
-            dailyEventCosts = 0; // Resetar
-        }
-
-        function startNextDay() {
-            document.getElementById('day-summary-screen').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'block';
-            elapsedGameSeconds = 0;
-            startGameLoop();
-            addMessage(`Dia ${daysOperated} iniciado!`, 'system');
-        }
-
-        // --- Cheats para Desenvolvedores ---
-        document.getElementById('main-title-reactor').addEventListener('click', () => {
-            cheatClickCount++;
-            if (cheatClickCount >= 10) {
-                alert('Cheats ativados!');
-                document.getElementById('main-title-reactor').textContent = 'Simulador de Reator Nuclear (Cheats Ativados)';
-                hideMainMenuAndShowCheatMenu();
-                cheatClickCount = 0;
+                isUserAdmin = false;
+                statusDiv.textContent = "Por favor, faça login para continuar.";
+                statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-gray-200 text-gray-800';
+                authSection.style.display = 'block';
+                adminControlsDiv.style.display = 'none';
             }
         });
 
-        function hideMainMenuAndShowCheatMenu() {
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('cheat-menu').style.display = 'block';
-            cheatDollarsInput.value = nuclearDollars.toFixed(0);
-            cheatFuelInput.value = fuelPercentage.toFixed(0);
-            document.getElementById('cheat-fuel-value').innerText = fuelPercentage.toFixed(0) + '%';
-            cheatTempInput.value = temperature.toFixed(0);
-            cheatPressureInput.value = pressure.toFixed(0);
-            cheatMwInput.value = megawattsGenerated.toFixed(0);
-            cheatIgnorePenaltiesStatus.textContent = ignorePenaltiesCheat ? 'Ativado' : 'Desativado';
+        // --- Funções de UI ---
+
+        function showModal(msg) {
+            const modal = document.getElementById('custom-modal');
+            const modalMessage = document.getElementById('modal-message');
+            modalMessage.textContent = msg;
+            modal.style.display = 'flex';
         }
 
-        function hideCheatMenu() {
-            document.getElementById('cheat-menu').style.display = 'none';
-            document.getElementById('main-menu').style.display = 'block';
+        window.hideModal = function() {
+            const modal = document.getElementById('custom-modal');
+            modal.style.display = 'none';
         }
 
-        function applyCheat(type) {
-            switch (type) {
-                case 'dollars':
-                    nuclearDollars = parseFloat(cheatDollarsInput.value);
-                    addMessage(`Cheat: Dólares nucleares definidos para $${nuclearDollars.toFixed(2)}.`, 'system');
-                    break;
-                case 'fuel':
-                    fuelPercentage = parseFloat(cheatFuelInput.value);
-                    updateFuelChannelDisplay();
-                    addMessage(`Cheat: Combustível definido para ${fuelPercentage.toFixed(1)}%.`, 'system');
-                    break;
-                case 'temperature':
-                    temperature = parseFloat(cheatTempInput.value);
-                    addMessage(`Cheat: Temperatura definida para ${temperature.toFixed(1)}°C.`, 'system');
-                    break;
-                case 'pressure':
-                    pressure = parseFloat(cheatPressureInput.value);
-                    addMessage(`Cheat: Pressão definida para ${pressure.toFixed(1)} atm.`, 'system');
-                    break;
-                case 'megawatts':
-                    megawattsGenerated = parseFloat(cheatMwInput.value);
-                    addMessage(`Cheat: Megawatts gerados definidos para ${megawattsGenerated.toFixed(0)} MW.`, 'system');
-                    break;
+        function showMessage(msg) {
+            showModal(msg);
+        }
+        
+        // --- Funções do Firestore (CMS) ---
+        const collectionName = "HTML2W";
+
+        window.saveContent = async function() {
+            if (!isUserAdmin) {
+                showMessage('Você não tem permissão para salvar conteúdo. Apenas administradores podem fazer isso.');
+                return;
             }
-            updateReactorStatusDisplay();
+
+            const documentName = document.getElementById('documentName').value.trim();
+            const internalName = document.getElementById('internalName').value.trim();
+            const content = document.getElementById('content').value;
+
+            if (!documentName || !internalName || !content) {
+                showMessage('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            try {
+                const docRef = doc(db, collectionName, documentName);
+                await setDoc(docRef, {
+                    nomeInterno: internalName,
+                    conteudo: content,
+                    userId: auth.currentUser.uid,
+                    timestamp: serverTimestamp()
+                });
+                showMessage(`Documento "${documentName}" salvo com sucesso!`);
+                
+                document.getElementById('documentName').value = '';
+                document.getElementById('internalName').value = '';
+                document.getElementById('content').value = '';
+            } catch (error) {
+                console.error("Erro ao salvar documento:", error);
+                showMessage(`Erro ao salvar documento: ${error.message}`);
+            }
         }
 
-        function toggleIgnorePenalties() {
-            ignorePenaltiesCheat = !ignorePenaltiesCheat;
-            cheatIgnorePenaltiesStatus.textContent = ignorePenaltiesCheat ? 'Ativado' : 'Desativado';
-            addMessage(`Cheat "Ignorar Penalidades" ${ignorePenaltiesCheat ? 'ativado' : 'desativado'}.`, 'system');
-        }
+        window.openContent = async function() {
+            if (!isUserAdmin) {
+                showMessage('Você não tem permissão para ler este conteúdo. Apenas administradores podem fazer isso.');
+                return;
+            }
 
-        function endDayImmediatelyFromGame() {
-            addMessage('Dia finalizado por comando manual.', 'system');
-            endDay();
-        }
+            const openDocumentName = document.getElementById('openDocumentName').value.trim();
+            const displayInternalName = document.getElementById('displayInternalName').querySelector('span');
+            const displayContent = document.getElementById('displayContent').querySelector('span');
+            
+            displayInternalName.textContent = 'N/A';
+            displayContent.textContent = 'N/A';
+            
+            if (!openDocumentName) {
+                showMessage('Por favor, insira o nome do documento para abrir.');
+                return;
+            }
 
-        function endDayImmediatelyFromCheatMenu() {
-             addMessage('Cheat: Finalizando o dia imediatamente.', 'system');
-             endDay();
-        }
+            try {
+                const docRef = doc(db, collectionName, openDocumentName);
+                const docSnap = await getDoc(docRef);
 
-
-        // Inicializa o display ao carregar a página
-        document.addEventListener('DOMContentLoaded', () => {
-            // Load custom colors from localStorage if available
-            const savedColors = JSON.parse(localStorage.getItem('customColors')) || {};
-            for (const prop in savedColors) {
-                document.documentElement.style.setProperty(prop, savedColors[prop]);
-                // Update color picker inputs as well
-                const inputElement = document.getElementById(prop.replace('--', '').replace(/-/g, '_'));
-                if (inputElement) {
-                    inputElement.value = savedColors[prop];
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    displayInternalName.textContent = data.nomeInterno || 'N/A';
+                    displayContent.textContent = data.conteudo || 'N/A';
+                    showMessage(`Documento "${openDocumentName}" carregado com sucesso!`);
+                } else {
+                    showMessage(`Documento "${openDocumentName}" não encontrado.`);
                 }
+            } catch (error) {
+                console.error("Erro ao abrir documento:", error);
+                showMessage(`Erro ao abrir documento: ${error.message}`);
+            }
+        }
+
+        // Função para copiar a URL pública
+        window.copyPublicUrl = function() {
+            const docId = document.getElementById('openDocumentName').value.trim();
+            if (!docId) {
+                showMessage('Por favor, insira o nome do documento para gerar a URL.');
+                return;
             }
 
-            // Define o tipo de reator inicial ao carregar a página
-            setReactorType('bwr_standard');
-            updateReactorStatusDisplay();
-            updateSettingsDisplay(); // Initialize settings display
-            addMessage('Bem-vindo ao Simulador de Reator Nuclear!', 'system');
-            addMessage('Seu saldo inicial é de $10.000 Dólares Nucleares.', 'system');
-            addMessage('Escolha a dificuldade para iniciar um novo jogo ou visite o Workshop para ver opções de reatores.', 'system');
-            addMessage('Dica: Clique 10 vezes na palavra "Reator" no título principal para ativar o menu de cheats.', 'system');
-        });
+            // Constrói a URL com base no nome do documento
+            // Nota: Este é um exemplo, a URL real dependerá da sua configuração de hospedagem.
+            // O padrão assume que o nome do documento é a terceira parte do path.
+            const publicUrl = `https://${publicUrlDomain}${publicUrlPathPrefix}${docId}/index.html`;
+
+            // Usa document.execCommand para copiar o texto para a área de transferência
+            const tempInput = document.createElement('input');
+            tempInput.value = publicUrl;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showMessage(`URL pública copiada: ${publicUrl}`);
+        }
+
     </script>
 </body>
 </html>
