@@ -15,6 +15,12 @@
         "href": "./contato/index.html",
         "requiresAuth": false
     },
+
+    {
+        "label": "WTUBE Vídeos",
+        "href": "./wtube/",
+        "requiresAuth": false
+    }
     
     {
         "label": "Jogos Gratuitos<",
