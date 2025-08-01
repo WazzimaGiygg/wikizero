@@ -17,6 +17,12 @@
     },
 
     {
+        "label": "Beta",
+        "href": "./beta/index.html",
+        "requiresAuth": false
+    },
+
+    {
         "label": "WTUBE Vídeos",
         "href": "./wtube/",
         "requiresAuth": false
