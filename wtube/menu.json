@@ -1,7 +1,7 @@
 [
     {
         "label": "Video oficial recente",
-        "href": ".vids/",
+        "href": "./vids/",
         "requiresAuth": false
     },
     {
