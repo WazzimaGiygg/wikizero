@@ -136,13 +136,14 @@
     
     <script type="module">
 
-        const firebaseConfig = {
-  apiKey: "YOUR_API_KEY_HERE",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+       const firebaseConfig = {
+apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0", // Use sua própria chave!
+authDomain: "wzzm-ce3fc.firebaseapp.com",
+projectId: "wzzm-ce3fc",
+storageBucket: "wzzm-ce3fc.appspot.com",
+messagingSenderId: "249427877153",
+appId: "1:249427877153:web:0e4297294794a5aadeb260",
+measurementId: "G-PLKNZNFCQ8"
 };
 
         // Deixe esta variável. Ela pode ser usada em alguns ambientes específicos.
@@ -157,7 +158,6 @@ let isUserAdmin = false;
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
         // --- Variáveis globais do Canvas (não altere) ---
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;                
         
         let db, auth, app;
