@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Firebase Firestore CLI</title>
+  <title>Firebase Firestore CLI - JSON Config</title>
   <style>
     body {
       background-color: #1c1c1c;
@@ -75,71 +75,57 @@
     appId: "SEU_APP_ID"
   };
 
-  // Inicializa o Firebase
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
   const terminal = document.getElementById('terminal');
   const commandInput = document.getElementById('command-input');
-  const prompt = document.getElementById('prompt');
+  
+  let commandsConfig = []; // Para armazenar os comandos do JSON
 
-  // Adiciona uma linha de texto ao terminal
   function appendOutput(text, className = '') {
     const p = document.createElement('p');
     p.textContent = text;
     if (className) p.classList.add(className);
     terminal.appendChild(p);
-    terminal.scrollTop = terminal.scrollHeight; // Auto-scroll para baixo
+    terminal.scrollTop = terminal.scrollHeight;
   }
 
-  // Comandos disponíveis
-  const commands = {
-    'help': () => {
-      appendOutput('Comandos disponíveis:');
-      appendOutput('  scan <collection> - Escaneia uma coleção e mostra estatísticas.');
-      appendOutput('  scan all - Escaneia todas as coleções. (Atenção: pode ser lento!)');
-      appendOutput('  clear - Limpa o terminal.');
-      appendOutput('  help - Exibe esta ajuda.');
-    },
-    'clear': () => {
-      terminal.innerHTML = '';
-    }
+  // Mapeia os nomes das funções para as funções reais
+  const functionMap = {
+    'scanCollection': scanCollection
   };
 
-  // Função principal para processar o comando
-  async function processCommand(input) {
-    appendOutput(`firestore-cli > ${input}`);
-    const [command, ...args] = input.trim().split(/\s+/);
-    
-    if (command === 'clear') {
-      commands.clear();
-      return;
-    }
-    if (command === 'help') {
-      commands.help();
-      return;
-    }
-    
-    if (command === 'scan') {
-      const collectionName = args[0];
-      if (!collectionName) {
-        appendOutput('Erro: Nome da coleção não fornecido. Use "scan <collection>" ou "scan all".', 'output-error');
-        return;
+  // Carrega os comandos do arquivo JSON
+  async function loadCommands() {
+    try {
+      appendOutput('Carregando comandos...', 'output-info');
+      const response = await fetch('commands.json');
+      if (!response.ok) {
+        throw new Error(`Erro ao carregar commands.json: ${response.statusText}`);
       }
-      
-      if (collectionName === 'all') {
-        await scanAllCollections();
-      } else {
-        await scanCollection(collectionName);
-      }
-      return;
+      commandsConfig = await response.json();
+      appendOutput('Comandos carregados com sucesso.');
+      appendOutput('Bem-vindo ao Firebase Firestore CLI.');
+      appendOutput('Digite "help" para ver os comandos disponíveis.');
+    } catch (error) {
+      appendOutput(`Erro fatal: Não foi possível carregar os comandos. ${error.message}`, 'output-error');
     }
-    
-    appendOutput(`Comando não reconhecido: "${command}". Digite 'help' para ver os comandos.`, 'output-error');
   }
 
-  // Função para escanear uma única coleção
-  async function scanCollection(collectionName) {
+  // --- Funções de comando ---
+  async function scanCollection(args) {
+    const collectionName = args[0];
+    if (!collectionName) {
+      appendOutput('Erro: Nome da coleção não fornecido. Use "scan <collection>" ou "scan all".', 'output-error');
+      return;
+    }
+
+    if (collectionName === 'all') {
+      await scanAllCollections();
+      return;
+    }
+    
     try {
       appendOutput(`Escaneando coleção "${collectionName}"...`, 'output-info');
       const snapshot = await db.collection(collectionName).get();
@@ -160,32 +146,24 @@
     } catch (error) {
       if (error.code === 'permission-denied') {
         appendOutput(`  - ERRO: Permissão negada para ler a coleção "${collectionName}".`, 'output-error');
-        appendOutput(`    Verifique as regras de segurança do Firebase Firestore.`, 'output-error');
-      } else if (error.message.includes('No document to be read')) {
-         appendOutput(`  - ERRO: A coleção "${collectionName}" não existe ou está vazia.`, 'output-warn');
       } else {
         appendOutput(`  - Ocorreu um erro ao escanear a coleção "${collectionName}": ${error.message}`, 'output-error');
       }
     }
   }
-
-  // Função para escanear todas as coleções
+  
   async function scanAllCollections() {
     try {
       appendOutput('Buscando todas as coleções... (Isso pode demorar)', 'output-info');
+      const collectionsSnapshot = await db.listCollections();
       
-      // Nota: Esta é uma maneira de obter nomes de coleções no Firestore Web SDK
-      // que requer que você tenha ao menos 1 documento em cada coleção.
-      // Se a coleção estiver vazia, ela não aparecerá na lista.
-      const snapshot = await db.listCollections();
-      
-      if (snapshot.length === 0) {
+      if (collectionsSnapshot.length === 0) {
         appendOutput('Nenhuma coleção encontrada.', 'output-warn');
         return;
       }
       
-      for (const collectionRef of snapshot) {
-        await scanCollection(collectionRef.id);
+      for (const collectionRef of collectionsSnapshot) {
+        await scanCollection([collectionRef.id]); // Passa o ID como um array para a função
       }
       appendOutput('Varredura de todas as coleções concluída.', 'output-success');
       
@@ -194,22 +172,52 @@
     }
   }
 
-  // Listener para a tecla Enter
+  // --- Processador de comandos principal ---
+  async function processCommand(input) {
+    appendOutput(`firestore-cli > ${input}`);
+    const parts = input.trim().split(/\s+/);
+    const commandName = parts[0];
+    const args = parts.slice(1);
+    
+    const commandDef = commandsConfig.find(cmd => cmd.command === commandName);
+    
+    if (!commandDef) {
+      appendOutput(`Comando não reconhecido: "${commandName}". Digite 'help' para ver os comandos.`, 'output-error');
+      return;
+    }
+    
+    switch (commandDef.action) {
+      case 'display':
+        commandDef.output.forEach(line => appendOutput(line));
+        break;
+      case 'clear':
+        terminal.innerHTML = '';
+        break;
+      case 'execute':
+        const func = functionMap[commandDef.function];
+        if (func) {
+          await func(args);
+        } else {
+          appendOutput(`Erro interno: Função "${commandDef.function}" não encontrada.`, 'output-error');
+        }
+        break;
+      default:
+        appendOutput('Erro: Ação desconhecida no JSON de comando.', 'output-error');
+    }
+  }
+
   commandInput.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
       const commandText = commandInput.value.trim();
       if (commandText) {
         processCommand(commandText);
       }
-      commandInput.value = ''; // Limpa a entrada após o comando
+      commandInput.value = '';
     }
   });
 
-  // Mensagem de boas-vindas
-  window.onload = () => {
-    appendOutput('Bem-vindo ao Firebase Firestore CLI.');
-    appendOutput('Digite "help" para ver os comandos disponíveis.');
-  };
+  // Inicia o carregamento dos comandos ao carregar a página
+  window.onload = loadCommands;
 </script>
 
 </body>
