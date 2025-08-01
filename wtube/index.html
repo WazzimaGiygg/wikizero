@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu de Páginas</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #4a4a4a;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        li a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 1.1em;
+            transition: color 0.3s ease;
+        }
+        li a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Páginas Disponíveis</h1>
+        <ul id="menu-list">
+            </ul>
+    </div>
+
+    <script>
+        // Função assíncrona para buscar e exibir os dados
+        async function fetchMenu() {
+            try {
+                // Faz a requisição para o arquivo menu.json
+                const response = await fetch('menu.json');
+
+                // Verifica se a resposta foi bem-sucedida (status 200)
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar o arquivo menu.json');
+                }
+
+                // Converte a resposta para JSON
+                const menuItems = await response.json();
+
+                // Pega a lista <ul> pelo seu ID
+                const menuList = document.getElementById('menu-list');
+
+                // Itera sobre cada item do JSON
+                menuItems.forEach(item => {
+                    // Cria um novo elemento <li>
+                    const listItem = document.createElement('li');
+
+                    // Cria um novo elemento <a>
+                    const link = document.createElement('a');
+                    link.textContent = item.label; // Define o texto do link
+                    link.href = item.href;         // Define o destino do link
+
+                    // Adiciona o link ao item da lista
+                    listItem.appendChild(link);
+
+                    // Adiciona o item da lista ao <ul>
+                    menuList.appendChild(listItem);
+                });
+
+            } catch (error) {
+                // Exibe a mensagem de erro no console caso algo dê errado
+                console.error('Ocorreu um erro:', error);
+                
+                // Opcionalmente, você pode exibir uma mensagem de erro na própria página
+                const menuList = document.getElementById('menu-list');
+                menuList.innerHTML = '<li>Não foi possível carregar o menu.</li>';
+            }
+        }
+
+        // Chama a função para buscar e exibir o menu assim que a página é carregada
+        document.addEventListener('DOMContentLoaded', fetchMenu);
+    </script>
+
+</body>
+</html>
