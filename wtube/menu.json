@@ -1,0 +1,12 @@
+[
+    {
+        "label": "Video oficial recente",
+        "href": ".vids/",
+        "requiresAuth": false
+    },
+    {
+        "label": "Transparência",
+        "href": "./transparencia/",
+        "requiresAuth": false
+    }
+]
