@@ -64,16 +64,12 @@
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
     <div id="admin-container" class="container bg-white rounded-xl shadow-lg p-8 space-y-6 max-w-2xl w-full">
         <h1 class="text-3xl font-bold text-center text-blue-700">Firebase CMS - Gerenciador de Conteúdo</h1>
-
         <p class="text-gray-600 text-center">Faça login com uma conta de administrador para salvar e carregar conteúdo no Firestore.</p>
-
         <div id="status-message" class="text-center text-lg font-semibold p-4 rounded-lg bg-gray-200 text-gray-800">
             Por favor, faça login para continuar.
-        </div>
-        
+        </div>                
         <div id="auth-section" class="space-y-4">
-            <h2 class="text-2xl font-bold text-center text-blue-700">Login</h2>
-            
+            <h2 class="text-2xl font-bold text-center text-blue-700">Login</h2>                        
             <button id="googleLoginButton" class="w-full google-button">
                 <svg class="google-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M44.5 20H24V28H37C35.9 31.8 33.3 36.3 29.5 39.1L29.4 39.2L35 43.4L35.1 43.5C39 39.1 41.5 33.2 41.5 26.5C41.5 24.6 41.2 22.8 40.8 21.1H44.5Z" fill="#4285F4"/>
@@ -84,41 +80,34 @@
                 Entrar com Google
             </button>
         </div>
-
         <div id="admin-controls" class="space-y-6" style="display:none;">
             <p id="user-info" class="text-center font-semibold text-gray-700">Bem-vindo, <span id="currentUserEmail"></span>!</p>
             <button id="logoutButton" class="w-full bg-red-500 text-white font-bold py-3 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 hover:bg-red-600">Sair</button>
-
             <hr class="border-gray-300">
-
-            <!-- Salvar Conteúdo -->
+            
             <div class="space-y-4">
-                <h2 class="text-2xl font-bold text-blue-700">Salvar Conteúdo</h2>
-                
+                <h2 class="text-2xl font-bold text-blue-700">Salvar Conteúdo</h2>                                
                 <div>
                     <label for="documentName" class="block text-gray-700 font-semibold mb-1">Nome do Documento (ID):</label>
                     <input type="text" id="documentName" placeholder="Ex: meu-primeiro-documento" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-
+                
                 <div>
                     <label for="internalName" class="block text-gray-700 font-semibold mb-1">Nome Interno:</label>
                     <input type="text" id="internalName" placeholder="Ex: Artigo sobre tecnologia" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
+                </div>                                
                 
                 <div>
                     <label for="content" class="block text-gray-700 font-semibold mb-1">Conteúdo:</label>
                     <textarea id="content" placeholder="Insira seu conteúdo aqui..." rows="8" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                </div>
+                </div>                                
                 
                 <button id="saveButton" onclick="saveContent()" class="w-full btn-primary text-white font-bold py-3 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">Salvar Conteúdo</button>
-            </div>
-            
+            </div>                        
             <hr class="border-gray-300">
-
-            <!-- Abrir Conteúdo -->
+            
             <div class="space-y-4">
-                <h2 class="text-2xl font-bold text-blue-700">Abrir Conteúdo</h2>
-                
+                <h2 class="text-2xl font-bold text-blue-700">Abrir Conteúdo</h2>                                
                 <div>
                     <label for="openDocumentName" class="block text-gray-700 font-semibold mb-1">Nome do Documento para Abrir (ID):</label>
                     <div class="flex items-center space-x-2">
@@ -126,47 +115,45 @@
                         <button id="copyPublicUrlButton" onclick="copyPublicUrl()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm transition duration-300 ease-in-out hover:bg-gray-300">Copiar URL Pública</button>
                     </div>
                 </div>
-
+                
                 <button id="openButton" onclick="openContent()" class="w-full bg-green-500 text-white font-bold py-3 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 hover:bg-green-600">Abrir Conteúdo</button>
-            </div>
+            </div>        
         </div>
-
+        
         <div id="contentDisplay" class="bg-gray-50 p-6 rounded-lg shadow-inner space-y-4">
             <h3 class="text-xl font-bold text-blue-700">Conteúdo Recuperado:</h3>
             <p id="displayInternalName" class="text-gray-700">Nome Interno: <span class="font-normal text-gray-600">N/A</span></p>
             <p id="displayContent" class="text-gray-700">Conteúdo: <span class="font-normal text-gray-600">N/A</span></p>
         </div>
-
-        <!-- Custom Modal for Alerts -->
+        
         <div id="custom-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
             <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-4 text-center">
                 <p id="modal-message" class="text-lg font-medium mb-4"></p>
                 <button onclick="hideModal()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300">OK</button>
             </div>
         </div>
-    </div>
+    </div>        
     
-    <!-- Firebase SDKs -->
     <script type="module">
         // Importa os módulos necessários do Firebase (v11)
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-
+        
         // --- Variáveis globais do Canvas (não altere) ---
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;                
         
         let db, auth, app;
-        let isUserAdmin = false;
+        let isUserAdmin = false;                
         
-        // --- Lógica do Visualizador Público (executada antes do restante do script) ---
+        // --- Lógica do Visualizador Público ---
         // Verifica se a URL corresponde ao padrão de visualização pública
         const publicUrlDomain = "wikizero.wzzm.org";
         const publicUrlPathPrefix = "/games/";
+        const isPublicViewer = window.location.hostname === publicUrlDomain && window.location.pathname.startsWith(publicUrlPathPrefix);
         
-        if (window.location.hostname === publicUrlDomain && window.location.pathname.startsWith(publicUrlPathPrefix)) {
+        if (isPublicViewer) {
             const pathParts = window.location.pathname.split('/');
             const docIdFromUrl = pathParts[2];
             
@@ -178,7 +165,7 @@
                     const publicAuth = getAuth(publicApp);
                     const publicDb = getFirestore(publicApp);
                     const collectionName = "HTML2W";
-
+                    
                     // Autentica anonimamente para permitir leitura, se as regras do Firestore permitirem
                     signInAnonymously(publicAuth)
                         .then(() => {
@@ -204,219 +191,214 @@
                     console.error("Erro fatal ao inicializar o Firebase para o visualizador:", error);
                     document.body.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Erro fatal na inicialização do Firebase: ${error.message}</div>`;
                 }
-                
-                return;
-            }
-        }
-        
-        // --- Lógica do CMS Admin (só é executada se a URL não for de visualização) ---
-        
-        // Inicializa o Firebase com autenticação para o CMS
-        try {
-            app = initializeApp(firebaseConfig, "admin-app");
-            auth = getAuth(app);
-            db = getFirestore(app);
-            
-            if (initialAuthToken) {
-              signInWithCustomToken(auth, initialAuthToken).then(() => {
-                  console.log("Autenticação Canvas bem-sucedida.");
-              }).catch(error => {
-                  console.error("Erro de autenticação Canvas:", error);
-              });
             } else {
-              console.warn("Nenhum token de autenticação Canvas encontrado.");
+                document.body.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Documento não especificado na URL.</div>`;
             }
-            console.log("Firebase inicializado para o CMS com sucesso.");
-        } catch (error) {
-            console.error("Erro fatal ao inicializar o Firebase para o CMS:", error);
-            const statusDiv = document.getElementById('status-message');
-            statusDiv.textContent = `Erro fatal na inicialização do Firebase: ${error.message}`;
-            statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-red-200 text-red-800';
-            document.getElementById('admin-container').style.display = 'none';
-        }
-
-        // --- Funções de Autenticação e Eventos ---
-        const googleLoginButton = document.getElementById('googleLoginButton');
-        const logoutButton = document.getElementById('logoutButton');
-
-        const provider = new GoogleAuthProvider();
-
-        googleLoginButton.addEventListener('click', async () => {
+        } else {
+            // --- Lógica do CMS Admin ---
+            
+            // Inicializa o Firebase com autenticação para o CMS
             try {
-                await signInWithPopup(auth, provider);
-                showMessage("Login realizado com sucesso! Verificando permissões...");
+                app = initializeApp(firebaseConfig, "admin-app");
+                auth = getAuth(app);
+                db = getFirestore(app);
+                
+                if (initialAuthToken) {
+                    signInWithCustomToken(auth, initialAuthToken).then(() => {
+                        console.log("Autenticação Canvas bem-sucedida.");
+                    }).catch(error => {
+                        console.error("Erro de autenticação Canvas:", error);
+                    });
+                } else {
+                    console.warn("Nenhum token de autenticação Canvas encontrado.");
+                }
+                console.log("Firebase inicializado para o CMS com sucesso.");
             } catch (error) {
-                console.error("Erro de login com Google:", error);
-                showMessage(`Erro de login: ${error.message}`);
+                console.error("Erro fatal ao inicializar o Firebase para o CMS:", error);
+                const statusDiv = document.getElementById('status-message');
+                statusDiv.textContent = `Erro fatal na inicialização do Firebase: ${error.message}`;
+                statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-red-200 text-red-800';
+                document.getElementById('admin-container').style.display = 'none';
             }
-        });
-
-        logoutButton.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                showMessage("Você saiu da sua conta.");
-            } catch (error) {
-                console.error("Erro ao sair:", error);
-                showMessage(`Erro ao sair: ${error.message}`);
+            
+            // --- Funções de UI ---
+            function showModal(msg) {
+                const modal = document.getElementById('custom-modal');
+                const modalMessage = document.getElementById('modal-message');
+                modalMessage.textContent = msg;
+                modal.style.display = 'flex';
             }
-        });
-
-        onAuthStateChanged(auth, async (user) => {
-            const statusDiv = document.getElementById('status-message');
-            const authSection = document.getElementById('auth-section');
-            const adminControlsDiv = document.getElementById('admin-controls');
-            const currentUserEmailSpan = document.getElementById('currentUserEmail');
-
-            if (user) {
-                authSection.style.display = 'none';
-                currentUserEmailSpan.textContent = user.email || 'Usuário';
-
+            
+            window.hideModal = function() {
+                const modal = document.getElementById('custom-modal');
+                modal.style.display = 'none';
+            }
+            
+            function showMessage(msg) {
+                showModal(msg);
+            }
+            
+            // --- Funções de Autenticação e Eventos ---
+            const googleLoginButton = document.getElementById('googleLoginButton');
+            const logoutButton = document.getElementById('logoutButton');
+            
+            const provider = new GoogleAuthProvider();
+            
+            googleLoginButton.addEventListener('click', async () => {
                 try {
-                    const userDocRef = doc(db, "users", user.uid);
-                    const userDocSnap = await getDoc(userDocRef);
-
-                    if (userDocSnap.exists() && userDocSnap.data().isAdmin === true) {
-                        isUserAdmin = true;
-                        statusDiv.textContent = `Autenticado como administrador (${user.uid}). Você pode salvar e abrir conteúdo.`;
-                        statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-green-200 text-green-800';
-                        adminControlsDiv.style.display = 'block';
-                    } else {
+                    await signInWithPopup(auth, provider);
+                    showMessage("Login realizado com sucesso! Verificando permissões...");
+                } catch (error) {
+                    console.error("Erro de login com Google:", error);
+                    showMessage(`Erro de login: ${error.message}`);
+                }
+            });
+            
+            logoutButton.addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                    showMessage("Você saiu da sua conta.");
+                } catch (error) {
+                    console.error("Erro ao sair:", error);
+                    showMessage(`Erro ao sair: ${error.message}`);
+                }
+            });
+            
+            onAuthStateChanged(auth, async (user) => {
+                const statusDiv = document.getElementById('status-message');
+                const authSection = document.getElementById('auth-section');
+                const adminControlsDiv = document.getElementById('admin-controls');
+                const currentUserEmailSpan = document.getElementById('currentUserEmail');
+                
+                if (user) {
+                    authSection.style.display = 'none';
+                    currentUserEmailSpan.textContent = user.email || 'Usuário';
+                    
+                    try {
+                        const userDocRef = doc(db, "users", user.uid);
+                        const userDocSnap = await getDoc(userDocRef);
+                        
+                        if (userDocSnap.exists() && userDocSnap.data().isAdmin === true) {
+                            isUserAdmin = true;
+                            statusDiv.textContent = `Autenticado como administrador (${user.uid}). Você pode salvar e abrir conteúdo.`;
+                            statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-green-200 text-green-800';
+                            adminControlsDiv.style.display = 'block';
+                        } else {
+                            isUserAdmin = false;
+                            statusDiv.textContent = `Autenticado, mas você não é um administrador. Seu UID é: ${user.uid}. O acesso é restrito.`;
+                            statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-yellow-200 text-yellow-800';
+                            adminControlsDiv.style.display = 'none';
+                        }
+                    } catch (error) {
+                        console.error("Erro ao verificar status de admin:", error);
                         isUserAdmin = false;
-                        statusDiv.textContent = `Autenticado, mas você não é um administrador. Seu UID é: ${user.uid}. O acesso é restrito.`;
-                        statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-yellow-200 text-yellow-800';
+                        statusDiv.textContent = `Erro ao verificar status de admin: ${error.message}`;
+                        statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-red-200 text-red-800';
                         adminControlsDiv.style.display = 'none';
                     }
-                } catch (error) {
-                    console.error("Erro ao verificar status de admin:", error);
+                } else {
                     isUserAdmin = false;
-                    statusDiv.textContent = `Erro ao verificar status de admin: ${error.message}`;
-                    statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-red-200 text-red-800';
+                    statusDiv.textContent = "Por favor, faça login para continuar.";
+                    statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-gray-200 text-gray-800';
+                    authSection.style.display = 'block';
                     adminControlsDiv.style.display = 'none';
                 }
-            } else {
-                isUserAdmin = false;
-                statusDiv.textContent = "Por favor, faça login para continuar.";
-                statusDiv.className = 'text-center text-lg font-semibold p-4 rounded-lg bg-gray-200 text-gray-800';
-                authSection.style.display = 'block';
-                adminControlsDiv.style.display = 'none';
-            }
-        });
-
-        // --- Funções de UI ---
-
-        function showModal(msg) {
-            const modal = document.getElementById('custom-modal');
-            const modalMessage = document.getElementById('modal-message');
-            modalMessage.textContent = msg;
-            modal.style.display = 'flex';
-        }
-
-        window.hideModal = function() {
-            const modal = document.getElementById('custom-modal');
-            modal.style.display = 'none';
-        }
-
-        function showMessage(msg) {
-            showModal(msg);
-        }
-        
-        // --- Funções do Firestore (CMS) ---
-        const collectionName = "HTML2W";
-
-        window.saveContent = async function() {
-            if (!isUserAdmin) {
-                showMessage('Você não tem permissão para salvar conteúdo. Apenas administradores podem fazer isso.');
-                return;
-            }
-
-            const documentName = document.getElementById('documentName').value.trim();
-            const internalName = document.getElementById('internalName').value.trim();
-            const content = document.getElementById('content').value;
-
-            if (!documentName || !internalName || !content) {
-                showMessage('Por favor, preencha todos os campos.');
-                return;
-            }
-
-            try {
-                const docRef = doc(db, collectionName, documentName);
-                await setDoc(docRef, {
-                    nomeInterno: internalName,
-                    conteudo: content,
-                    userId: auth.currentUser.uid,
-                    timestamp: serverTimestamp()
-                });
-                showMessage(`Documento "${documentName}" salvo com sucesso!`);
-                
-                document.getElementById('documentName').value = '';
-                document.getElementById('internalName').value = '';
-                document.getElementById('content').value = '';
-            } catch (error) {
-                console.error("Erro ao salvar documento:", error);
-                showMessage(`Erro ao salvar documento: ${error.message}`);
-            }
-        }
-
-        window.openContent = async function() {
-            if (!isUserAdmin) {
-                showMessage('Você não tem permissão para ler este conteúdo. Apenas administradores podem fazer isso.');
-                return;
-            }
-
-            const openDocumentName = document.getElementById('openDocumentName').value.trim();
-            const displayInternalName = document.getElementById('displayInternalName').querySelector('span');
-            const displayContent = document.getElementById('displayContent').querySelector('span');
+            });
             
-            displayInternalName.textContent = 'N/A';
-            displayContent.textContent = 'N/A';
+            // --- Funções do Firestore (CMS) ---
+            const collectionName = "HTML2W";
             
-            if (!openDocumentName) {
-                showMessage('Por favor, insira o nome do documento para abrir.');
-                return;
-            }
-
-            try {
-                const docRef = doc(db, collectionName, openDocumentName);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    displayInternalName.textContent = data.nomeInterno || 'N/A';
-                    displayContent.textContent = data.conteudo || 'N/A';
-                    showMessage(`Documento "${openDocumentName}" carregado com sucesso!`);
-                } else {
-                    showMessage(`Documento "${openDocumentName}" não encontrado.`);
+            window.saveContent = async function() {
+                if (!isUserAdmin) {
+                    showMessage('Você não tem permissão para salvar conteúdo. Apenas administradores podem fazer isso.');
+                    return;
                 }
-            } catch (error) {
-                console.error("Erro ao abrir documento:", error);
-                showMessage(`Erro ao abrir documento: ${error.message}`);
+                
+                const documentName = document.getElementById('documentName').value.trim();
+                const internalName = document.getElementById('internalName').value.trim();
+                const content = document.getElementById('content').value;
+                
+                if (!documentName || !internalName || !content) {
+                    showMessage('Por favor, preencha todos os campos.');
+                    return;
+                }
+                
+                try {
+                    const docRef = doc(db, collectionName, documentName);
+                    await setDoc(docRef, {
+                        nomeInterno: internalName,
+                        conteudo: content,
+                        userId: auth.currentUser.uid,
+                        timestamp: serverTimestamp()
+                    });
+                    showMessage(`Documento "${documentName}" salvo com sucesso!`);
+                    
+                    document.getElementById('documentName').value = '';
+                    document.getElementById('internalName').value = '';
+                    document.getElementById('content').value = '';
+                } catch (error) {
+                    console.error("Erro ao salvar documento:", error);
+                    showMessage(`Erro ao salvar documento: ${error.message}`);
+                }
+            }
+            
+            window.openContent = async function() {
+                if (!isUserAdmin) {
+                    showMessage('Você não tem permissão para ler este conteúdo. Apenas administradores podem fazer isso.');
+                    return;
+                }
+                
+                const openDocumentName = document.getElementById('openDocumentName').value.trim();
+                const displayInternalName = document.getElementById('displayInternalName').querySelector('span');
+                const displayContent = document.getElementById('displayContent').querySelector('span');
+                
+                displayInternalName.textContent = 'N/A';
+                displayContent.textContent = 'N/A';
+                
+                if (!openDocumentName) {
+                    showMessage('Por favor, insira o nome do documento para abrir.');
+                    return;
+                }
+                
+                try {
+                    const docRef = doc(db, collectionName, openDocumentName);
+                    const docSnap = await getDoc(docRef);
+                    
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        displayInternalName.textContent = data.nomeInterno || 'N/A';
+                        displayContent.textContent = data.conteudo || 'N/A';
+                        showMessage(`Documento "${openDocumentName}" carregado com sucesso!`);
+                    } else {
+                        showMessage(`Documento "${openDocumentName}" não encontrado.`);
+                    }
+                } catch (error) {
+                    console.error("Erro ao abrir documento:", error);
+                    showMessage(`Erro ao abrir documento: ${error.message}`);
+                }
+            }
+            
+            // Função para copiar a URL pública
+            window.copyPublicUrl = function() {
+                const docId = document.getElementById('openDocumentName').value.trim();
+                if (!docId) {
+                    showMessage('Por favor, insira o nome do documento para gerar a URL.');
+                    return;
+                }
+                
+                const publicUrl = `https://${publicUrlDomain}${publicUrlPathPrefix}${docId}/index.html`;
+                
+                // Usa document.execCommand para copiar o texto para a área de transferência
+                const tempInput = document.createElement('input');
+                tempInput.value = publicUrl;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                
+                showMessage(`URL pública copiada: ${publicUrl}`);
             }
         }
-
-        // Função para copiar a URL pública
-        window.copyPublicUrl = function() {
-            const docId = document.getElementById('openDocumentName').value.trim();
-            if (!docId) {
-                showMessage('Por favor, insira o nome do documento para gerar a URL.');
-                return;
-            }
-
-            // Constrói a URL com base no nome do documento
-            // Nota: Este é um exemplo, a URL real dependerá da sua configuração de hospedagem.
-            // O padrão assume que o nome do documento é a terceira parte do path.
-            const publicUrl = `https://${publicUrlDomain}${publicUrlPathPrefix}${docId}/index.html`;
-
-            // Usa document.execCommand para copiar o texto para a área de transferência
-            const tempInput = document.createElement('input');
-            tempInput.value = publicUrl;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-
-            showMessage(`URL pública copiada: ${publicUrl}`);
-        }
-
     </script>
 </body>
 </html>
