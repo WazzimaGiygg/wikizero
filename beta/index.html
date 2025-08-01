@@ -2,151 +2,215 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Visualizador de MenuConfig - WZZM</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Firebase Firestore CLI</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 30px;
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
-      align-items: center;
+      background-color: #1c1c1c;
+      color: #00ff00;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 20px;
     }
-    .container {
-      background: white;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      max-width: 800px;
-      width: 100%;
-    }
-    h1 {
-      text-align: center;
-      color: #0056b3;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      font-weight: bold;
-    }
-    input[type="text"] {
-      width: 100%;
+    #terminal {
+      background-color: #000;
+      border: 1px solid #00ff00;
       padding: 10px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      padding: 10px 15px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 5px;
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    pre {
-      background-color: #eee;
-      padding: 15px;
-      border-radius: 5px;
+      height: 600px;
+      overflow-y: scroll;
       white-space: pre-wrap;
-      word-wrap: break-word;
     }
-    .error {
-      color: red;
+    #input-line {
+      display: flex;
       margin-top: 10px;
-      text-align: center;
     }
-    .message {
-      margin-top: 10px;
-      text-align: center;
+    #prompt {
+      color: #00ff00;
+      margin-right: 5px;
+    }
+    #command-input {
+      background: none;
+      border: none;
+      color: #00ff00;
+      flex-grow: 1;
+      caret-color: #00ff00;
+    }
+    #command-input:focus {
+      outline: none;
+    }
+    .output-success {
+      color: #00ff00;
+    }
+    .output-error {
+      color: #ff0000;
+    }
+    .output-info {
+      color: #add8e6;
+    }
+    .output-warn {
+      color: #ffff00;
     }
   </style>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-<div class="container">
-  <h1>Visualizador de MenuConfig JSON</h1>
-  <div class="form-group">
-    <label for="searchIdsite">ID do Site:</label>
-    <input type="text" id="searchIdsite" placeholder="ex: wzzm.org">
-    <button id="searchButton">Buscar JSON</button>
+
+  <h1>Firebase Firestore CLI</h1>
+  <div id="terminal"></div>
+  <div id="input-line">
+    <span id="prompt">firestore-cli ></span>
+    <input type="text" id="command-input" autofocus />
   </div>
-  <p id="message" class="message"></p>
-  <div id="json-output"></div>
-</div>
 
 <script>
-  // Sua configuração do Firebase. Não se esqueça de preencher com as credenciais corretas.
+  // =================================================================
+  // Substitua este objeto com a sua própria configuração do Firebase
+  // =================================================================
   const firebaseConfig = {
-    apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
-    authDomain: "wzzm-ce3fc.firebaseapp.com",
-    projectId: "wzzm-ce3fc",
-    storageBucket: "wzzm-ce3fc.appspot.com",
-    messagingSenderId: "249427877153",
-    appId: "1:249427877153:web:0e4297294794a5aadeb260"
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_AUTH_DOMAIN",
+    projectId: "SEU_PROJECT_ID",
+    storageBucket: "SEU_STORAGE_BUCKET",
+    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+    appId: "SEU_APP_ID"
   };
 
+  // Inicializa o Firebase
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  const searchIdsiteInput = document.getElementById('searchIdsite');
-  const searchButton = document.getElementById('searchButton');
-  const jsonOutputDiv = document.getElementById('json-output');
-  const messageElement = document.getElementById('message');
+  const terminal = document.getElementById('terminal');
+  const commandInput = document.getElementById('command-input');
+  const prompt = document.getElementById('prompt');
 
-  searchButton.addEventListener('click', async () => {
-    const idsite = searchIdsiteInput.value.trim().toLowerCase();
+  // Adiciona uma linha de texto ao terminal
+  function appendOutput(text, className = '') {
+    const p = document.createElement('p');
+    p.textContent = text;
+    if (className) p.classList.add(className);
+    terminal.appendChild(p);
+    terminal.scrollTop = terminal.scrollHeight; // Auto-scroll para baixo
+  }
+
+  // Comandos disponíveis
+  const commands = {
+    'help': () => {
+      appendOutput('Comandos disponíveis:');
+      appendOutput('  scan <collection> - Escaneia uma coleção e mostra estatísticas.');
+      appendOutput('  scan all - Escaneia todas as coleções. (Atenção: pode ser lento!)');
+      appendOutput('  clear - Limpa o terminal.');
+      appendOutput('  help - Exibe esta ajuda.');
+    },
+    'clear': () => {
+      terminal.innerHTML = '';
+    }
+  };
+
+  // Função principal para processar o comando
+  async function processCommand(input) {
+    appendOutput(`firestore-cli > ${input}`);
+    const [command, ...args] = input.trim().split(/\s+/);
     
-    if (!idsite) {
-      jsonOutputDiv.innerHTML = '';
-      messageElement.textContent = 'Por favor, digite um ID de site.';
-      messageElement.className = 'error';
+    if (command === 'clear') {
+      commands.clear();
       return;
     }
-
-    messageElement.textContent = 'Buscando...';
-    messageElement.className = 'message';
-    jsonOutputDiv.innerHTML = '';
-
-    try {
-      const snapshot = await db.collection("menuconfig").where("idsite", "==", idsite).get();
-      
-      const menuItems = [];
-      if (snapshot.empty) {
-        messageElement.textContent = `Nenhum menu encontrado para o ID do site: "${idsite}".`;
-        messageElement.className = 'error';
-      } else {
-        snapshot.forEach(doc => {
-          menuItems.push(doc.data());
-        });
-
-        // Converte o array de objetos para uma string JSON formatada
-        const jsonString = JSON.stringify(menuItems, null, 2);
-        
-        // Cria um elemento <pre> para exibir o JSON
-        const preElement = document.createElement('pre');
-        preElement.textContent = jsonString;
-        jsonOutputDiv.appendChild(preElement);
-
-        messageElement.textContent = `JSON para o ID do site "${office.wzzm.org}" importado com sucesso.`;
-        messageElement.className = 'message';
+    if (command === 'help') {
+      commands.help();
+      return;
+    }
+    
+    if (command === 'scan') {
+      const collectionName = args[0];
+      if (!collectionName) {
+        appendOutput('Erro: Nome da coleção não fornecido. Use "scan <collection>" ou "scan all".', 'output-error');
+        return;
       }
-    } catch (err) {
-      console.error('Erro ao buscar menu:', err);
-      jsonOutputDiv.innerHTML = '';
-      messageElement.textContent = 'Erro ao buscar o menu.';
-      messageElement.className = 'error';
+      
+      if (collectionName === 'all') {
+        await scanAllCollections();
+      } else {
+        await scanCollection(collectionName);
+      }
+      return;
+    }
+    
+    appendOutput(`Comando não reconhecido: "${command}". Digite 'help' para ver os comandos.`, 'output-error');
+  }
+
+  // Função para escanear uma única coleção
+  async function scanCollection(collectionName) {
+    try {
+      appendOutput(`Escaneando coleção "${collectionName}"...`, 'output-info');
+      const snapshot = await db.collection(collectionName).get();
+      
+      let docCount = 0;
+      let fieldCount = 0;
+      
+      snapshot.forEach(doc => {
+        docCount++;
+        const data = doc.data();
+        fieldCount += Object.keys(data).length;
+      });
+      
+      appendOutput(`- Coleção "${collectionName}":`, 'output-success');
+      appendOutput(`  - Total de documentos: ${docCount}`);
+      appendOutput(`  - Total de campos: ${fieldCount}`);
+      
+    } catch (error) {
+      if (error.code === 'permission-denied') {
+        appendOutput(`  - ERRO: Permissão negada para ler a coleção "${collectionName}".`, 'output-error');
+        appendOutput(`    Verifique as regras de segurança do Firebase Firestore.`, 'output-error');
+      } else if (error.message.includes('No document to be read')) {
+         appendOutput(`  - ERRO: A coleção "${collectionName}" não existe ou está vazia.`, 'output-warn');
+      } else {
+        appendOutput(`  - Ocorreu um erro ao escanear a coleção "${collectionName}": ${error.message}`, 'output-error');
+      }
+    }
+  }
+
+  // Função para escanear todas as coleções
+  async function scanAllCollections() {
+    try {
+      appendOutput('Buscando todas as coleções... (Isso pode demorar)', 'output-info');
+      
+      // Nota: Esta é uma maneira de obter nomes de coleções no Firestore Web SDK
+      // que requer que você tenha ao menos 1 documento em cada coleção.
+      // Se a coleção estiver vazia, ela não aparecerá na lista.
+      const snapshot = await db.listCollections();
+      
+      if (snapshot.length === 0) {
+        appendOutput('Nenhuma coleção encontrada.', 'output-warn');
+        return;
+      }
+      
+      for (const collectionRef of snapshot) {
+        await scanCollection(collectionRef.id);
+      }
+      appendOutput('Varredura de todas as coleções concluída.', 'output-success');
+      
+    } catch (error) {
+      appendOutput(`Ocorreu um erro ao buscar coleções: ${error.message}`, 'output-error');
+    }
+  }
+
+  // Listener para a tecla Enter
+  commandInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      const commandText = commandInput.value.trim();
+      if (commandText) {
+        processCommand(commandText);
+      }
+      commandInput.value = ''; // Limpa a entrada após o comando
     }
   });
+
+  // Mensagem de boas-vindas
+  window.onload = () => {
+    appendOutput('Bem-vindo ao Firebase Firestore CLI.');
+    appendOutput('Digite "help" para ver os comandos disponíveis.');
+  };
 </script>
+
 </body>
 </html>
