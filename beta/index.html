@@ -63,25 +63,12 @@
   </div>
 
 <script>
-  // =================================================================
-  // Substitua este objeto com a sua própria configuração do Firebase
-  // =================================================================
-  const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
-    authDomain: "SEU_AUTH_DOMAIN",
-    projectId: "SEU_PROJECT_ID",
-    storageBucket: "SEU_STORAGE_BUCKET",
-    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-    appId: "SEU_APP_ID"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
   const terminal = document.getElementById('terminal');
   const commandInput = document.getElementById('command-input');
   
-  let commandsConfig = []; // Para armazenar os comandos do JSON
+  let commandsConfig = null; // Para armazenar os comandos do JSON
+  let firebaseInstance = null;
+  let db = null;
 
   function appendOutput(text, className = '') {
     const p = document.createElement('p');
@@ -96,7 +83,6 @@
     'scanCollection': scanCollection
   };
 
-  // Carrega os comandos do arquivo JSON
   async function loadCommands() {
     try {
       appendOutput('Carregando comandos...', 'output-info');
@@ -105,11 +91,16 @@
         throw new Error(`Erro ao carregar commands.json: ${response.statusText}`);
       }
       commandsConfig = await response.json();
-      appendOutput('Comandos carregados com sucesso.');
+      
+      // Inicializa o Firebase com as configurações do JSON
+      firebaseInstance = firebase.initializeApp(commandsConfig.firebaseConfig);
+      db = firebaseInstance.firestore();
+      
+      appendOutput('Comandos e configurações do Firebase carregados com sucesso.');
       appendOutput('Bem-vindo ao Firebase Firestore CLI.');
       appendOutput('Digite "help" para ver os comandos disponíveis.');
     } catch (error) {
-      appendOutput(`Erro fatal: Não foi possível carregar os comandos. ${error.message}`, 'output-error');
+      appendOutput(`Erro fatal: ${error.message}`, 'output-error');
     }
   }
 
@@ -163,7 +154,7 @@
       }
       
       for (const collectionRef of collectionsSnapshot) {
-        await scanCollection([collectionRef.id]); // Passa o ID como um array para a função
+        await scanCollection([collectionRef.id]);
       }
       appendOutput('Varredura de todas as coleções concluída.', 'output-success');
       
@@ -172,14 +163,13 @@
     }
   }
 
-  // --- Processador de comandos principal ---
   async function processCommand(input) {
     appendOutput(`firestore-cli > ${input}`);
     const parts = input.trim().split(/\s+/);
     const commandName = parts[0];
     const args = parts.slice(1);
     
-    const commandDef = commandsConfig.find(cmd => cmd.command === commandName);
+    const commandDef = commandsConfig.commands.find(cmd => cmd.name === commandName);
     
     if (!commandDef) {
       appendOutput(`Comando não reconhecido: "${commandName}". Digite 'help' para ver os comandos.`, 'output-error');
@@ -188,7 +178,13 @@
     
     switch (commandDef.action) {
       case 'display':
-        commandDef.output.forEach(line => appendOutput(line));
+        commandDef.output.forEach(line => {
+          let outputLine = line;
+          // Substitui os placeholders do JSON
+          outputLine = outputLine.replace(/\$firebase\.projectId/g, commandsConfig.firebaseConfig.projectId);
+          outputLine = outputLine.replace(/\$firebase\.apiKey/g, commandsConfig.firebaseConfig.apiKey);
+          appendOutput(outputLine);
+        });
         break;
       case 'clear':
         terminal.innerHTML = '';
@@ -216,7 +212,6 @@
     }
   });
 
-  // Inicia o carregamento dos comandos ao carregar a página
   window.onload = loadCommands;
 </script>
 
