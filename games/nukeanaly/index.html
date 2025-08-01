@@ -148,7 +148,6 @@
         let isUserAdmin = false;                
         
         // --- Lógica do Visualizador Público ---
-        // Verifica se a URL corresponde ao padrão de visualização pública
         const publicUrlDomain = "wikizero.wzzm.org";
         const publicUrlPathPrefix = "/games/";
         const isPublicViewer = window.location.hostname === publicUrlDomain && window.location.pathname.startsWith(publicUrlPathPrefix);
@@ -166,7 +165,6 @@
                     const publicDb = getFirestore(publicApp);
                     const collectionName = "HTML2W";
                     
-                    // Autentica anonimamente para permitir leitura, se as regras do Firestore permitirem
                     signInAnonymously(publicAuth)
                         .then(() => {
                             const q = query(collection(publicDb, collectionName), where("nomeInterno", "==", docIdFromUrl));
@@ -197,7 +195,6 @@
         } else {
             // --- Lógica do CMS Admin ---
             
-            // Inicializa o Firebase com autenticação para o CMS
             try {
                 app = initializeApp(firebaseConfig, "admin-app");
                 auth = getAuth(app);
