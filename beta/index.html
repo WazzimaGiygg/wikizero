@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Visualizador de MenuConfig - WZZM</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 30px;
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 800px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      color: #0056b3;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      font-weight: bold;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 15px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    pre {
+      background-color: #eee;
+      padding: 15px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .message {
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Visualizador de MenuConfig JSON</h1>
+  <div class="form-group">
+    <label for="searchIdsite">ID do Site:</label>
+    <input type="text" id="searchIdsite" placeholder="ex: wzzm.org">
+    <button id="searchButton">Buscar JSON</button>
+  </div>
+  <p id="message" class="message"></p>
+  <div id="json-output"></div>
+</div>
+
+<script>
+  // Sua configuração do Firebase. Não se esqueça de preencher com as credenciais corretas.
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
+    authDomain: "wzzm-ce3fc.firebaseapp.com",
+    projectId: "wzzm-ce3fc",
+    storageBucket: "wzzm-ce3fc.appspot.com",
+    messagingSenderId: "249427877153",
+    appId: "1:249427877153:web:0e4297294794a5aadeb260"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const searchIdsiteInput = document.getElementById('searchIdsite');
+  const searchButton = document.getElementById('searchButton');
+  const jsonOutputDiv = document.getElementById('json-output');
+  const messageElement = document.getElementById('message');
+
+  searchButton.addEventListener('click', async () => {
+    const idsite = searchIdsiteInput.value.trim().toLowerCase();
+    
+    if (!idsite) {
+      jsonOutputDiv.innerHTML = '';
+      messageElement.textContent = 'Por favor, digite um ID de site.';
+      messageElement.className = 'error';
+      return;
+    }
+
+    messageElement.textContent = 'Buscando...';
+    messageElement.className = 'message';
+    jsonOutputDiv.innerHTML = '';
+
+    try {
+      const snapshot = await db.collection("menuconfig").where("idsite", "==", idsite).get();
+      
+      const menuItems = [];
+      if (snapshot.empty) {
+        messageElement.textContent = `Nenhum menu encontrado para o ID do site: "${idsite}".`;
+        messageElement.className = 'error';
+      } else {
+        snapshot.forEach(doc => {
+          menuItems.push(doc.data());
+        });
+
+        // Converte o array de objetos para uma string JSON formatada
+        const jsonString = JSON.stringify(menuItems, null, 2);
+        
+        // Cria um elemento <pre> para exibir o JSON
+        const preElement = document.createElement('pre');
+        preElement.textContent = jsonString;
+        jsonOutputDiv.appendChild(preElement);
+
+        messageElement.textContent = `JSON para o ID do site "${office.wzzm.org}" importado com sucesso.`;
+        messageElement.className = 'message';
+      }
+    } catch (err) {
+      console.error('Erro ao buscar menu:', err);
+      jsonOutputDiv.innerHTML = '';
+      messageElement.textContent = 'Erro ao buscar o menu.';
+      messageElement.className = 'error';
+    }
+  });
+</script>
+</body>
+</html>
