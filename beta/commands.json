@@ -1,0 +1,48 @@
+{
+  "commands": [
+    {
+      "name": "help",
+      "description": "Exibe a lista de comandos disponíveis.",
+      "action": "display",
+      "output": [
+        "Comandos disponíveis:",
+        "  scan <collection> - Escaneia uma coleção e mostra estatísticas.",
+        "  scan all - Escaneia todas as coleções.",
+        "  clear - Limpa o terminal.",
+        "  help - Exibe esta ajuda."
+      ]
+    },
+    {
+      "name": "clear",
+      "description": "Limpa o terminal.",
+      "action": "clear"
+    },
+    {
+      "name": "scan",
+      "description": "Escaneia uma coleção do Firestore.",
+      "action": "execute",
+      "function": "scanCollection",
+      "params": [
+        "collectionName"
+      ]
+    },
+    {
+      "name": "firebase",
+      "description": "Informações sobre a conexão com o Firebase.",
+      "action": "display",
+      "output": [
+        "Conectado ao projeto:",
+        "  Projeto ID: $firebase.projectId",
+        "  API Key: $firebase.apiKey"
+      ]
+    }
+  ],
+  "firebaseConfig": {
+    "apiKey": "AIzaSyB9GkSqTIZ0kbVsba_WOdQeVAETrF9qna0",
+    "authDomain": "wzzm-ce3fc.firebaseapp.com",
+    "projectId": "wzzm-ce3fc",
+    "storageBucket": "wzzm-ce3fc.appspot.com",
+    "messagingSenderId": "249427877153",
+    "appId": "1:249427877153:web:0e4297294794a5aadeb260"
+  }
+}
