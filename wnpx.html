@@ -97,17 +97,21 @@
         }
     }
 
-    // Função principal para buscar todos os relatórios
+    // Função principal para buscar todos os relatórios após a autenticação
     async function fetchAllReports() {
-        // As regras de segurança do seu Firebase exigem que o usuário esteja autenticado para ler a coleção 'financialData'.
-        // Se você não tiver um sistema de login implementado, você precisará fazer um login de forma manual (para fins de teste).
-        // Exemplo: firebase.auth().signInWithEmailAndPassword("seu-email@dominio.com", "sua-senha");
-        
-        // Simplesmente chamamos a função de busca
-        await fetchFinancialData();
-
-        loadingElement.style.display = 'none';
-        reportContentElement.style.display = 'block';
+        try {
+            // Autentica o usuário anonimamente para satisfazer a regra isSignedIn()
+            await firebase.auth().signInAnonymously();
+            console.log("Usuário autenticado anonimamente.");
+            
+            await fetchFinancialData();
+            
+            loadingElement.style.display = 'none';
+            reportContentElement.style.display = 'block';
+        } catch (error) {
+            console.error("Erro na autenticação anônima ou ao buscar dados:", error);
+            loadingElement.innerText = "Não foi possível carregar os dados. Verifique suas regras de segurança ou o status do Firebase.";
+        }
     }
 
     // Inicie o processo de busca quando a página carregar
