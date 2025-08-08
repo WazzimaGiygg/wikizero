@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Atenção: Navegador Não Compatível</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Estilos básicos para o conteúdo da página */
+        .content-area p, .content-area ul, .content-area ol {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        .content-area h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        .content-area ul, .content-area ol {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+        }
+        .content-area ol {
+            list-style-type: decimal;
+        }
+        .content-area li {
+            margin-bottom: 0.5rem;
+        }
+        .content-area strong {
+            font-weight: 600; /* Tailwind font-semibold */
+        }
+        .content-area code {
+            background-color: #e2e8f0; /* bg-gray-200 */
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+            font-size: 0.875em;
+            word-wrap: break-word;
+        }
+        .download-button {
+            display: inline-block;
+            margin-right: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 600;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            border: none;
+        }
+        .download-button:hover {
+            background-color: #4338ca;
+        }
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen py-8">
+    <div class="max-w-6xl mx-auto px-4">
+        <h1 style="color: #ff0000; text-align: center;" class="text-4xl font-bold mb-8">Atenção: Navegador Não Compatível</h1>
+
+        <div class="bg-white rounded-lg shadow-md p-6 content-area">
+            <p>Seu navegador não é compatível com os recursos e tecnologias utilizados neste site. Para uma experiência completa e segura, é necessário utilizar um navegador baseado em <strong>Chromium</strong>, como o Google Chrome, Microsoft Edge ou Opera.</p>
+
+            <h3>Detalhes do Erro</h3>
+            <p>
+                <strong>Motivo:</strong> O site requer um ambiente de navegação específico para funcionar corretamente. O seu navegador não atende a esses requisitos.
+            </p>
+            <p>
+                <strong>UID do Erro:</strong> <code id="error-uid">Gerando...</code>
+            </p>
+
+            <h3>Configurações do Seu Navegador</h3>
+            <p>
+                <strong>User Agent:</strong> <code id="user-agent">Carregando...</code>
+            </p>
+            <p>
+                <strong>IP Detectado:</strong> <code id="ip-address">Carregando...</code>
+            </p>
+            <p>
+                <strong>MAC Detectado:</strong> <code id="mac-address">Não é possível obter o endereço MAC do navegador por questões de segurança e privacidade.</code>
+            </p>
+
+            <h3>Configurações Recomendadas</h3>
+            <p>
+                Nós recomendamos o uso de um dos seguintes navegadores para acessar este site:
+            </p>
+            <ul>
+                <li>Google Chrome</li>
+                <li>Microsoft Edge (versão Chromium)</li>
+                <li>Opera</li>
+            </ul>
+
+            <p>Você pode fazer o download do Google Chrome de forma segura e gratuita através do link abaixo:</p>
+            <p>
+                <a href="https://www.google.com/chrome/" target="_blank" class="text-blue-600 hover:text-blue-800 font-semibold">Baixar Google Chrome</a>
+            </p>
+
+            <h3>Opções de Suporte</h3>
+            <p>Para nos ajudar a diagnosticar o problema, você pode baixar as informações de depuração do seu navegador e enviá-las para o nosso suporte técnico. Se o problema persistir, entre em contato com a WZZM pelo e-mail <strong>nukephoenixdeveloper@gmail.com</strong> e anexe os arquivos de log.</p>
+            <div class="flex-container">
+                <button class="download-button" onclick="downloadErrorLog()">Baixar Log de Erro</button>
+                <button class="download-button" onclick="downloadDebugHtml()">Baixar Depuração (HTML)</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Função para gerar um UID aleatório
+        function generateUid() {
+            const S4 = () => (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+            return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+        }
+
+        // Variáveis globais para armazenar os dados
+        let userAgent = navigator.userAgent;
+        let errorUid = generateUid();
+        let userIp = 'Não detectado';
+
+        // Função para buscar o IP do usuário
+        async function fetchUserIp() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                userIp = data.ip;
+                document.getElementById('ip-address').textContent = userIp;
+            } catch (error) {
+                console.error("Erro ao obter o IP:", error);
+                document.getElementById('ip-address').textContent = 'Erro ao obter IP';
+            }
+        }
+
+        // Função para baixar o log de erro (arquivo de texto)
+        function downloadErrorLog() {
+            const logContent = `
+WZZM - Log de Erro de Navegador Incompatível
+===========================================
+
+UID do Erro: ${errorUid}
+Data e Hora: ${new Date().toISOString()}
+
+===========================================
+CONFIGURAÇÕES DO NAVEGADOR
+===========================================
+User Agent: ${userAgent}
+IP Detectado: ${userIp}
+MAC Detectado: Não é possível obter o endereço MAC por questões de segurança.
+
+===========================================
+INFORMAÇÕES ADICIONAIS
+===========================================
+Mensagem: O navegador não é compatível com os requisitos do site.
+`;
+            downloadFile('notchromium_error_log.txt', logContent, 'text/plain');
+        }
+
+        // Função para baixar a depuração em HTML
+        function downloadDebugHtml() {
+            const debugHtmlContent = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Depuração - WZZM</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f2f2f2; }
+        code { background-color: #e2e8f0; padding: 2px 4px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Relatório de Depuração do Navegador</h1>
+        <p>Este arquivo contém as informações técnicas detectadas em seu navegador no momento do erro de compatibilidade.</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Informação</th>
+                    <th>Valor Detectado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>UID do Erro</td>
+                    <td><code>${errorUid}</code></td>
+                </tr>
+                <tr>
+                    <td>Data e Hora</td>
+                    <td><code>${new Date().toISOString()}</code></td>
+                </tr>
+                <tr>
+                    <td>User Agent</td>
+                    <td><code>${userAgent}</code></td>
+                </tr>
+                <tr>
+                    <td>IP Detectado</td>
+                    <td><code>${userIp}</code></td>
+                </tr>
+                <tr>
+                    <td>MAC Detectado</td>
+                    <td><code>Não disponível por motivos de segurança e privacidade do navegador.</code></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2>Recomendações</h2>
+        <p>Para uma experiência completa e segura, por favor, utilize um navegador baseado em Chromium.</p>
+        <p><a href=".download/" >Baixar Google Chrome</a></p>
+    </div>
+</body>
+</html>
+`;
+            downloadFile('notchromium_debug.html', debugHtmlContent, 'text/html');
+        }
+
+        // Função genérica para baixar um arquivo
+        function downloadFile(filename, content, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Executar as funções ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('user-agent').textContent = userAgent;
+            document.getElementById('error-uid').textContent = errorUid;
+            fetchUserIp();
+        });
+    </script>
+</body>
+</html>
