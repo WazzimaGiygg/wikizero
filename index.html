@@ -289,6 +289,16 @@ border-radius: 4px;
 }
 </style>
 <script>
+// Script de redirecionamento para navegadores não-Chromium
+(function() {
+const userAgent = navigator.userAgent;
+const isChromium = !!window.chrome && userAgent.indexOf('Chrome') > -1 && userAgent.indexOf('Edg') === -1 && userAgent.indexOf('OPR') === -1;
+
+if (!isChromium) {
+window.location.href = './notchromium';
+}
+})();
+
 // Script de redirecionamento para mobile
 (function() {
 const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768);
